@@ -1,0 +1,36 @@
+{
+  "name": "datacore-bot",
+  "author": "TemporalAgent7",
+  "version": "0.1.0",
+  "description": "Discord bot for Star Trek Timelines",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "node build/index.js",
+    "start": "npm run build && npm run serve"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^13.7.5",
+    "chokidar": "^3.3.1",
+    "discord.js": "^11.6.4",
+    "dotenv": "^8.2.0",
+    "fuse.js": "^5.1.0",
+    "node-cache": "^5.1.0",
+    "node-fetch": "^2.6.0",
+    "pg": "^8.0.0",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^5.21.6",
+    "sequelize-typescript": "^1.1.0",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2",
+    "yargs": "^15.3.1"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.30",
+    "@types/node-fetch": "^2.5.5",
+    "@types/validator": "^12.0.1",
+    "@types/yargs": "^15.0.4",
+    "typescript": "^3.8.3"
+  }
+}

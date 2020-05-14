@@ -1,0 +1,36 @@
+{
+	"guilds": {
+		"default": {
+			"prefixes": ["-d"],
+			"mentionPrefix": true
+		},
+		"example_id": {
+			"fleetids": ["123", "456"],
+			"overrideDefaultPrefixes": false,
+			"prefixes": ["$"],
+			"ignoreUnknownCommandForPrefix": "$",
+			"commands": [
+				{
+					"command": "stats",
+					"aliases": ["c"],
+					"channelsDisabled": ["cid"],
+					"messageDisabled": "please run this command in the #computer channel"
+				},
+				{
+					"command": "dilemma",
+					"aliases": ["d"]
+				},
+				{
+					"command": "imageAnalysis",
+					"channelsDisabled": []
+				}
+			],
+			"customs": [
+				{
+					"command": "bestdax",
+					"reply": "**Jadzia is the #bestdax**"
+				}
+			]
+		}
+	}
+}
