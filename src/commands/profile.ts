@@ -85,8 +85,11 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 				} else {
 					message.reply(` your profile could not be refreshed; contact the bot owner for help (${playerData ? playerData.error : ''})`);
 				}
-				defaultReply = false;
+			} else {
+				message.reply(` your profile is not set up for automatic refreshes; manually re-upload the profile on the website`);
 			}
+
+			defaultReply = false;
 		}
 
 		if (verb && verb.toLowerCase() === 'fleet') {

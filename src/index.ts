@@ -11,6 +11,14 @@ require('dotenv').config();
 
 const client = new Client();
 
+/*
+For announcements (RSS from forum https://forum.disruptorbeam.com/stt/categories/starfleet-communications/feed.rss)
+https://www.npmjs.com/package/rss-parser
+https://github.com/rbren/rss-parser#readme
+https://github.com/domchristie/turndown
+https://github.com/synzen/Discord.RSS
+*/
+
 DCData.setup(process.env.DC_DATA_PATH!);
 client.login(process.env.BOT_TOKEN);
 

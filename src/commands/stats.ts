@@ -14,6 +14,44 @@ import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import { loadProfile, userFromMessage, applyCrewBuffs } from '../utils/profile';
 import CONFIG from '../utils/config';
 
+function getDifficulty(chronCostRank: number): string {
+	let percentage = Math.round(100 - (chronCostRank * 100) / DCData.totalCrew());
+
+	if (percentage < 11) {
+		return `Super Easy (${percentage}%)`;
+	}
+
+	if (percentage < 22) {
+		return `Very Easy (${percentage}%)`;
+	}
+
+	if (percentage < 33) {
+		return `Easy (${percentage}%)`;
+	}
+
+	if (percentage < 44) {
+		return `Below Average (${percentage}%)`;
+	}
+
+	if (percentage < 55) {
+		return `Average (${percentage}%)`;
+	}
+
+	if (percentage < 66) {
+		return `Above Average (${percentage}%)`;
+	}
+
+	if (percentage < 77) {
+		return `Difficult (${percentage}%)`;
+	}
+
+	if (percentage < 88) {
+		return `Hard (${percentage}%)`;
+	}
+
+	return `Insane (${percentage}%)`;
+}
+
 async function asyncHandler(message: Message, searchString: string, raritySearch: number, extended: boolean, base: boolean) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise(resolve => setImmediate(() => resolve()));
@@ -71,7 +109,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				`${crew.totalChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${crew.factionOnlyTotal} faction`,
 				true
 			)
-			.addField('Difficulty', `${Math.round(100 - (crew.ranks.chronCostRank * 100) / DCData.totalCrew())}%`, true)
+			.addField('Difficulty', getDifficulty(crew.ranks.chronCostRank), true)
 			.setFooter(formatCrewCoolRanks(crew));
 
 		if (crew.bigbook_tier && crew.events) {
