@@ -1,6 +1,8 @@
+require('dotenv').config();
+
 export default class CONFIG {
-	static readonly DATACORE_URL = 'https://datacore.app/';
-	static readonly ASSETS_URL = 'https://assets.datacore.app/';
+	static readonly DATACORE_URL = process.env.DATACORE_URL;
+	static readonly ASSETS_URL = process.env.ASSETS_URL;
 	static readonly IMAGE_ANALYSIS_URL = 'http://localhost:5000';
 
 	static readonly SKILLS: { [key in Definitions.SkillName]: string } = {
