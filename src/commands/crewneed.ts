@@ -75,10 +75,10 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 						} else {
 							embed = embed.addField(
 								user.profiles[0].captainName,
-								`According to [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on datacore.app.`
+								`According to [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.`
                             );
                             
-                            plainTextHeader += `${user.profiles[0].captainName}, according to your profile, you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on datacore.app.\n`;
+                            plainTextHeader += `${user.profiles[0].captainName}, according to your profile, you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.\n`;
 						}
 					}
 				}
