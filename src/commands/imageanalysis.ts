@@ -12,30 +12,22 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 	if (data) {
 		Logger.info(`Image analysis`, {
 			id: message.id,
-			analysisResult: data
+			analysisResult: data,
 		});
 
 		// Might be something usable in here
-		if (data.voyResult && data.voyResult.valid) {
+		if (data.voyResult && (data.voyResult.valid === true || (data.voyResult.valid as any) === 'true')) {
 			let params = getVoyParams(data.voyResult);
-			let results = voyCalc(
-				params[0],
-				params[1],
-				params[2],
-				params[3],
-				params[4],
-				params[5],
-				data.voyResult.antimatter
-			);
+			let results = voyCalc(params[0], params[1], params[2], params[3], params[4], params[5], data.voyResult.antimatter);
 
 			sendAndCache(
 				message,
 				`${formatVoyageReply(
 					message,
 					results
-				)}\nIf I got the numbers wrong, fix them and rerun the command with \`${usedPrefix} voytime ${params.join(
-					' '
-				)} ${data.voyResult.antimatter}\``
+				)}\nIf I got the numbers wrong, fix them and rerun the command with \`${usedPrefix} voytime ${params.join(' ')} ${
+					data.voyResult.antimatter
+				}\``
 			);
 		} else if (data.beholdResult && isValidBehold(data.beholdResult, 10)) {
 			await calculateBehold(message, data.beholdResult, false, false);
