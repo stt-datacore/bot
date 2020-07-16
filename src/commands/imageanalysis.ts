@@ -16,7 +16,7 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 		});
 
 		// Might be something usable in here
-		if (data.voyResult && (data.voyResult.valid === true || (data.voyResult.valid as any) === 'true')) {
+		if (data.voyResult && data.voyResult.valid) {
 			let params = getVoyParams(data.voyResult);
 			let results = voyCalc(params[0], params[1], params[2], params[3], params[4], params[5], data.voyResult.antimatter);
 
