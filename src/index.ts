@@ -23,7 +23,7 @@ DCData.setup(process.env.DC_DATA_PATH!);
 client.login(process.env.BOT_TOKEN);
 
 // TODO: merge config default with guild specific options
-const config = JSON.parse(fs.readFileSync(__dirname + '/../config.json', 'utf8'));
+const config = JSON.parse(fs.readFileSync(process.env.CONFIG_PATH, 'utf8'));
 
 sequelize.sync().then(() => {
 	Logger.info('Database connection established');
@@ -67,6 +67,10 @@ client.on('message', (message) => {
 	});
 
 	if (message.author.bot) {
+		return;
+	}
+
+	if (config.devmode && !config.devmode[message.guild.id]) {
 		return;
 	}
 

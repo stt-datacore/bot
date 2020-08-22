@@ -6,4 +6,4 @@ COPY . .
 
 RUN npm install && npm run build
 
-#CMD [ "node", "build/index.js" ]
+ENTRYPOINT [ "node", "build/index.js" ]
