@@ -32,6 +32,6 @@
     "@types/node-fetch": "^2.5.7",
     "@types/validator": "^13.1.0",
     "@types/yargs": "^15.0.5",
-    "typescript": "^3.9.6"
+    "typescript": "^3.9.7"
   }
 }

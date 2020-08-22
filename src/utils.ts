@@ -10,12 +10,14 @@ const Yargs = require('yargs/yargs');
 import { Commands } from './commands';
 import { sendAndCache } from './utils/discord';
 
+require('dotenv').config();
+
 export let Logger = winston.createLogger({
 	level: 'info',
 	transports: [
-		new (winston.transports as any).DailyRotateFile({ dirname: './logs' }),
+		new (winston.transports as any).DailyRotateFile({ dirname: process.env.LOG_PATH ? `${process.env.LOG_PATH}/botlogs` : './logs' }),
 		new winston.transports.Console({ format: winston.format.simple() }),
-		new winston.transports.File({ filename: './logs/error.log', level: 'error' })
+		new winston.transports.File({ filename: process.env.LOG_PATH ? `${process.env.LOG_PATH}/botlogs/error.log` : './logs/error.log', level: 'error' })
 	]
 });
 
