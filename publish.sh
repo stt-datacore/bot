@@ -34,5 +34,6 @@ docker run -d --name=DCBot \
     --env DB_CONNECTION_STRING=sqlite:/data/datacore.db \
     --env DC_DATA_PATH=/sitedata/static/structured \
     --env CONFIG_PATH=/data/bot_config.json \
+    --env LOG_PATH=/data/logs/ \
     --env-file "$DATA_PATH/env.list" \
     stt-datacore/bot:latest
