@@ -28,6 +28,7 @@ docker rm DCBot
 
 docker run -d --name=DCBot \
     --restart unless-stopped \
+    --net=host \
     --mount type=bind,source="$DATA_PATH",target=/data \
     --mount type=bind,source="$SITE_PATH",target=/sitedata \
     --env PROFILE_DATA_PATH=/data/profiles \
