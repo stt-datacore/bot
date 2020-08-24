@@ -70,8 +70,11 @@ client.on('message', (message) => {
 		return;
 	}
 
-	if (config.devmode && !config.devmode[message.guild.id]) {
-		return;
+	if (config.devmode) {
+		// a DM or a message from a guild not in devmode
+		if (!message.guild || !config.devmode[message.guild.id]) {
+			return;
+		}
 	}
 
 	let prefixes = config.guilds.default.prefixes;
