@@ -13,34 +13,26 @@ import { sendAndCache } from './utils/discord';
 require('dotenv').config();
 
 export let Logger = winston.createLogger({
-	level: 'info',
+	level: 'verbose',
 	transports: [
 		new (winston.transports as any).DailyRotateFile({ dirname: process.env.LOG_PATH ? `${process.env.LOG_PATH}/botlogs` : './logs' }),
 		new winston.transports.Console({ format: winston.format.simple() }),
-		new winston.transports.File({ filename: process.env.LOG_PATH ? `${process.env.LOG_PATH}/botlogs/error.log` : './logs/error.log', level: 'error' })
-	]
+		new winston.transports.File({
+			filename: process.env.LOG_PATH ? `${process.env.LOG_PATH}/botlogs/error.log` : './logs/error.log',
+			level: 'error',
+		}),
+	],
 });
 
 export function parseCommandInput(input: string): readonly string[] {
-	let command = input
-		.replace(/“/g, '"')
-		.replace(/”/g, '"')
-		.replace(/’/g, "'")
-		.trim();
+	let command = input.replace(/“/g, '"').replace(/”/g, '"').replace(/’/g, "'").trim();
 
 	let args = command.split(/("[^"]*"|'[^']*'|[\S]+)+/g);
 	if (args === undefined || args.length === 0) {
 		return [];
 	}
 
-	args = args
-		.map(arg =>
-			arg
-				.replace(/"/g, '')
-				.replace(/'/g, '')
-				.trim()
-		)
-		.filter(arg => arg);
+	args = args.map((arg) => arg.replace(/"/g, '').replace(/'/g, '').trim()).filter((arg) => arg);
 
 	if (args[0] === 'help') {
 		args[0] = '--help';
@@ -64,9 +56,8 @@ export function prepareArgParser(
 	let argParser = <yargs.Argv>new Yargs();
 	argParser = argParser.version(false).exitProcess(false);
 
-	Commands.forEach(cmd => {
-		let cmdConfig =
-			guildConfig && guildConfig.commands ? guildConfig.commands.find((c: any) => c.command === cmd.name) : undefined;
+	Commands.forEach((cmd) => {
+		let cmdConfig = guildConfig && guildConfig.commands ? guildConfig.commands.find((c: any) => c.command === cmd.name) : undefined;
 		if (cmdConfig && cmdConfig.channelsDisabled && cmdConfig.channelsDisabled.indexOf(message.channel.id) >= 0) {
 			// construct a simple command that returns the messageDisabled string if invoked
 			if (cmdConfig.messageDisabled) {
@@ -105,6 +96,8 @@ export function prepareArgParser(
 		}
 	}
 
+	const startTime = Date.now();
+
 	let lastError = undefined;
 	let conOutput = undefined;
 	argParser
@@ -129,6 +122,8 @@ export function prepareArgParser(
 			if (err) {
 				Logger.error('Error during command execution', { error: err.message, callstack: err.stack });
 			}
+
+			Logger.verbose('Message processed', { id: message.id, msElapsed: Date.now() - startTime });
 
 			conOutput = output.trim();
 		});
@@ -162,5 +157,5 @@ export function getUrl(message: Message): string | undefined {
 
 // Escape string for use in Javascript regex
 export function escapeRegExp(strings: string[]) {
-	return strings.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')); // $& means the whole matched string
+	return strings.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')); // $& means the whole matched string
 }

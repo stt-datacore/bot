@@ -12,6 +12,9 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 	if (data) {
 		Logger.info(`Image analysis`, {
 			id: message.id,
+			author: { id: message.author.id, username: message.author.username },
+			guild: message.guild ? message.guild.toString() : 'DM',
+			channel: message.channel.toString(),
 			analysisResult: data,
 		});
 

@@ -58,7 +58,7 @@ client.on('message', (message) => {
 		return;
 	}
 
-	Logger.info('Message received', {
+	Logger.verbose('Message received', {
 		id: message.id,
 		author: { id: message.author.id, username: message.author.username },
 		guild: message.guild ? message.guild.toString() : 'DM',
