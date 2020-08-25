@@ -19,4 +19,4 @@ jobs:
         mkdir -p ~/.ssh
         touch ~/.ssh/known_hosts
         ssh-keyscan ${{ secrets.CI_HOST }} >> ~/.ssh/known_hosts
-        sshpass -p "${{ secrets.CI_PASS }}" ssh ${{ secrets.CI_USER }}@${{ secrets.CI_HOST }} './home/stt/prod/bot/publish.sh'
+        sshpass -p "${{ secrets.CI_PASS }}" ssh ${{ secrets.CI_USER }}@${{ secrets.CI_HOST }} '~/prod/bot/publish.sh'
