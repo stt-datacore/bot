@@ -174,7 +174,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 					embed = embed.addField('Shuttles', profileData.player.character.shuttle_bays, true);
 
 					if (profileData.player.character.crew_avatar && profileData.player.character.crew_avatar.portrait) {
-						embed = embed.setThumbnail(`${CONFIG.DATACORE_URL}media/assets/${profileData.player.character.crew_avatar.portrait}`);
+						embed = embed.setThumbnail(`${CONFIG.ASSETS_URL}${profileData.player.character.crew_avatar.portrait}`);
 					}
 
 					if (eventReply) {
