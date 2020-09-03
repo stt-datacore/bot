@@ -1,6 +1,6 @@
 #!/bin/bash
 GIT_PATH=/home/stt/prod/bot
-SITE_PATH=/home/stt/prod/website
+SITE_PATH=/home/stt/prod/sitebuild
 DATA_PATH=/home/stt/prod/data
 
 pushd $GIT_PATH
@@ -33,7 +33,7 @@ docker run -d --name=DCBot \
     --mount type=bind,source="$SITE_PATH",target=/sitedata \
     --env PROFILE_DATA_PATH=/data/profiles \
     --env DB_CONNECTION_STRING=sqlite:/data/datacore.db \
-    --env DC_DATA_PATH=/sitedata/static/structured \
+    --env DC_DATA_PATH=/sitedata/public/structured \
     --env CONFIG_PATH=/data/bot_config.json \
     --env LOG_PATH=/data/logs/ \
     --env-file "$DATA_PATH/env.list" \

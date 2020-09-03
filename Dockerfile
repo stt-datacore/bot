@@ -1,4 +1,4 @@
-FROM node:lts-slim
+FROM node:lts-alpine
 
 WORKDIR /usr/src/bot
 
