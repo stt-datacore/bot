@@ -3,7 +3,7 @@ import { Model, Column, Table, DataType, ForeignKey, BelongsTo, CreatedAt } from
 import { User } from './User';
 
 @Table
-export class Profile extends Model<Profile> {
+export class Profile extends Model {
 	@Column
     dbid!: string;
     

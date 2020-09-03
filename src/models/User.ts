@@ -11,7 +11,7 @@ export enum UserRole {
 }
 
 @Table
-export class User extends Model<User> {
+export class User extends Model {
 	@Column
 	discordUserName!: string;
 
