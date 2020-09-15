@@ -13,6 +13,7 @@ jobs:
         npm install
         npm run build
     - name: Publish to server via ssh
+      if: ${{ github.event_name == 'push' }} # Don't run this step for pull requests
       run: |
         sudo apt-get update -y -qq
         sudo apt-get install -y -qq sshpass rsync
