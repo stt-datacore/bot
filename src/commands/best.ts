@@ -22,9 +22,9 @@ function calcValue(type: string, crew: Definitions.BotCrew, skill: string): numb
 
 	if (type === 'base') {
 		return sk.core;
-	} else if (type === 'gauntlet') {
+	} else if (type === 'gauntlet' || type === 'proficiency') {
 		return (sk.range_min + sk.range_max) / 2;
-	} else if (type === 'avg' || type === 'voyage') {
+	} else if (type === 'avg' || type === 'voyage' || type === 'combined') {
 		return sk.core + (sk.range_min + sk.range_max) / 2;
 	} else {
 		return 0;
