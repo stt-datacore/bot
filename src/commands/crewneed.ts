@@ -10,7 +10,7 @@ import CONFIG from '../utils/config';
 
 async function asyncHandler(message: Message, searchString: string, level: number, all: boolean, base: boolean, item: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
-	await new Promise((resolve) => setImmediate(() => resolve()));
+	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	// if searchString is "favorite" load that from the profile; if "all" use all crew
 
@@ -87,7 +87,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 			// add equipment breakdown
 			let neededItems = getNeededItems(crew.symbol, level);
 
-			let data = neededItems.demands.map((demand) => {
+			let data = neededItems ? neededItems.demands.map((demand) => {
 				let item = items.find((i: any) => i.symbol === demand.symbol);
 				return {
 					name: demand.factionOnly ? `${demand.equipment.name} - Faction` : demand.equipment.name,
@@ -96,7 +96,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 					have: item ? item.quantity : 0,
 					symbol: demand.symbol,
 				};
-			});
+			}) : [];
 
 			if (!all && items.length > 0) {
 				// Eliminate needs already owned by player
@@ -168,7 +168,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 					}
                 });
 
-                currentPart += `Estimated Cost: ${neededItems.craftCost} credits, *TODO* chrons`;
+                currentPart += `Estimated Cost: ${neededItems ? neededItems.craftCost : 'N/A'} credits, *TODO* chrons`;
 
 				parts.push(currentPart);
 
@@ -180,7 +180,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 			if (richEmbedFits) {
 				embed = embed.addField(
 					'Estimated Cost',
-					`${neededItems.craftCost} credits, *TODO* ${getEmoteOrString(message, 'chrons', 'chrons')}`,
+					`${neededItems ? neededItems.craftCost : 'N/A'} credits, *TODO* ${getEmoteOrString(message, 'chrons', 'chrons')}`,
 					true
 				);
 

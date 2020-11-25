@@ -5,11 +5,10 @@ import Fuse from 'fuse.js';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;
-	private _botcrew: Definitions.BotCrew[] = [];
 	private _items: Definitions.Item[] = [];
 	private _quests: any[] = [];
 	private _dilemmas: any[] = [];
-	private _rawCrew: any[] = [];
+	private _rawCrew: Definitions.BotCrew[] = [];
 	private _upcomingEvents: Definitions.UpcomingEvent[] = [];
 
 	public setup(datacore_path: string): void {
@@ -18,7 +17,6 @@ class DCDataClass {
 		this._watcher.on('change', filePath => this._reloadData(filePath));
 
 		// Initial read
-		this._reloadData(path.join(datacore_path, 'botcrew.json'));
 		this._reloadData(path.join(datacore_path, 'items.json'));
 		this._reloadData(path.join(datacore_path, 'quests.json'));
 		this._reloadData(path.join(datacore_path, 'dilemmas.json'));
@@ -36,11 +34,17 @@ class DCDataClass {
 			return;
 		}
 
-		if (filePath.endsWith('botcrew.json')) {
-			this._botcrew = parsedData;
+		if (filePath.endsWith('items.json')) {
+			this._items = parsedData;
+		} else if (filePath.endsWith('quests.json')) {
+			this._quests = parsedData;
+		} else if (filePath.endsWith('dilemmas.json')) {
+			this._dilemmas = parsedData;
+		} else if (filePath.endsWith('crew.json')) {
+			this._rawCrew = parsedData;
 
 			// Add pseudo-traits for the skills (for search to work)
-			this._botcrew.forEach(crew => {
+			this._rawCrew.forEach(crew => {
 				crew.traits_pseudo = [];
 				if (crew.base_skills.command_skill) crew.traits_pseudo.push('cmd');
 				if (crew.base_skills.science_skill) crew.traits_pseudo.push('sci');
@@ -49,14 +53,6 @@ class DCDataClass {
 				if (crew.base_skills.diplomacy_skill) crew.traits_pseudo.push('dip');
 				if (crew.base_skills.medicine_skill) crew.traits_pseudo.push('med');
 			});
-		} else if (filePath.endsWith('items.json')) {
-			this._items = parsedData;
-		} else if (filePath.endsWith('quests.json')) {
-			this._quests = parsedData;
-		} else if (filePath.endsWith('dilemmas.json')) {
-			this._dilemmas = parsedData;
-		} else if (filePath.endsWith('crew.json')) {
-			this._rawCrew = parsedData;
 		} else if (filePath.endsWith('upcomingevents.json')) {
 			// Fix up the dates
 			parsedData.forEach((entry: any) => {
@@ -75,10 +71,6 @@ class DCDataClass {
 	}
 
 	public getBotCrew(): Definitions.BotCrew[] {
-		return this._botcrew;
-	}
-
-	public getRawCrew(): any[] {
 		return this._rawCrew;
 	}
 
@@ -95,7 +87,7 @@ class DCDataClass {
 	}
 
 	public totalCrew(): number {
-		return this._botcrew.length;
+		return this._rawCrew.length;
 	}
 
 	public questBySymbol(symbol: string): any {
@@ -124,7 +116,7 @@ class DCDataClass {
 			}
 		});
 
-		let crew = this._botcrew;
+		let crew = this._rawCrew;
 		if (skill_traits.length > 0) {
 			// Filter first by skills
 			crew = crew.filter(c => skill_traits.every(sk => c.traits_pseudo.includes(sk)));
@@ -134,7 +126,7 @@ class DCDataClass {
 	}
 
 	public searchCrew(searchString: string) {
-		return this.searchCrewInternal(this._botcrew, searchString, false);
+		return this.searchCrewInternal(this._rawCrew, searchString, false);
 	}
 
 	public searchCrewInternal(

@@ -24,7 +24,7 @@ async function asyncHandler(
 	adjustForKit: boolean
 ) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
-	await new Promise(resolve => setImmediate(() => resolve()));
+	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let results = DCData.searchItems(searchString, raritySearch);
 
@@ -71,7 +71,7 @@ async function asyncHandler(
 			}
 
 			let crew_levels: any[] = [];
-			DCData.getRawCrew().forEach(crew => {
+			DCData.getBotCrew().forEach(crew => {
 				crew.equipment_slots.forEach((es: any) => {
 					if (es.symbol === item.symbol) {
 						crew_levels.push({

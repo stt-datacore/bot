@@ -13,7 +13,7 @@ function formatChoice(message: Message, choice: any): string {
 
 async function asyncHandler(message: Message, searchString: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
-	await new Promise(resolve => setImmediate(() => resolve()));
+	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let results = DCData.getDilemmas().filter(
 		(dilemma: any) => dilemma.title.toLowerCase().indexOf(searchString.trim().toLowerCase()) >= 0

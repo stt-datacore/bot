@@ -44,7 +44,7 @@ async function loadGauntlet(): Promise<any> {
 
 async function asyncHandler(message: Message) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
-	await new Promise((resolve) => setImmediate(() => resolve()));
+	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let gstatus = await loadGauntlet();
 
@@ -79,7 +79,7 @@ async function asyncHandler(message: Message) {
 		return total;
 	};
 
-	let results = DCData.getRawCrew()
+	let results = DCData.getBotCrew()
 		.filter((crew) => crew.max_rarity > 3)
 		.map((crew) => hasTraits(crew))
 		.filter((entry) => entry.matched.length > 1)

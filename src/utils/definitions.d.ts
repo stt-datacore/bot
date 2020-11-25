@@ -131,6 +131,11 @@ declare namespace Definitions {
 		symbol: string;
 	}
 
+	export interface EquipmentSlot {
+		level: number;
+		symbol: string
+	}
+
 	export interface BotCrew {
 		archetype_id: number;
 		symbol: string;
@@ -152,6 +157,7 @@ declare namespace Definitions {
 		in_portal: boolean;
 		markdownContent: string;
 		action: CrewAction;
+		equipment_slots: EquipmentSlot[];
 
 		// Added by the loading code
 		traits_pseudo: string[];

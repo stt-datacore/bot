@@ -60,7 +60,11 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 }
 
 export function getNeededItems(crew_symbol: string, min_level: number, max_level: number = 100) {
-	let crew = DCData.getRawCrew().find((c) => c.symbol === crew_symbol);
+	let crew = DCData.getBotCrew().find((c) => c.symbol === crew_symbol);
+
+	if (!crew) {
+		return undefined;
+	}
 
 	// TODO: partially equipped bands (e.g. level 30 with the 2nd equipment slot filled)
 

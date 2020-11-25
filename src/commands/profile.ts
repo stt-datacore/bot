@@ -34,7 +34,7 @@ function eventCrewFormat(entry: ProfileRosterEntry, profileData: any): string {
 
 async function asyncHandler(message: Message, guildConfig?: Definitions.GuildConfig, verb?: string, text?: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
-	await new Promise((resolve) => setImmediate(() => resolve()));
+	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await userFromMessage(message);
 

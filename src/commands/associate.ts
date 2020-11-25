@@ -6,7 +6,7 @@ import CONFIG from '../utils/config';
 
 async function asyncHandler(message: Message, dbid: string, access_token?: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
-	await new Promise(resolve => setImmediate(() => resolve()));
+	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await createUserFromMessage(message);
 	let result = await associateUser(user, dbid, access_token);

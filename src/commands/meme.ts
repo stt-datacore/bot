@@ -8,7 +8,7 @@ import { sendAndCache } from '../utils/discord';
 
 async function asyncHandler(message: Message, name: string, texts: string[]) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
-	await new Promise(resolve => setImmediate(() => resolve()));
+	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
     if (name === 'list') {
         let memes = await listMemesHardCoded();
