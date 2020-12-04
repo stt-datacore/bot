@@ -231,7 +231,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		.setFooter(
 			customranks[0]
 				? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
-				: `Did I get the crew wrong? I'm still learning, please let TemporalAgent7 know.`
+				: `Upload your profile to get custom recommendations`
 		);
 
 	sendAndCache(message, embed);
