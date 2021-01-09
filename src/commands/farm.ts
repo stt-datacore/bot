@@ -31,12 +31,17 @@ async function asyncHandler(
 	if (results === undefined) {
 		sendAndCache(message, `Sorry, I couldn't find an item matching '${searchString}'`);
 	} else if (results.length > 1) {
-		sendAndCache(
-			message,
-			`There are ${results.length} items matching that: ${results
-				.map(item => item.name)
-				.join(', ')}. Which one did you mean?`
-		);
+		sendAndCache(message, `There are ${results.length} items matching that. Which one did you mean?`);
+		results.forEach((item) => {
+			let shortSymbol = item.symbol.replace(/_quality.*/, '');
+			let embed = new RichEmbed()
+				.setTitle(item.name)
+				.setDescription(`\`${shortSymbol}\``)
+				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
+				.setColor(colorFromRarity(item.rarity))
+				.setURL(`${CONFIG.DATACORE_URL}item_info?symbol=${item.symbol}`);
+			sendAndCache(message, embed);
+		});
 	} else {
 		let item = results[0];
 
