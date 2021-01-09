@@ -246,12 +246,20 @@ class DCDataClass {
 			keys: ['name']
 		};
 
-		// Try a plain substring search first in case we get an exact match
-		let found = this._items.filter(
+		// Try a plain search on name in case we get an exact match
+		let foundByName = this._items.filter(
 			item => item.name.toLowerCase() === searchString.toLowerCase() && item.rarity === rarity
 		);
-		if (found && found.length === 1) {
-			return found;
+		if (foundByName && foundByName.length === 1) {
+			return foundByName;
+		}
+
+		// Try a plain substring search on symbol in case we get an exact match
+		let foundBySymbol = this._items.filter(
+			item => item.symbol.toLowerCase().includes(searchString.toLowerCase()) && item.rarity === rarity
+		);
+		if (foundBySymbol && foundBySymbol.length === 1) {
+			return foundBySymbol;
 		}
 
 		const fuse = new Fuse(
@@ -259,8 +267,6 @@ class DCDataClass {
 			options
 		);
 		const results = fuse.search(searchString) as any[];
-
-		//console.log(results.map((i: any) => ({score: i.score, name: i.item.name})));
 
 		// No matches
 		if (results.length === 0) {
@@ -272,14 +278,7 @@ class DCDataClass {
 			return [results[0].item];
 		}
 
-		// An exact match
-		if (results[0].score < 0.01) {
-			return results.filter(r => r.score < 0.01).map(r => r.item);
-		}
-
-		// Multiple results, none are exact
-		//return results.map(r => r.item);
-		return [results[0].item];
+		return results.map(r => r.item);
 	}
 }
 
