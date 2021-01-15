@@ -76,7 +76,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			.setThumbnail(`${CONFIG.ASSETS_URL}${crew.imageUrlPortrait}`)
 			.setColor(colorFromRarity(crew.max_rarity))
 			.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
-			.addField('Traits', `${crew.traits_named.join(', ')}*,${crew.traits_hidden.join(', ')}*`);
+			.addField('Traits', `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*`);
 
 		if (!base) {
 			let user = await userFromMessage(message);
