@@ -11,6 +11,7 @@ import { AssociateCommand } from './associate';
 import { ResetProfileCommand } from './resetprofile';
 import { ProfileCommand } from './profile';
 import { CrewNeedCommand } from './crewneed';
+import { OffersCommand } from './offers';
 
 export let Commands: Definitions.Command[] = [
 	SearchCommand,
@@ -26,4 +27,5 @@ export let Commands: Definitions.Command[] = [
 	ProfileCommand,
 	ResetProfileCommand,
 	CrewNeedCommand,
+	OffersCommand,
 ];
