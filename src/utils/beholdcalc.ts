@@ -37,7 +37,7 @@ export function isValidBehold(data: any, threshold: number = 10) {
 	return true;
 }
 
-function formatCrewField(message: Message, crew: Definitions.BotCrew, stars: number, custom: string) {
+export function formatCrewField(message: Message, crew: Definitions.BotCrew, stars: number, custom: string) {
 	let reply = '';
 	if (crew.bigbook_tier) {
 		reply += `Big book **tier ${crew.bigbook_tier}**, `;
