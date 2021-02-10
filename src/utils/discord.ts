@@ -13,6 +13,25 @@ export function getEmoteOrString(message: Message, emojiName: string, defaultStr
 
 export let MessageCache = new NodeCache({ stdTTL: 600 });
 
+export async function sendSplitText(message: Message, content: any) {
+	let myReply = await message.channel.send(content, {
+		split: {
+			prepend: '```\n',
+			append: '```\n'
+		}
+	});
+
+	if (myReply instanceof Message) {
+		let entries = MessageCache.get<string[]>(message.id);
+		if (entries) {
+			entries.push(myReply.id);
+			MessageCache.set(message.id, entries);
+		} else {
+			MessageCache.set(message.id, [myReply.id]);
+		}
+	}
+}
+
 export async function sendAndCache(message: Message, content: any, asReply: boolean = false) {
 	let myReply;
 

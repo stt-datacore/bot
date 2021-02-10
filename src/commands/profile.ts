@@ -10,7 +10,7 @@ import {
 	loadFullProfile,
 } from '../utils/profile';
 import CONFIG from '../utils/config';
-import { sendAndCache, deleteOldReplies } from '../utils/discord';
+import { sendAndCache, sendSplitText, deleteOldReplies } from '../utils/discord';
 import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
@@ -32,38 +32,6 @@ function eventCrewFormat(entry: ProfileRosterEntry, profileData: any): string {
 			return `**${entry.crew.name}** (L${pcrew.level} ${entry.rarity}/${entry.crew.max_rarity})`;
 		}
 	}
-}
-
-function formatTimeSeconds(seconds: number, showSeconds: boolean = false): string {
-    let h = Math.floor(seconds / 3600);
-    let d = Math.floor(h / 24);
-    h = h - d*24;
-    let m = Math.floor(seconds % 3600 / 60);
-    let s = Math.floor(seconds % 3600 % 60);
-
-    let parts = [];
-
-    if (d > 0) {
-        parts.push(d + 'D');
-    }
-
-    if (h > 0) {
-        parts.push(h + 'H');
-    }
-
-    if (m > 0) {
-        parts.push(m + 'M');
-    }
-
-    if ((s > 0) && (showSeconds || (seconds < 60))) {
-        parts.push(s + 'S');
-    }
-
-    if (parts.length === 0) {
-        return '0S';
-    } else {
-        return parts.join(' ');
-    }
 }
 
 async function asyncHandler(message: Message, guildConfig?: Definitions.GuildConfig, verb?: string, text?: string) {
@@ -136,9 +104,8 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						textMessage += `${fleet.name} 〰 Starbase level ${fleet.nstarbase_level} 〰 Created ${new Date(fleet.created).toLocaleDateString()} 〰 Size ${fleet.cursize} / ${fleet.maxsize}\n`;
 
 						let memberList = fleet.members.sort((a: any, b: any) => a.daily_activity - b.daily_activity).map((m: any) => ({
-							name: m.display_name,
+							name: (m.last_active > (3600 * 24)) ? `${m.display_name} 💤` : m.display_name,
 							level: m.level,
-							last_active: formatTimeSeconds(m.last_active),
 							event_rank: m.event_rank,
 							daily_activity: (m.daily_activity > 82) ? `${m.daily_activity} 👍` : `${m.daily_activity} 👋`
 						}));
@@ -146,7 +113,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 
 						textMessage += '\n```';
 
-						sendAndCache(message, textMessage);
+						sendSplitText(message, textMessage);
 					} else {
 						let imageUrl = 'icons_icon_faction_starfleet.png';
 						if (FACTIONS[fleet.nicon_index]) {
