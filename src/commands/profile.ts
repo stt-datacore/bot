@@ -101,13 +101,14 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 
 					if (verb.toLowerCase() === 'daily') {
 						let textMessage = '```\n';
-						textMessage += `${fleet.name} 〰 Starbase level ${fleet.nstarbase_level} 〰 Created ${new Date(fleet.created).toLocaleDateString()} 〰 Size ${fleet.cursize} / ${fleet.maxsize}\n`;
+						textMessage += `${fleet.name} 🧿 Starbase level ${fleet.nstarbase_level} 🧿 Created ${new Date(fleet.created).toLocaleDateString()} 🧿 Size ${fleet.cursize} / ${fleet.maxsize}\n`;
+						textMessage += `${fleet.leaderboard[0].event_name}: rank ${fleet.leaderboard[0].fleet_rank} 🏆 ${fleet.leaderboard[1].event_name}: rank ${fleet.leaderboard[1].fleet_rank} 🏆 ${fleet.leaderboard[2].event_name}: rank ${fleet.leaderboard[2].fleet_rank}\n`;
 
-						let memberList = fleet.members.sort((a: any, b: any) => a.daily_activity - b.daily_activity).map((m: any) => ({
-							name: (m.last_active > (3600 * 24)) ? `${m.display_name} 💤` : m.display_name,
+						let memberList = fleet.members.sort((a: any, b: any) => (a.daily_activity - b.daily_activity) || (b.last_active - a.last_active)).map((m: any) => ({
+							name: (m.last_active > (3600 * 24)) ? `${m.display_name} (INACTIVE)` : m.display_name,
 							level: m.level,
 							event_rank: m.event_rank,
-							daily_activity: (m.daily_activity > 82) ? `${m.daily_activity} 👍` : `${m.daily_activity} 👋`
+							daily_activity: (m.daily_activity > 82) ? `${m.daily_activity}` : `${m.daily_activity} 👋`
 						}));
 						textMessage += configure({ maxTotalWidth: 100, delimiter: ' | ' })(memberList);
 
