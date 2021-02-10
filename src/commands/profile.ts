@@ -14,6 +14,8 @@ import { sendAndCache, deleteOldReplies } from '../utils/discord';
 import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
+import { configure } from 'as-table';
+
 require('dotenv').config();
 
 const MAX_CREW = 10;
@@ -30,6 +32,38 @@ function eventCrewFormat(entry: ProfileRosterEntry, profileData: any): string {
 			return `**${entry.crew.name}** (L${pcrew.level} ${entry.rarity}/${entry.crew.max_rarity})`;
 		}
 	}
+}
+
+function formatTimeSeconds(seconds: number, showSeconds: boolean = false): string {
+    let h = Math.floor(seconds / 3600);
+    let d = Math.floor(h / 24);
+    h = h - d*24;
+    let m = Math.floor(seconds % 3600 / 60);
+    let s = Math.floor(seconds % 3600 % 60);
+
+    let parts = [];
+
+    if (d > 0) {
+        parts.push(d + 'D');
+    }
+
+    if (h > 0) {
+        parts.push(h + 'H');
+    }
+
+    if (m > 0) {
+        parts.push(m + 'M');
+    }
+
+    if ((s > 0) && (showSeconds || (seconds < 60))) {
+        parts.push(s + 'S');
+    }
+
+    if (parts.length === 0) {
+        return '0S';
+    } else {
+        return parts.join(' ');
+    }
 }
 
 async function asyncHandler(message: Message, guildConfig?: Definitions.GuildConfig, verb?: string, text?: string) {
@@ -92,57 +126,75 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 			defaultReply = false;
 		}
 
-		if (verb && verb.toLowerCase() === 'fleet') {
+		if (verb && (verb.toLowerCase() === 'fleet' || verb.toLowerCase() === 'daily')) {
 			if (guildConfig && guildConfig.fleetids && guildConfig.fleetids.length > 0) {
 				for (let fleetId of guildConfig.fleetids) {
 					let fleet = await loadFleet(fleetId);
 
-					let imageUrl = 'icons_icon_faction_starfleet.png';
-					if (FACTIONS[fleet.nicon_index]) {
-						imageUrl = FACTIONS[fleet.nicon_index].icon;
-					}
+					if (verb.toLowerCase() === 'daily') {
+						let textMessage = '```\n';
+						textMessage += `${fleet.name} 〰 Starbase level ${fleet.nstarbase_level} 〰 Created ${new Date(fleet.created).toLocaleDateString()} 〰 Size ${fleet.cursize} / ${fleet.maxsize}\n`;
 
-					let members: string[] = fleet.members.map((member: any) =>
-						member.last_update ? `[${member.display_name}](${CONFIG.DATACORE_URL}/profile?dbid=${member.dbid})` : member.display_name
-					);
+						let memberList = fleet.members.sort((a: any, b: any) => a.daily_activity - b.daily_activity).map((m: any) => ({
+							name: m.display_name,
+							level: m.level,
+							last_active: formatTimeSeconds(m.last_active),
+							event_rank: m.event_rank,
+							daily_activity: (m.daily_activity > 82) ? `${m.daily_activity} 👍` : `${m.daily_activity} 👋`
+						}));
+						textMessage += configure({ maxTotalWidth: 100, delimiter: ' | ' })(memberList);
 
-					let memberFields = [''];
-					members.forEach((line) => {
-						if (memberFields[memberFields.length - 1].length + line.length < 1020) {
-							if (memberFields[memberFields.length - 1].length === 0) {
-								memberFields[memberFields.length - 1] = line;
-							} else {
-								memberFields[memberFields.length - 1] += ', ' + line;
-							}
-						} else {
-							memberFields.push(line);
+						textMessage += '\n```';
+
+						sendAndCache(message, textMessage);
+					} else {
+						let imageUrl = 'icons_icon_faction_starfleet.png';
+						if (FACTIONS[fleet.nicon_index]) {
+							imageUrl = FACTIONS[fleet.nicon_index].icon;
 						}
-					});
 
-					let embed = new RichEmbed()
-						.setTitle(fleet.name)
-						.setURL(`${CONFIG.DATACORE_URL}fleet_info/?fleetid=${fleetId}`)
-						.setThumbnail(`${CONFIG.ASSETS_URL}${imageUrl}`)
-						.setColor('DARK_GREEN')
-						.addField('Starbase level', fleet.nstarbase_level, true)
-						.addField('Created', new Date(fleet.created).toLocaleDateString(), true)
-						.addField('Size', `${fleet.cursize} / ${fleet.maxsize}`, true);
+						let members: string[] = fleet.members.map((member: any) =>
+							member.last_update ? `[${member.display_name}](${CONFIG.DATACORE_URL}/profile?dbid=${member.dbid})` : member.display_name
+						);
 
-					if (fleet.motd) {
-						embed = embed.addField('MOTD', fleet.motd);
+						let memberFields = [''];
+						members.forEach((line) => {
+							if (memberFields[memberFields.length - 1].length + line.length < 1020) {
+								if (memberFields[memberFields.length - 1].length === 0) {
+									memberFields[memberFields.length - 1] = line;
+								} else {
+									memberFields[memberFields.length - 1] += ', ' + line;
+								}
+							} else {
+								memberFields.push(line);
+							}
+						});
+
+						let embed = new RichEmbed()
+							.setTitle(fleet.name)
+							.setURL(`${CONFIG.DATACORE_URL}fleet_info/?fleetid=${fleetId}`)
+							.setThumbnail(`${CONFIG.ASSETS_URL}${imageUrl}`)
+							.setColor('DARK_GREEN')
+							.addField('Starbase level', fleet.nstarbase_level, true)
+							.addField('Created', new Date(fleet.created).toLocaleDateString(), true)
+							.addField('Size', `${fleet.cursize} / ${fleet.maxsize}`, true);
+
+						if (fleet.motd) {
+							embed = embed.addField('MOTD', fleet.motd);
+						}
+
+						embed = embed
+							.addField(fleet.leaderboard[0].event_name, `Rank ${fleet.leaderboard[0].fleet_rank}`, true)
+							.addField(fleet.leaderboard[1].event_name, `Rank ${fleet.leaderboard[1].fleet_rank}`, true)
+							.addField(fleet.leaderboard[2].event_name, `Rank ${fleet.leaderboard[2].fleet_rank}`, true)
+							.addField('Member list', memberFields[0]);
+
+						if (memberFields.length > 0) {
+							embed = embed.addField('Member list (continued)', memberFields[1]);
+						}
+
+						sendAndCache(message, embed);
 					}
-
-					embed = embed
-						.addField(fleet.leaderboard[0].event_name, `Rank ${fleet.leaderboard[0].fleet_rank}`, true)
-						.addField(fleet.leaderboard[1].event_name, `Rank ${fleet.leaderboard[1].fleet_rank}`, true)
-						.addField(fleet.leaderboard[2].event_name, `Rank ${fleet.leaderboard[2].fleet_rank}`, true)
-						.addField('Member list', memberFields[0]);
-
-					if (memberFields.length > 0) {
-						embed = embed.addField('Member list (continued)', memberFields[1]);
-					}
-
-					sendAndCache(message, embed);
 				}
 			} else {
 				message.reply(' this command only works in fleet discord servers!');
@@ -246,7 +298,7 @@ class Profile implements Definitions.Command {
 		return yp
 			.positional('verb', {
 				describe: 'additional profile actions',
-				choices: ['refresh', 'fleet', 'event'],
+				choices: ['refresh', 'fleet', 'daily', 'event'],
 				type: 'string',
 			})
 			.positional('text', {

@@ -11,6 +11,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "as-table": "^1.0.55",
     "chokidar": "^3.4.0",
     "discord.js": "^11.6.4",
     "dotenv": "^8.2.0",
