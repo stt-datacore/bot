@@ -66,7 +66,6 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		);
 	} else {
 		let crew = results[0];
-		console.log(crew);
 
 		if (raritySearch <= 0 || raritySearch >= crew.max_rarity) {
 			raritySearch = 1;
