@@ -158,6 +158,10 @@ declare namespace Definitions {
 		markdownContent: string;
 		action: CrewAction;
 		equipment_slots: EquipmentSlot[];
+		nicknames?: {
+			cleverThing: string;
+			creator?: string;
+		}[];
 
 		// Added by the loading code
 		traits_pseudo: string[];

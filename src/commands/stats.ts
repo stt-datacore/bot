@@ -75,8 +75,13 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			.setTitle(crew.name)
 			.setThumbnail(`${CONFIG.ASSETS_URL}${crew.imageUrlPortrait}`)
 			.setColor(colorFromRarity(crew.max_rarity))
-			.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
-			.addField('Traits', `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*`);
+			.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`);
+
+		if (extended && crew.nicknames && crew.nicknames.length > 0) {
+			embed = embed.addField('Also known as', `${crew.nicknames.map((n) => `${n.cleverThing}${n.creator ? ` (coined by _${n.creator}_)` : ''}`).join(', ')}`);
+		}
+
+		embed = embed.addField('Traits', `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*`);
 
 		if (!base) {
 			let user = await userFromMessage(message);
