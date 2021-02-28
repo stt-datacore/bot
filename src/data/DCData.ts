@@ -152,6 +152,10 @@ class DCDataClass {
 				{
 					name: 'short_name',
 					weight: includeTraits ? 0.1: 0.3
+				},
+				{
+					name: 'nicknames.cleverThing',
+					weight: includeTraits ? 0.4: 0.7
 				}
 			]
 		};
@@ -205,6 +209,12 @@ class DCDataClass {
 				if (found && found.length === 1) {
 					return [found[0]];
 				}
+			}
+
+			// Try substring match on nicknames
+			found = crew.filter(c => c.nicknames?.some(n => n.cleverThing.toLowerCase().indexOf(searchString.toLowerCase()) >= 0));
+			if (found && found.length === 1) {
+				return [found[0]];
 			}
 		}
 
