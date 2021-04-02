@@ -118,7 +118,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			.setFooter(formatCrewCoolRanks(crew));
 
 		if (crew.bigbook_tier && crew.events) {
-			embed = embed.addField('Bigbook Tier', crew.bigbook_tier, true).addField('Events', crew.events, true);
+			embed = embed.addField('Bigbook Tier', crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : crew.bigbook_tier, true).addField('Events', crew.events, true);
 		}
 
 		if (crew.collections && crew.collections.length > 0) {
