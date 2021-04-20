@@ -88,6 +88,9 @@ export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean 
 				result.push(`Base #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
 			}
 		}
+		if (rank === 'voyTriplet' && crew.ranks[rank].rank <= 10) {
+			result.push(`Voyage #${crew.ranks[rank].rank} ${crew.ranks[rank].name.replace(/ /g, '')}`)
+		}
 	}
 
 	if (result.length === 0) {

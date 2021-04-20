@@ -56,9 +56,14 @@ declare namespace Definitions {
 		gauntletRank: number;
 		chronCostRank: number;
 
+		voyTriplet: {
+			name: string;
+			rank: number;
+		}
+
 		// TODO: eliminate (calc at runtime)
 
-		[index: string]: number;
+		[index: string]: any;
 
 		B_CMD: number;
 		A_CMD: number;
