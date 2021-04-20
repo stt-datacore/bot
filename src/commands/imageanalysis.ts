@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
 
 import { analyzeImage, getVoyParams } from '../utils/imageanalysis';
-import { calculateBehold, isValidBehold } from '../utils/beholdcalc';
+import { calculateBehold, isValidBehold, isPossibleBehold } from '../utils/beholdcalc';
 import { voyCalc, formatVoyageReply } from '../utils/voyage';
 import { sendAndCache } from '../utils/discord';
 
@@ -32,8 +32,13 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 					data.voyResult.antimatter
 				}\``
 			);
-		} else if (data.beholdResult && isValidBehold(data.beholdResult, 5)) {
+		} else if (data.beholdResult && isPossibleBehold(data.beholdResult, 5)) {
 			await calculateBehold(message, data.beholdResult, false, false);
+		} else {
+			sendAndCache(
+				message,
+				"Sorry, the image does not appear to be either a valid voyage or behold."
+			);
 		}
 	}
 }
