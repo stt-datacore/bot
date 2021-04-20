@@ -108,6 +108,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		embed = embed
 			.addField('Stats', formatStatLine(message, crew, raritySearch))
 			.addField('Voyage Rank', `${crew.ranks.voyRank} of ${DCData.totalCrew()}`, true)
+			.addField('Voyage Triplet', crew.ranks.voyTriplet ? `#${crew.ranks.voyTriplet.rank} ${crew.ranks.voyTriplet.name.replace(/ /g, '')}` : 'N/A', true)
 			.addField('Gauntlet Rank', `${crew.ranks.gauntletRank} of ${DCData.totalCrew()}`, true)
 			.addField(
 				'Estimated Cost',
