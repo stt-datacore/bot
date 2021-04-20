@@ -37,6 +37,15 @@ export function isValidBehold(data: any, threshold: number = 10) {
 	return true;
 }
 
+export function isPossibleBehold(data: any, threshold: number = 10) {
+	//If the image analysis found the correct top, but maybe the crew detection failed.
+	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {
+		return false;
+	}
+
+	return true;
+}
+
 export function formatCrewField(message: Message, crew: Definitions.BotCrew, stars: number, custom: string) {
 	let reply = '';
 	if (crew.bigbook_tier) {
