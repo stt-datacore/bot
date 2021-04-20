@@ -118,7 +118,11 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			.setFooter(formatCrewCoolRanks(crew));
 
 		if (crew.bigbook_tier && crew.events) {
-			embed = embed.addField('Bigbook Tier', crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : crew.bigbook_tier, true).addField('Events', crew.events, true);
+			embed = embed.addField('Bigbook Tier (Legacy)', crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : crew.bigbook_tier, true).addField('Events', crew.events, true);
+		}
+
+		if (crew.cab_ov) {
+			embed = embed.addField('CAB Rating', `[${crew.cab_ov}](https://sttpowerratings.com/)`, true);
 		}
 
 		if (crew.collections && crew.collections.length > 0) {
@@ -153,7 +157,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		if (extended && crew.markdownContent && crew.markdownContent.length < 980) {
-			embed = embed.addField('Book contents', crew.markdownContent);
+			embed = embed.addField('Book contents (legacy)', crew.markdownContent);
 		}
 
 		sendAndCache(message, embed);
@@ -161,7 +165,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		if (extended && crew.markdownContent && crew.markdownContent.length >= 980) {
 			if (crew.markdownContent.length < 2048) {
 				let embed = new RichEmbed()
-					.setTitle(`Big book details for ${crew.name}`)
+					.setTitle(`Big book details for ${crew.name} (legacy)`)
 					.setColor(colorFromRarity(crew.max_rarity))
 					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
 					.setDescription(crew.markdownContent);
