@@ -40,7 +40,7 @@ export function isValidBehold(data: any, threshold: number = 10) {
 export function formatCrewField(message: Message, crew: Definitions.BotCrew, stars: number, custom: string) {
 	let reply = '';
 	if (crew.bigbook_tier) {
-		reply += `Big book **tier ${crew.bigbook_tier}**, `;
+		reply += `Big book **tier ${crew.bigbook_tier}** (Legacy), `;
 	}
 
 	reply += `Voyage #${crew.ranks.voyRank}, Gauntlet #${crew.ranks.gauntletRank}, ${crew.events || 0} event${
@@ -68,6 +68,7 @@ interface CrewFromBehold {
 
 function recommendations(crew: CrewFromBehold[]) {
 	let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
+	let bestCab = crew.sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
 	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
 
 	if (starBest.length > 0) {
@@ -116,6 +117,10 @@ function recommendations(crew: CrewFromBehold[]) {
 				}
 			}
 		}
+	}
+	if (best[0] !== bestCab[0]) {
+		title = `Big Book Recommendation (Legacy): ${title}
+		CAB Power Ratings Recommendation: ${bestCab[0].crew.name}`
 	}
 
 	return {
