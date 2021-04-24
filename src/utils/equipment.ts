@@ -6,7 +6,22 @@ export interface IDemand {
 	symbol: string;
 	equipment: Definitions.Item;
 	factionOnly: boolean;
+	avgChronCost: number;
 }
+
+function bestChronCost(item: Definitions.Item) {
+	let bestCost = 0;
+
+	if (!item.factionOnly) {
+		let bestMissions = item.item_sources.filter((s) => s.avg_cost && s.avg_cost >= 1).sort((a, b) => (a.avg_cost || 9999) - (b.avg_cost || 9999));
+		if (bestMissions.length > 0) {
+			bestCost = bestMissions[0].avg_cost || 0;
+		}
+	}
+
+	return bestCost;
+}
+
 
 export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: Set<string>, demands: IDemand[]): number {
 	let equipment = items.find((item) => item.symbol === es.symbol);
@@ -25,6 +40,7 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 				symbol: equipment.symbol,
 				equipment: equipment,
 				factionOnly: equipment.factionOnly,
+				avgChronCost: bestChronCost(equipment),
 			});
 		}
 
@@ -53,6 +69,7 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 			symbol: iter.symbol,
 			equipment: recipeEquipment,
 			factionOnly: iter.factionOnly,
+			avgChronCost: bestChronCost(recipeEquipment),
 		});
 	}
 
