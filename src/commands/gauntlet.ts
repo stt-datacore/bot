@@ -117,7 +117,7 @@ async function asyncHandler(message: Message, base: Boolean) {
 		results.slice(0, 10).forEach((entry) => {
 			let statLine = `${'⭐'.repeat(entry.crew.max_rarity)} **${entry.crew.name}** [${entry.matched.join(
 				', '
-			)}] ${formatCrewStatsWithEmotes(message, entry.crew)}`;
+			)}] ${formatCrewStatsWithEmotes(message, entry.crew, 0, true)}`;
 			reply += statLine + '\n';
 		});
 
@@ -186,7 +186,7 @@ class Gauntlet implements Definitions.Command {
 				results.slice(0, 10).forEach((entry) => {
 					let statLine = `${'⭐'.repeat(entry.crew.max_rarity)} **${entry.crew.name}** [${entry.matched.join(
 						', '
-					)}] ${formatCrewStatsWithEmotes(message, entry.crew)}`;
+					)}] ${formatCrewStatsWithEmotes(message, entry.crew, 0, true)}`;
 					reply += statLine + '\n';
 				});
 
