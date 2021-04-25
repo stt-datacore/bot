@@ -91,21 +91,38 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 				let item = items.find((i: any) => i.symbol === demand.symbol);
 				return {
 					name: demand.factionOnly ? `${demand.equipment.name} - Faction` : demand.equipment.name,
+					factionOnly: demand.factionOnly,
 					rarity: demand.equipment.rarity,
 					need: demand.count,
 					have: item ? item.quantity : 0,
 					symbol: demand.symbol,
+					avgChronCost: demand.avgChronCost,
 				};
 			}) : [];
 
 			if (!all && items.length > 0) {
 				// Eliminate needs already owned by player
 				data = data.filter((item) => item.need >= item.have);
-            }
+			}
             
-            if (item.length > 0) {
-                data = data.filter((entry) => entry.name.toLowerCase().includes(item.toLowerCase()));
-            }
+			if (item.length > 0) {
+				// Filter to specific item specified in command
+				data = data.filter((entry) => entry.name.toLowerCase().includes(item.toLowerCase()));
+			}
+
+			let requiredChronCost = Math.round(data.reduce((totalCost, item) => {
+				if (item.have >= item.need) {
+					return totalCost;
+				}
+				return totalCost + ((item.need - item.have) * item.avgChronCost);
+			}, 0));
+
+			let requiredFactionItems = data.reduce((totalItems, item) => {
+				if (!item.factionOnly) {
+					return totalItems;
+				}
+				return totalItems + (item.need - item.have);
+			}, 0);
 
 			const formatItemList = (list: any[]) =>
 				list
@@ -168,7 +185,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 					}
                 });
 
-                currentPart += `Estimated Cost: ${neededItems ? neededItems.craftCost : 'N/A'} credits, *TODO* chrons`;
+                currentPart += `Estimated Cost: ${neededItems ? neededItems.craftCost : 'N/A'} credits, ${requiredChronCost} chrons, ${requiredFactionItems} faction items`;
 
 				parts.push(currentPart);
 
@@ -180,7 +197,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 			if (richEmbedFits) {
 				embed = embed.addField(
 					'Estimated Cost',
-					`${neededItems ? neededItems.craftCost : 'N/A'} credits, *TODO* ${getEmoteOrString(message, 'chrons', 'chrons')}`,
+					`${neededItems ? neededItems.craftCost : 'N/A'} credits, ${requiredChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${requiredFactionItems} faction items`,
 					true
 				);
 

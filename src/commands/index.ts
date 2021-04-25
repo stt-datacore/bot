@@ -12,6 +12,7 @@ import { ResetProfileCommand } from './resetprofile';
 import { ProfileCommand } from './profile';
 import { CrewNeedCommand } from './crewneed';
 import { OffersCommand } from './offers';
+import { CheapestFFFECommand } from './cheapestfffe';
 
 export let Commands: Definitions.Command[] = [
 	SearchCommand,
@@ -28,4 +29,5 @@ export let Commands: Definitions.Command[] = [
 	ResetProfileCommand,
 	CrewNeedCommand,
 	OffersCommand,
+	CheapestFFFECommand,
 ];
