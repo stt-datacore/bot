@@ -44,7 +44,7 @@ async function asyncHandler(message: Message, type: string, skill: string, secon
 
 	let reply = '';
 	bestcrew.forEach(crew => {
-		let statLine = `${'⭐'.repeat(crew.max_rarity)} **${crew.name}** ${formatCrewStatsWithEmotes(message, crew)}`;
+		let statLine = `${'⭐'.repeat(crew.max_rarity)} **${crew.name}** ${formatCrewStatsWithEmotes(message, crew, 0, type === 'gauntlet')}`;
 		reply += statLine + '\n';
 	});
 

@@ -9,6 +9,7 @@ import { sendAndCache } from '../utils/discord';
 
 import CONFIG from '../utils/config';
 import { Logger } from '../utils';
+import { loadFullProfile, userFromMessage } from '../utils/profile';
 
 interface WithMatchingTrait {
 	crew: Definitions.BotCrew;
@@ -42,7 +43,7 @@ async function loadGauntlet(): Promise<any> {
 	}
 }
 
-async function asyncHandler(message: Message) {
+async function asyncHandler(message: Message, base: Boolean) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
@@ -79,7 +80,28 @@ async function asyncHandler(message: Message) {
 		return total;
 	};
 
-	let results = DCData.getBotCrew()
+	let pool: Definitions.BotCrew[] = [];
+	let allCrew = DCData.getBotCrew();
+
+	let user = await userFromMessage(message);
+	let profile = user && user.profiles.length > 0 ? user.profiles[0] : null;
+	let customized = undefined;
+	if (base || !profile) {
+		pool = allCrew;
+		customized = false;
+	} else {
+		customized = true;
+		let profileData = loadFullProfile(profile.dbid);
+		pool = profileData.player.character.crew.map((c: any) => {
+			const matched = allCrew.find((a) => a.symbol === c.symbol);
+			return {
+				...matched,
+				...c
+			}
+		})
+	}
+
+	let results = pool
 		.filter((crew) => crew.max_rarity > 3)
 		.map((crew) => hasTraits(crew))
 		.filter((entry) => entry.matched.length > 1)
@@ -90,12 +112,12 @@ async function asyncHandler(message: Message) {
 	} else {
 		let reply = `**Featured skill: ${
 			CONFIG.SKILLS[gstatus.contest_data.featured_skill as Definitions.SkillName]
-		}. Traits: ${gstatus.contest_data.traits.join(', ')} (${results.length} total)**\n_45% or better 4 and 5 star crew:_\n`;
+		}. Traits: ${gstatus.contest_data.traits.join(', ')} (${results.length} total)**\n_45% or better 4 and 5 star crew${customized ? ' in your roster' : ''}:_\n`;
 
 		results.slice(0, 10).forEach((entry) => {
 			let statLine = `${'⭐'.repeat(entry.crew.max_rarity)} **${entry.crew.name}** [${entry.matched.join(
 				', '
-			)}] ${formatCrewStatsWithEmotes(message, entry.crew)}`;
+			)}] ${formatCrewStatsWithEmotes(message, entry.crew, 0, true)}`;
 			reply += statLine + '\n';
 		});
 
@@ -121,11 +143,17 @@ class Gauntlet implements Definitions.Command {
 			.positional('trait3', {
 				describe: '(part of) the name of the third trait (enclose in quotes if it includes spaces)',
 				type: 'string',
+			})
+			.option('base', {
+				alias: 'b',
+				desc: 'return all crew with base stats matching the gauntlet (not customized for your profile)',
+				type: 'boolean',
 			});
 	}
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
+		let base = args.base ? (args.base as boolean) : false;
 
 		if (args.trait1 && args.trait2 && args.trait3) {
 			let realTraitNames: string[] = [];
@@ -158,14 +186,14 @@ class Gauntlet implements Definitions.Command {
 				results.slice(0, 10).forEach((entry) => {
 					let statLine = `${'⭐'.repeat(entry.crew.max_rarity)} **${entry.crew.name}** [${entry.matched.join(
 						', '
-					)}] ${formatCrewStatsWithEmotes(message, entry.crew)}`;
+					)}] ${formatCrewStatsWithEmotes(message, entry.crew, 0, true)}`;
 					reply += statLine + '\n';
 				});
 
 				sendAndCache(message, reply);
 			}
 		} else {
-			args.promisedResult = asyncHandler(message);
+			args.promisedResult = asyncHandler(message, base);
 		}
 	}
 }
