@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 import fetch from 'node-fetch';
 import NodeCache from 'node-cache';
@@ -64,7 +64,7 @@ async function asyncHandler(message: Message, offer_name?: String) {
 		sendAndCache(message, `Could not find any crew for offer ${selectedOffer.primary_content[0].title}`)
 		return;
 	}
-	let embed = new RichEmbed()
+	let embed = new MessageEmbed()
 		.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title}`);
 	relevantCrew.forEach((crew) => {
 		embed.addField(crew.name, formatCrewField(message, crew, crew.max_rarity, ''));

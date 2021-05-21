@@ -66,7 +66,7 @@ export function prepareArgParser(
 					false,
 					(yp: yargs.Argv) => yp,
 					() => {
-						message.reply(cmdConfig!.messageDisabled);
+						message.reply(cmdConfig!.messageDisabled!);
 					}
 				);
 			}
@@ -136,13 +136,13 @@ const urlRegex = /\b(https?:\/\/\S*\b)/g;
 export function getUrl(message: Message): string | undefined {
 	let url = undefined;
 	if (message.attachments.size > 0) {
-		if (message.attachments.first().width > 700) {
-			url = message.attachments.first().url;
+		if (message.attachments?.first()?.width! > 700) {
+			url = message.attachments?.first()?.url;
 		}
 	}
 
 	if (message.embeds.length > 0) {
-		if (message.embeds[0].image && message.embeds[0].image.width > 700) {
+		if (message.embeds[0].image && message.embeds[0]?.image?.width! > 700) {
 			url = message.embeds[0].image.url;
 		}
 	}

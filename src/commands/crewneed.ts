@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -40,7 +40,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 		} else {
 			let crew = results[0];
 
-			let embed = new RichEmbed()
+			let embed = new MessageEmbed()
 				.setTitle(`${crew.name} equipment breakdown`)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${crew.imageUrlPortrait}`)
 				.setColor(colorFromRarity(crew.max_rarity))
@@ -142,7 +142,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 
 			let breakdown = formatItemList(data);
 
-			let richEmbedFits = true;
+			let MessageEmbedFits = true;
 			// TODO: there must be a smarter way to break these down
 			if (breakdown.length < 2) {
                 embed = embed.addField('Breakdown', `Failed to load data, please see [the website](${CONFIG.DATACORE_URL}crew/${crew.symbol}/).`);
@@ -168,7 +168,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
                 embed = embed.addField('Breakdown (5 / 5)', formatItemList(data.slice((4 * data.length) / 5, data.length)));
 			} else {
 				// Nothing fits, fallback to a plain text output
-				richEmbedFits = false;
+				MessageEmbedFits = false;
 
 				let parts = [];
                 let currentPart = plainTextHeader;
@@ -194,7 +194,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 				});
 			}
 
-			if (richEmbedFits) {
+			if (MessageEmbedFits) {
 				embed = embed.addField(
 					'Estimated Cost',
 					`${neededItems ? neededItems.craftCost : 'N/A'} credits, ${requiredChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${requiredFactionItems} faction items`,

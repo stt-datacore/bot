@@ -13,7 +13,7 @@
   "dependencies": {
     "as-table": "^1.0.55",
     "chokidar": "^3.4.0",
-    "discord.js": "^11.6.4",
+    "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
     "fuse.js": "^6.2.0",
     "node-cache": "^5.1.1",
@@ -32,6 +32,7 @@
     "@types/node": "^14.14.10",
     "@types/node-fetch": "^2.5.7",
     "@types/validator": "^13.1.0",
+    "@types/ws": "^7.4.4",
     "@types/yargs": "^15.0.5",
     "typescript": "^4.1.2"
   }

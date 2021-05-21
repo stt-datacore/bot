@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -87,7 +87,7 @@ async function asyncHandler(
 		if (!matched) {
 			return;
 		}
-		let embed = new RichEmbed()
+		let embed = new MessageEmbed()
 			.setTitle(`${matched.name} (Level ${can.level})`)
 			.setDescription(`Missing item costs:`)
 			.setThumbnail(`${CONFIG.ASSETS_URL}${matched.imageUrlPortrait}`)
