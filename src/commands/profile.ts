@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 import {
 	userFromMessage,
@@ -138,7 +138,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							}
 						});
 
-						let embed = new RichEmbed()
+						let embed = new MessageEmbed()
 							.setTitle(fleet.name)
 							.setURL(`${CONFIG.DATACORE_URL}fleet_info/?fleetid=${fleetId}`)
 							.setThumbnail(`${CONFIG.ASSETS_URL}${imageUrl}`)
@@ -177,7 +177,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 			for (let profile of user.profiles) {
 				let profileData = loadFullProfile(profile.dbid);
 				if (profileData) {
-					let embed = new RichEmbed().setTitle(profile.captainName).setColor('DARK_GREEN');
+					let embed = new MessageEmbed().setTitle(profile.captainName).setColor('DARK_GREEN');
 
 					if (eventReply) {
 						embed = embed

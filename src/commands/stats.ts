@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -71,7 +71,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			raritySearch = 1;
 		}
 
-		let embed = new RichEmbed()
+		let embed = new MessageEmbed()
 			.setTitle(crew.name)
 			.setThumbnail(`${CONFIG.ASSETS_URL}${crew.imageUrlPortrait}`)
 			.setColor(colorFromRarity(crew.max_rarity))
@@ -165,7 +165,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 		if (extended && crew.markdownContent && crew.markdownContent.length >= 980) {
 			if (crew.markdownContent.length < 2048) {
-				let embed = new RichEmbed()
+				let embed = new MessageEmbed()
 					.setTitle(`Big book details for ${crew.name} (legacy)`)
 					.setColor(colorFromRarity(crew.max_rarity))
 					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)

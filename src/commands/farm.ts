@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -34,7 +34,7 @@ async function asyncHandler(
 		sendAndCache(message, `There are ${results.length} items matching that. Which one did you mean?`);
 		results.forEach((item) => {
 			let shortSymbol = item.symbol.replace(/_quality.*/, '');
-			let embed = new RichEmbed()
+			let embed = new MessageEmbed()
 				.setTitle(item.name)
 				.setDescription(`\`${shortSymbol}\``)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
@@ -47,7 +47,7 @@ async function asyncHandler(
 
 		if (extended) {
 			// TODO: crew that equips it, recipes it's part of, etc.
-			let embed = new RichEmbed()
+			let embed = new MessageEmbed()
 				.setTitle(item.name)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 				.setColor(colorFromRarity(item.rarity))
@@ -106,7 +106,7 @@ async function asyncHandler(
 
 			if (laterSources.length > 0) {
 				if (laterSources.length < 1024) {
-					let embed = new RichEmbed()
+					let embed = new MessageEmbed()
 						.setTitle(`Item sources for ${item.name}`)
 						.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 						.setColor(colorFromRarity(item.rarity))
@@ -123,7 +123,7 @@ async function asyncHandler(
 
 			if (laterRecipe.length > 0) {
 				if (laterRecipe.length < 2048) {
-					let embed = new RichEmbed()
+					let embed = new MessageEmbed()
 						.setTitle(`Recipe for ${item.name}`)
 						.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 						.setColor(colorFromRarity(item.rarity))

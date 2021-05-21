@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 
 import { DCData } from '../data/DCData';
 import { formatStatLine, formatCrewCoolRanks, colorFromRarity } from './crew';
@@ -164,7 +164,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		return false;
 	}
 
-	let embed = new RichEmbed()
+	let embed = new MessageEmbed()
 		.setTitle('Detailed comparison')
 		.setColor(colorFromRarity(crew1.max_rarity))
 		.setURL(`${CONFIG.DATACORE_URL}behold/?crew=${crew1.symbol}&crew=${crew2.symbol}&crew=${crew3.symbol}`);

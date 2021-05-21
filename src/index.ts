@@ -30,7 +30,7 @@ sequelize.sync().then(() => {
 });
 
 client.on('ready', () => {
-	Logger.info('Bot logged in', { bot_tag: client.user.tag });
+	Logger.info('Bot logged in', { bot_tag: client.user?.tag });
 });
 
 client.on('messageDelete', (message) => {
@@ -40,7 +40,7 @@ client.on('messageDelete', (message) => {
 
 		replies.forEach((reply) => {
 			message.channel
-				.fetchMessage(reply)
+				.messages.fetch(reply)
 				.then((message) => {
 					if (message) {
 						message.delete();
@@ -54,7 +54,7 @@ client.on('messageDelete', (message) => {
 });
 
 client.on('message', (message) => {
-	if (message.author.id === client.user.id) {
+	if (message.author.id === client.user?.id) {
 		return;
 	}
 
@@ -89,7 +89,7 @@ client.on('message', (message) => {
 	}
 
 	if (config.guilds.default.mentionPrefix) {
-		prefixes.push(`<@!?${client.user.id}> `);
+		prefixes.push(`<@!?${client.user?.id}> `);
 	}
 	let prefixRegex = new RegExp(`^(${prefixes.join('|')})`);
 
