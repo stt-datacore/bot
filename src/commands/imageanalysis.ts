@@ -32,7 +32,7 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 					data.voyResult.antimatter
 				}\``
 			);
-		} else if (data.beholdResult && isValidBehold(data.beholdResult, 10)) {
+		} else if (data.beholdResult && isValidBehold(data.beholdResult, 5)) {
 			await calculateBehold(message, data.beholdResult, false, false);
 		}
 	}
