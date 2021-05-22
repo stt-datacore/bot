@@ -90,7 +90,7 @@ export function prepareArgParser(
 				false,
 				(yp: yargs.Argv) => yp,
 				() => {
-					sendAndCache(message, custom.reply, custom.asReply);
+					sendAndCache(message, custom.reply, { asReply: custom.asReply });
 				}
 			);
 		}

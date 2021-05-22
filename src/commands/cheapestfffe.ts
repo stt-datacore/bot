@@ -80,25 +80,26 @@ async function asyncHandler(
 	}).sort((a: any, b: any) => a.requiredChronCost - b.requiredChronCost);
 
 
-	sendAndCache(message, `Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`);
-
-	candidatesForImmortalisation.slice(0, 5).forEach((can: any) => {
+	const embeds = candidatesForImmortalisation.slice(0, 5).map((can: any) => {
 		const matched = crew.find((crew) => crew.symbol === can.symbol);
 		if (!matched) {
 			return;
 		}
-		let embed = new MessageEmbed()
-			.setTitle(`${matched.name} (Level ${can.level})`)
-			.setDescription(`Missing item costs:`)
-			.setThumbnail(`${CONFIG.ASSETS_URL}${matched.imageUrlPortrait}`)
-			.setColor(colorFromRarity(matched.max_rarity))
-			.addField(getEmoteOrString(message, 'chrons', 'Chrons'), Math.round(can.requiredChronCost), true)
-			.addField(getEmoteOrString(message, 'shuttle', 'Faction'), `${can.requiredFactionItems} items`, true)
-			.addField(getEmoteOrString(message, 'credits', 'Credits'), can.craftCost, true)
-			.setFooter(`${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}`);
-		sendAndCache(message, embed);
-	});;
+		return new MessageEmbed()
+		.setTitle(`${matched.name} (Level ${can.level})`)
+		.setDescription(`Missing item costs:`)
+		.setThumbnail(`${CONFIG.ASSETS_URL}${matched.imageUrlPortrait}`)
+		.setColor(colorFromRarity(matched.max_rarity))
+		.addField(getEmoteOrString(message, 'chrons', 'Chrons'), Math.round(can.requiredChronCost), true)
+		.addField(getEmoteOrString(message, 'shuttle', 'Faction'), `${can.requiredFactionItems} items`, true)
+		.addField(getEmoteOrString(message, 'credits', 'Credits'), can.craftCost, true)
+		.setFooter(`${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}`);
+	});
 
+	sendAndCache(message, 
+				 `Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
+				 { embeds }
+				);
 }
 
 class CheapestFFFE implements Definitions.Command {

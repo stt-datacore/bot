@@ -171,11 +171,10 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
 					.setDescription(crew.markdownContent);
 
-				// TODO: cache only holds the last one (for deletion)
-				sendAndCache(message, embed);
+				sendAndCache(message, embed, { isFollowUp: true });
 			} else {
 				// The Big Book text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
-				sendAndCache(message, crew.markdownContent);
+				sendAndCache(message, crew.markdownContent, { isFollowUp: true });
 			}
 		}
 	}

@@ -10,7 +10,7 @@ async function asyncHandler(
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
-	sendAndCache(message, `Pong!`, true, true);
+	sendAndCache(message, `Pong!`, {ephemeral: true});
 }
 
 class Ping implements Definitions.Command {

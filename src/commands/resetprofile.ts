@@ -10,10 +10,10 @@ async function asyncHandler(message: Message) {
 	let user = await userFromMessage(message);
 
 	if (!user || user.profiles.length === 0) {
-		sendAndCache(message, ` Your user was never associated with a profile (DBID) so you're all good`, true);
+		sendAndCache(message, ` Your user was never associated with a profile (DBID) so you're all good`, {asReply: true});
 	} else {
 		let dbids = await clearUser(user);
-		sendAndCache(message, ` Profiles (DBIDs ${dbids.join(', ')}) were dis-associated from your user, all good.`, true);
+		sendAndCache(message, ` Profiles (DBIDs ${dbids.join(', ')}) were dis-associated from your user, all good.`, {asReply: true});
 	}
 }
 

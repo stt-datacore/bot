@@ -9,6 +9,7 @@ import { UserRole, User } from '../models/User';
 import { executeGetRequest } from './sttapi';
 import { Logger } from '../utils';
 import { stripPlayerData } from './playerutils';
+import { discordUserFromMessage } from './discord';
 
 export interface ProfileCrewEntry {
 	id: number;
@@ -159,18 +160,7 @@ export function loadProfileRoster(profile: ProfileEntry | undefined = undefined)
 }
 
 export async function userFromMessage(message: Message | CommandInteraction) {
-	var id = null;
-	if (message instanceof Message)
-		id = message.author.id;
-	else if (message instanceof CommandInteraction)
-	{
-		if (message.user !== null)
-			id = message.user.id;
-		else if (message.member instanceof GuildMember)
-			id = message.member.id;
-		else 
-			id = message.member?.user?.id;
-	}
+	let id = discordUserFromMessage(message)!.id;
 	return await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
 }
 
@@ -206,7 +196,7 @@ export async function associateUser(userDB: User, dbid: string, access_token?: s
 	let profileDB = await Profile.findOne({ where: { dbid: `${dbid}` }, include: [User] });
 	if (!profileDB) {
 		return {
-			error: `DBID not found. Make sure you uploaded the profile for the correct account at ${CONFIG.DATACORE_URL}voyage `
+			error: `DBID not found. Make sure you uploaded the profile for the correct account at ${CONFIG.DATACORE_URL}playertools `
 		};
 	}
 
@@ -248,7 +238,6 @@ export async function refreshProfile(access_token: string): Promise<any> {
 				player_data: strippedPlayerData
 			});
 
-			// TODO: since we're running on the same box, just share the server code
 			await fetch(`${CONFIG.DATACORE_URL}api/post_profile`, {
 				method: 'post',
 				headers: {
@@ -284,6 +273,38 @@ export async function loadFleet(fleet_id: string): Promise<any> {
 		}
 	} catch (err) {
 		Logger.error('Error while loading fleet info', err);
+		return undefined;
+	}
+}
+
+export async function getDbidFromDiscord(username: string, discriminator: string) : Promise<any>{ 
+	try {
+		let response = await fetch(`${CONFIG.DATACORE_URL}api/get_dbid_from_discord?username=${username}&discriminator=${discriminator}`);
+		if (response.ok) {
+			let data = await response.json();
+			if (data && data.dbid) {
+				return data.dbid;
+			}
+			return undefined;
+		}
+	} catch (err) {
+		Logger.error('Error while fetching DBID', err);
+		return undefined;
+	}
+}
+
+export async function loadRemoteProfile(dbid: string): Promise<any> {
+	try {
+		let response = await fetch(`${CONFIG.DATACORE_URL}profiles/${dbid}`);
+		if (response.ok) {
+			let profileData = await response.json();
+			if (profileData && profileData.player.dbid.toString() === dbid) {
+				return profileData;
+			}
+			return undefined;
+		}
+	} catch (err) {
+		Logger.error('Error while loading profile from Datacore', err);
 		return undefined;
 	}
 }

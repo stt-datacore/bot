@@ -13,7 +13,8 @@ const Yargs = require('yargs/yargs');
 require('dotenv').config();
 
 const client = new Client({
-	intents: [Intents.NON_PRIVILEGED]
+	intents: [Intents.NON_PRIVILEGED],
+	partials: ['CHANNEL'],
 });
 
 /*
@@ -45,9 +46,7 @@ client.on('ready', () => {
 	));
 	slashCommands.forEach((com) => {
 		client?.application?.commands.create(com);
-		client.guilds.cache.get('728926771583385650')?.commands.create(com).then((res) => {
-			console.log(res);
-		});
+		client.guilds.cache.get('728926771583385650')?.commands.create(com);
 	});
 });
 
