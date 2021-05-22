@@ -6,6 +6,9 @@ import { MessageCache, sendAndCache } from './utils/discord';
 import { DCData } from './data/DCData';
 import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
+import { Commands } from './commands';
+import yargs from 'yargs';
+const Yargs = require('yargs/yargs');
 
 require('dotenv').config();
 
@@ -33,6 +36,36 @@ sequelize.sync().then(() => {
 
 client.on('ready', () => {
 	Logger.info('Bot logged in', { bot_tag: client.user?.tag });
+	const slashCommands = Commands.map((com) => (
+		{
+			name: com.name,
+			description: com.describe || '',
+			options: com.options ?? []
+		}
+	));
+	slashCommands.forEach((com) => {
+		client?.application?.commands.create(com);
+		client.guilds.cache.get('728926771583385650')?.commands.create(com).then((res) => {
+			console.log(res);
+		});
+	});
+});
+
+client.on('interaction', (interaction) => {
+	  // If the interaction isn't a slash command, return
+		if (!interaction.isCommand()) return;
+
+		Commands.forEach((cmd) => {
+			if (cmd.name === interaction.commandName) {
+				let args = <any>{
+					message: interaction,
+				};
+				interaction.options.forEach((op) => {
+					args[op.name] = op.value;
+				})
+				cmd.handler(args);
+			}
+		});
 });
 
 client.on('messageDelete', (message) => {

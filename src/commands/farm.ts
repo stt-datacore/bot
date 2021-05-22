@@ -154,6 +154,34 @@ class Farm implements Definitions.Command {
 	command = 'farm <rarity> <name..>';
 	aliases = ['item'];
 	describe = 'Searches drop rates and/or recipes for items';
+	options = [
+		{
+			name: 'rarity',
+			type: 'INTEGER',
+			description: 'rarity',
+			required: true,
+			choices: [
+				{ name: 'Basic (0)', value: 0 },
+				{ name: 'Common (1)', value: 1 },
+				{ name: 'Uncommon (2)', value: 2 },
+				{ name: 'Rare (3)', value: 3 },
+				{ name: 'Super Rare (4)', value: 4 },
+				{ name: 'Legendary (5)', value: 5 },
+			]
+		},
+		{
+			name: 'name',
+			type: 'STRING',
+			description: "(part of the) item's name",
+			required: true,
+		},
+		{
+			name: 'kit',
+			type: 'BOOLEAN',
+			description: 'adjust the chroniton cost for a supply kit',
+			required: false,
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('rarity', {

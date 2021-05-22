@@ -212,6 +212,38 @@ class CrewNeed implements Definitions.Command {
 	command = 'crewneed <crew...>';
 	aliases = ['need'];
 	describe = 'Shows a breakdown of items needed to craft equipment for a crew';
+	options = [
+		{
+			name: 'crew',
+			type: 'STRING',
+			description: 'name of crew or part of the name',
+			required: true,
+		},
+		{
+			name: 'level',
+			type: 'INTEGER',
+			description: 'starting level',
+			required: false,
+		},
+		{
+			name: 'item',
+			type: 'STRING',
+			description: 'filter to specific items',
+			required: false,
+		},
+		{
+			name: 'all',
+			type: 'BOOLEAN',
+			description: 'expand the entire recipe (including owned items)',
+			required: false,
+		},
+		{
+			name: 'base',
+			type: 'BOOLEAN',
+			description: 'return common stats (not adjusted for your profile)',
+			required: false,
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('crew', {

@@ -130,6 +130,14 @@ class Gauntlet implements Definitions.Command {
 	command = 'gauntlet [trait1] [trait2] [trait3]';
 	aliases = [];
 	describe = 'Searches crew to use in gauntlet that have at least 2 of the 3 given traits';
+	options = [
+		{
+			name: 'base',
+			type: 'BOOLEAN',
+			description: 'return all crew with base stats matching the gauntlet (not customized for your profile)',
+			required: false,
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('trait1', {

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
-import { Message } from 'discord.js';
+import { CommandInteraction, GuildMember, Message } from 'discord.js';
 
 import CONFIG from './config';
 import { DCData } from '../data/DCData';
@@ -158,8 +158,20 @@ export function loadProfileRoster(profile: ProfileEntry | undefined = undefined)
 	return results;
 }
 
-export async function userFromMessage(message: Message) {
-	return await User.findOne({ where: { discordUserId: `${message.author.id}` }, include: [Profile] });
+export async function userFromMessage(message: Message | CommandInteraction) {
+	var id = null;
+	if (message instanceof Message)
+		id = message.author.id;
+	else if (message instanceof CommandInteraction)
+	{
+		if (message.user !== null)
+			id = message.user.id;
+		else if (message.member instanceof GuildMember)
+			id = message.member.id;
+		else 
+			id = message.member?.user?.id;
+	}
+	return await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
 }
 
 export async function createUserFromMessage(message: Message) {

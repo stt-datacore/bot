@@ -32,6 +32,26 @@ class Behold implements Definitions.Command {
 	command = 'behold <url>';
 	aliases = [];
 	describe = 'Analyzes a behold screenshot and returns crew details if identified';
+	options = [
+		{
+			name: 'url',
+			type: 'STRING',
+			description: 'address of a png or jpg image',
+			required: false,
+		},
+		{
+			name: 'threshold',
+			type: 'INTEGER',
+			description: 'lower the threshold for crew detection; the lower it is, the higher the chance for false positives',
+			required: false,
+		},
+		{
+			name: 'base',
+			type: 'BOOLEAN',
+			description: 'ignore user profile if available',
+			required: false,
+		},
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('url', {

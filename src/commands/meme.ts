@@ -35,6 +35,20 @@ class Meme implements Definitions.Command {
 	command = 'meme <name> [text..]';
 	aliases = [];
 	describe = 'Generate a meme image and post it';
+	options = [
+		{
+			name: 'name',
+			type: 'STRING',
+			description: "name of the meme; use list to see what's available",
+			required: true,
+		},
+		{
+			name: 'text',
+			type: 'STRING',
+			description: 'lines of text. Enclose each line in quotes',
+			required: true,
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('name', {

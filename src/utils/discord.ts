@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { CommandInteraction, Message } from 'discord.js';
 import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message, emojiName: string, defaultString: string): string {
@@ -53,13 +53,18 @@ export async function sendSplitText(message: Message, content: any) {
 	}
 }
 
-export async function sendAndCache(message: Message, content: any, asReply: boolean = false) {
+export async function sendAndCache(message: Message | CommandInteraction, content: any, asReply: boolean = false, ephemeral: boolean = false) {
 	let myReply;
+	if (message instanceof CommandInteraction){
+		message.reply(content, { ephemeral })
+		return;
+	}
+	
 
-	if (asReply) {
+	if (asReply || message.channel == null) {
 		myReply = await message.reply(content);
 	} else {
-		myReply = await message.channel.send(content);
+		myReply = await (message.channel as any).send(content);
 	}
 
 	if (myReply instanceof Message) {

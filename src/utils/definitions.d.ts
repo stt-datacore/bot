@@ -3,6 +3,7 @@ declare type CommandModule = import('yargs').CommandModule;
 declare namespace Definitions {
 	export interface Command extends CommandModule {
 		name: string;
+		options?: any;
 	}
 
 	export interface GuildConfigCommand {

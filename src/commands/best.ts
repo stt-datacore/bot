@@ -56,6 +56,60 @@ class Best implements Definitions.Command {
 	command = 'best <type> <skill> [secondskill]';
 	aliases = [];
 	describe = 'Searches top crew according to base, gauntlet or average (voyages) skill rating';
+	options = [
+		{
+			name: 'type',
+			type: 'STRING',
+			description: 'type of search to do',
+			required: true,
+			choices: [
+				{ name: 'Base skill', value: 'base' },
+				{ name: 'Gauntlet', value: 'gauntlet' },
+				{ name: 'Voyage/Average/Combined', value: 'voyage' }
+			],
+		},
+		{
+			name: 'skill',
+			type: 'STRING',
+			description: 'skill to search',
+			required: true,
+			choices: [
+				{ name: 'Science', value: 'sci' },
+				{ name: 'Security', value: 'sec' },
+				{ name: 'Engineering', value: 'eng' },
+				{ name: 'Diplomacy', value: 'dip' },
+				{ name: 'Command', value: 'cmd' },
+				{ name: 'Medicine', value: 'med' },
+			]
+		},
+		{
+			name: 'secondskill',
+			type: 'STRING',
+			description: '(optional) second skill to search',
+			required: false,
+			choces: [
+				{ name: 'Science', value: 'sci' },
+				{ name: 'Security', value: 'sec' },
+				{ name: 'Engineering', value: 'eng' },
+				{ name: 'Diplomacy', value: 'dip' },
+				{ name: 'Command', value: 'cmd' },
+				{ name: 'Medicine', value: 'med' },
+			]
+		},
+		{
+			name: 'stars',
+			type: 'INTEGER',
+			description: 'limit the search to given number of stars or below',
+			required: false,
+			choices: [
+				{ name: '1', value: 1 },
+				{ name: '2', value: 2 },
+				{ name: '3', value: 3 },
+				{ name: '4', value: 4 },
+				{ name: '5', value: 5 },
+			]
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('type', {

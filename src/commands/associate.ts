@@ -34,6 +34,14 @@ class Associate implements Definitions.Command {
 	command = 'associate <dbid> [test]';
 	aliases = [];
 	describe = 'Associate your discord user with a previously uploaded profile DBID';
+	options = [
+		{
+			name: 'dbid',
+			type: 'STRING',
+			description: 'your DBID',
+			required: true
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('dbid', {

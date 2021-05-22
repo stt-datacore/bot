@@ -1,4 +1,5 @@
 import { FarmCommand } from './farm';
+import { PingCommand } from "./ping";
 import { StatsCommand } from './stats';
 import { BeholdCommand } from './behold';
 import { SearchCommand } from './search';
@@ -15,19 +16,20 @@ import { OffersCommand } from './offers';
 import { CheapestFFFECommand } from './cheapestfffe';
 
 export let Commands: Definitions.Command[] = [
-	SearchCommand,
-	StatsCommand,
-	BestCommand,
+	AssociateCommand,
 	BeholdCommand,
-	FarmCommand,
-	VoyTimeCommand,
+	BestCommand,
+	CheapestFFFECommand,
+	CrewNeedCommand,
 	DilemmaCommand,
+	FarmCommand,
 	GauntletCommand,
 	MemeCommand,
-	AssociateCommand,
+	OffersCommand,
+	PingCommand,
 	ProfileCommand,
 	ResetProfileCommand,
-	CrewNeedCommand,
-	OffersCommand,
-	CheapestFFFECommand,
+	SearchCommand,
+	StatsCommand,
+	VoyTimeCommand,
 ];

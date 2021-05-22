@@ -262,6 +262,19 @@ class Profile implements Definitions.Command {
 	command = 'profile [verb] [text...]';
 	aliases = [];
 	describe = 'Display a summary of your associated profile';
+	options = [
+		{
+			name: 'verb',
+			type: 'STRING',
+			description: 'additional profile actions',
+			required: false,
+			choices: [
+				{ name: 'Fleet', value: 'fleet' },
+				{ name: 'Daily', value: 'daily' },
+				{ name: 'Event', value: 'event' }
+			]
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('verb', {

@@ -186,6 +186,32 @@ class Stats implements Definitions.Command {
 	command = 'stats <crew...>';
 	aliases = ['estats'];
 	describe = 'Displays stats for given crew';
+	options = [
+		{
+			name: 'crew',
+			type: 'STRING',
+			description: 'name of crew or part of the name',
+			required: true,
+		},
+		{
+			name: 'extended',
+			type: 'BOOLEAN',
+			description: 'return extended information',
+			required: false,
+		},
+		{
+			name: 'stars',
+			type: 'INTEGER',
+			description: 'number of stars (fuse level) for which to display stats',
+			required: false,
+		},
+		{
+			name: 'base',
+			type: 'BOOLEAN',
+			description: 'return base stats (not adjusted for your profile)',
+			required: false,
+		}
+	]
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('crew', {
@@ -205,8 +231,8 @@ class Stats implements Definitions.Command {
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		let extended = args['_'][0] !== 'stats';
-		let searchString = (<string[]>args.crew).join(' ');
+		let extended = args['_'] ? args['_'][0] !== 'stats' : (args.extended as boolean ?? false);
+		let searchString = typeof(args.crew) === 'string' ? args.crew : (<string[]>args.crew).join(' ');
 		let raritySearch = args.stars ? (args.stars as number) : 0;
 
 		args.promisedResult = asyncHandler(message, searchString, raritySearch, extended, args.base ? (args.base as boolean) : false);

@@ -10,6 +10,20 @@ class Search implements Definitions.Command {
 	command = 'search <term...>';
 	aliases = [];
 	describe = 'Searches crew by name and/or traits';
+	options = [
+		{
+			name: 'term',
+			type: 'STRING',
+			description: 'name of crew, trait or skill or part of the name',
+			required: true,
+		},
+		{
+			name: 'stars',
+			type: 'INTEGER',
+			description: 'limit the search to crew with this number of stars (fuse level)',
+			required: false,
+		}
+	]
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('term', {
