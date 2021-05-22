@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Client } from 'discord.js';
+import { Client, Intents } from 'discord.js';
 
 import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp } from './utils';
 import { MessageCache, sendAndCache } from './utils/discord';
@@ -9,7 +9,9 @@ import { runImageAnalysis } from './commands/imageanalysis';
 
 require('dotenv').config();
 
-const client = new Client();
+const client = new Client({
+	intents: [Intents.NON_PRIVILEGED]
+});
 
 /*
 For announcements (RSS from forum https://forum.disruptorbeam.com/stt/categories/starfleet-communications/feed.rss)
