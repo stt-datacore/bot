@@ -77,16 +77,23 @@ type SendOptions = {
 }
 
 export async function sendAndCache(message: Message | CommandInteraction, content: any, options?: SendOptions) {
+
+	// Slash Commands have their own flow.
 	if (message instanceof CommandInteraction) {
-		const flags = { ephemeral: options?.ephemeral, embeds: options?.embeds };
+		let flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
 		if (options?.isFollowUp)
 			message.followUp(content, flags)
 		else
 			message.reply(content, flags)
+		while ((options?.embeds?.length ?? 0) > 0){
+			flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
+			message.followUp(flags);
+		}
 		return;
 	}
 	
-	const flags: ReplyMessageOptions = { };
+	const flags: ReplyMessageOptions = { split: true };
+	
 	let nEmbeds = options?.embeds?.length ?? 0;
 	if (nEmbeds > 0) {
 		flags.embed = options?.embeds![0];

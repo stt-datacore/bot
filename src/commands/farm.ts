@@ -31,17 +31,16 @@ async function asyncHandler(
 	if (results === undefined) {
 		sendAndCache(message, `Sorry, I couldn't find an item matching '${searchString}'`);
 	} else if (results.length > 1) {
-		sendAndCache(message, `There are ${results.length} items matching that. Which one did you mean?`);
-		results.forEach((item) => {
+		let embeds = results.map((item) => {
 			let shortSymbol = item.symbol.replace(/_quality.*/, '');
-			let embed = new MessageEmbed()
+			return new MessageEmbed()
 				.setTitle(item.name)
 				.setDescription(`\`${shortSymbol}\``)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 				.setColor(colorFromRarity(item.rarity))
 				.setURL(`${CONFIG.DATACORE_URL}item_info?symbol=${item.symbol}`);
-			sendAndCache(message, embed);
 		});
+		sendAndCache(message, `There are ${results.length} items matching that. Which one did you mean?`, { embeds });
 	} else {
 		let item = results[0];
 
@@ -201,8 +200,8 @@ class Farm implements Definitions.Command {
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		let extended = args['_'][0] === 'item';
-		let searchString = (<string[]>args.name).join(' ');
+		let extended = args['_'] ? args['_'][0] === 'item' : (args.extended as boolean ?? false);
+		let searchString = typeof(args.name) === 'string' ? args.name : (<string[]>args.name).join(' ');
 		let raritySearch = args.rarity ? (args.rarity as number) : 0;
 		let adjustForKit = !!args.kit;
 
