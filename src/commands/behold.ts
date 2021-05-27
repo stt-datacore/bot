@@ -37,7 +37,7 @@ class Behold implements Definitions.Command {
 			name: 'url',
 			type: 'STRING',
 			description: 'address of a png or jpg image',
-			required: false,
+			required: true,
 		},
 		{
 			name: 'threshold',

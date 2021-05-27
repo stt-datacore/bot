@@ -30,6 +30,7 @@ client.login(process.env.BOT_TOKEN);
 
 // TODO: merge config default with guild specific options
 const config = JSON.parse(fs.readFileSync(process.env.CONFIG_PATH!, 'utf8'));
+const devGuilds = Object.keys(config.guilds).filter((id) => config.guilds[id].dev === true);
 
 sequelize.sync().then(() => {
 	Logger.info('Database connection established');
@@ -44,10 +45,15 @@ client.on('ready', () => {
 			options: com.options ?? []
 		}
 	));
-	slashCommands.forEach((com) => {
-		client?.application?.commands.create(com);
-		client.guilds.cache.get('728926771583385650')?.commands.create(com);
-	});
+	if (process.env.NODE_ENV === 'production') {
+		Logger.info(`Registering commands globally`);
+		client?.application?.commands.set(slashCommands);
+	} else {
+		for (const gid of devGuilds) {
+			Logger.info(`Registering commands for guild ${gid}`);
+			client.guilds.cache.get(gid)?.commands.set(slashCommands);
+		}
+	}
 });
 
 client.on('interaction', (interaction) => {

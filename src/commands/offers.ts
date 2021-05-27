@@ -59,7 +59,7 @@ async function asyncHandler(message: Message, offer_name?: String) {
 	}
 
 	let relevantCrew = DCData.getBotCrew()
-		.filter(crew => selectedOffer.primary_content[0].info_text.indexOf(crew.name) !== -1);
+		.filter(crew => selectedOffer.primary_content[0].info_text.indexOf(`>${crew.name}<`) !== -1);
 	if (relevantCrew.length === 0) {
 		sendAndCache(message, `Could not find any crew for offer ${selectedOffer.primary_content[0].title}`)
 		return;
@@ -69,15 +69,23 @@ async function asyncHandler(message: Message, offer_name?: String) {
 	relevantCrew.forEach((crew) => {
 		embed.addField(crew.name, formatCrewField(message, crew, crew.max_rarity, ''));
 	});
-	sendAndCache(message, embed);
+	sendAndCache(message, '', {embeds: [embed]});
 	return;
 }
 
 class Offers implements Definitions.Command {
 	name = 'offers';
-	command = 'offers <offer_name..>';
+	command = 'offers [offer_name..]';
 	aliases = ['offer'];
 	describe = 'Lists current offers available in the portal or details of an offer';
+	options = [
+		{
+			name: 'offer_name',
+			type: 'STRING',
+			description: "name of the offer to show details of",
+			required: false,
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('offer_name', {
@@ -88,7 +96,7 @@ class Offers implements Definitions.Command {
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
 		let offerName = <string[]>args.offer_name;
-		args.promisedResult = asyncHandler(message, offerName.join(' '));
+		args.promisedResult = asyncHandler(message, typeof(offerName) === 'object' ? offerName.join(' ') : offerName);
 	}
 }
 

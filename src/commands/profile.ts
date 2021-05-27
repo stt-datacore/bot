@@ -161,7 +161,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							embed = embed.addField('Member list (continued)', memberFields[1]);
 						}
 
-						sendAndCache(message, embed);
+						sendAndCache(message, '', {embeds: [embed]});
 					}
 				}
 			} else {
@@ -250,7 +250,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						await deleteOldReplies(message, profile.captainName);
 					}
 
-					sendAndCache(message, embed);
+					sendAndCache(message, '', {embeds: [embed] });
 				}
 			}
 		}

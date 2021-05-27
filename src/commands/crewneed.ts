@@ -26,11 +26,12 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 	}
 
 	if (results === undefined && loadSpecial === 0) {
-		sendAndCache(message, `Sorry, I couldn't find a crew matching '${searchString}'`);
+		sendAndCache(message, `Sorry, I couldn't find a crew matching '${searchString}'`, { ephemeral: true});
 	} else if (results && results.length > 1) {
 		sendAndCache(
 			message,
-			`There are ${results.length} crew matching that: ${results.map((crew) => crew.name).join(', ')}. Which one did you mean?`
+			`There are ${results.length} crew matching that: ${results.map((crew) => crew.name).join(', ')}. Which one did you mean?`,
+			{ ephemeral: true}
 		);
 	} else {
 		if (loadSpecial > 0) {
@@ -201,7 +202,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 					true
 				);
 
-				sendAndCache(message, embed);
+				sendAndCache(message, '', {embeds: [embed]});
 			}
 		}
 	}
@@ -273,7 +274,7 @@ class CrewNeed implements Definitions.Command {
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		let searchString = (<string[]>args.crew).join(' ');
+		let searchString = typeof(args.crew) === 'string' ? args.crew : (<string[]>args.crew).join(' ');
 		let level = args.level ? (args.level as number) : 0;
 		let all = args.all ? (args.all as boolean) : false;
 		let base = args.base ? (args.base as boolean) : false;

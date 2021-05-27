@@ -17,6 +17,8 @@ async function asyncHandler(message: Message, dbid: string, devpull: boolean, ac
 			return;
 		}
 		dbid = await downloadProfile(message, dbid);
+		if (!dbid)
+			return;
 	}
 
 	let result = await associateUser(user, dbid, access_token);
@@ -43,6 +45,10 @@ async function downloadProfile(message: Message, dbid: string) {
 	let author = discordUserFromMessage(message);
 	if (isNaN(Number(dbid)))
 		dbid = await getDbidFromDiscord(author!.username, author!.discriminator);
+		if (!dbid) {
+			sendAndCache(message, `Sorry, I couldn't find a DBID associated with your Discord username ${author?.username}#${author?.discriminator}. Please manually enter your DBID.`)
+			throw(`Unable to find a DBID for Discord username ${author?.username}#${author?.discriminator}`);
+		}
 	let player_data = await loadRemoteProfile(dbid);
 	fs.writeFileSync(process.env.PROFILE_DATA_PATH + dbid, JSON.stringify(player_data, undefined, 4), 'utf8');
 	

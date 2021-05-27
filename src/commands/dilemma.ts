@@ -33,7 +33,7 @@ async function asyncHandler(message: Message, searchString: string) {
 				embed = embed.addField('Choice C', formatChoice(message, dilemma.choiceC));
 			}
 
-			sendAndCache(message, embed);
+			sendAndCache(message, '', {embeds: [embed]});
 		});
 	}
 }

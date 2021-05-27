@@ -239,7 +239,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 				: `Upload your profile to get custom recommendations`
 		);
 
-	sendAndCache(message, embed);
+	sendAndCache(message, '', {embeds: [embed]});
 
 	return true;
 }

@@ -161,7 +161,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			embed = embed.addField('Book contents (legacy)', crew.markdownContent);
 		}
 
-		sendAndCache(message, embed);
+		sendAndCache(message, '', {embeds: [embed]});
 
 		if (extended && crew.markdownContent && crew.markdownContent.length >= 980) {
 			if (crew.markdownContent.length < 2048) {
@@ -171,7 +171,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
 					.setDescription(crew.markdownContent);
 
-				sendAndCache(message, embed, { isFollowUp: true });
+				sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
 			} else {
 				// The Big Book text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
 				sendAndCache(message, crew.markdownContent, { isFollowUp: true });

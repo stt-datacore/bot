@@ -100,7 +100,7 @@ async function asyncHandler(
 			}
 
 			if (embed.fields && embed.fields.length > 0) {
-				sendAndCache(message, embed);
+				sendAndCache(message, '', {embeds: [embed]});
 			}
 
 			if (laterSources.length > 0) {
@@ -112,8 +112,7 @@ async function asyncHandler(
 						.setURL(`${CONFIG.DATACORE_URL}item_info?symbol=${item.symbol}`)
 						.setDescription(laterSources);
 
-					// TODO: cache only holds the last one (for deletion)
-					sendAndCache(message, embed);
+					sendAndCache(message, '', {embeds: [embed]});
 				} else {
 					// The text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
 					sendAndCache(message, laterSources);
@@ -129,8 +128,7 @@ async function asyncHandler(
 						.setURL(`${CONFIG.DATACORE_URL}item_info?symbol=${item.symbol}`)
 						.setDescription(laterRecipe);
 
-					// TODO: cache only holds the last one (for deletion)
-					sendAndCache(message, embed);
+					sendAndCache(message, '', {embeds: [embed]});
 				} else {
 					// The text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
 					sendAndCache(message, laterRecipe);

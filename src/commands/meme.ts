@@ -21,7 +21,7 @@ async function asyncHandler(message: Message, name: string, texts: string[]) {
         let mm = memes.find(meme => meme.name.toLowerCase().indexOf(name) >= 0);
         if (mm) {
             let url = await captionMeme(mm.id, texts);
-            sendAndCache(message, new MessageEmbed().setImage(url));
+            sendAndCache(message, '', {embeds: [new MessageEmbed().setImage(url)]});
 
             // TODO: delete message if it has the rights
         } else {

@@ -50,11 +50,12 @@ export function formatSources(
 			} else {
 				if (entry.mission_symbol && entry.avg_cost > 0) {
 					let quest = DCData.questBySymbol(entry.mission_symbol);
+					let avg_cost = entry.avg_cost * (adjustForKit ? 0.75 : 1)
 					recipe.push({
-						cost: entry.avg_cost,
+						cost: avg_cost,
 						text: `${formatQuestName(quest, !rich)}, ${formatMastery(entry.mastery)} ${formatType(
 							entry.type
-						)} **${entry.avg_cost.toFixed(2)} ${getEmoteOrString(message, 'chrons', 'chronitons')}**`
+						)} **${avg_cost.toFixed(2)} ${getEmoteOrString(message, 'chrons', 'chronitons')}**`
 					});
 				}
 			}

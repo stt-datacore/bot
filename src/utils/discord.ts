@@ -76,7 +76,7 @@ type SendOptions = {
 	embeds?: MessageEmbed[]
 }
 
-export async function sendAndCache(message: Message | CommandInteraction, content: any, options?: SendOptions) {
+export async function sendAndCache(message: Message | CommandInteraction, content: string, options?: SendOptions) {
 
 	// Slash Commands have their own flow.
 	if (message instanceof CommandInteraction) {
@@ -94,6 +94,10 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 	
 	const flags: ReplyMessageOptions = { split: true };
 	
+	// if (content instanceof MessageEmbed){
+	// 	options?.embeds
+	// }
+
 	let nEmbeds = options?.embeds?.length ?? 0;
 	if (nEmbeds > 0) {
 		flags.embed = options?.embeds![0];

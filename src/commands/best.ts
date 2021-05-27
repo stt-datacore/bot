@@ -87,7 +87,7 @@ class Best implements Definitions.Command {
 			type: 'STRING',
 			description: '(optional) second skill to search',
 			required: false,
-			choces: [
+			choices: [
 				{ name: 'Science', value: 'sci' },
 				{ name: 'Security', value: 'sec' },
 				{ name: 'Engineering', value: 'eng' },

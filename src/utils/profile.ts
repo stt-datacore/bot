@@ -285,6 +285,7 @@ export async function getDbidFromDiscord(username: string, discriminator: string
 			if (data && data.dbid) {
 				return data.dbid;
 			}
+			Logger.error('No DBID returned while fetching DBID');
 			return undefined;
 		}
 	} catch (err) {
