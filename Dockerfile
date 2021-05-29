@@ -1,5 +1,7 @@
 FROM node:lts-alpine
 
+RUN apk add --update-cache git
+
 WORKDIR /usr/src/bot
 
 COPY . .
