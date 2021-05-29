@@ -2,7 +2,15 @@ import { APIUser } from 'discord-api-types';
 import { CommandInteraction, GuildMember, Message, MessageEmbed, ReplyMessageOptions, User } from 'discord.js';
 import NodeCache from 'node-cache';
 
-export function getEmoteOrString(message: Message, emojiName: string, defaultString: string): string {
+export function getEmoteOrString(message: Message | CommandInteraction, emojiName: string, defaultString: string): string {
+	if (message instanceof CommandInteraction) {
+		if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel!).has('USE_EXTERNAL_EMOJIS')) {
+			let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
+			if (emoji) {
+				return emoji.toString();
+			}
+	}
+	
 	switch (emojiName) {
 		case 'credits':
 			return '<:credits:835521627944124416>';
