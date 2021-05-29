@@ -1,4 +1,5 @@
-import { Message } from 'discord.js';
+import { APIUser } from 'discord-api-types';
+import { CommandInteraction, GuildMember, Message, MessageEmbed, ReplyMessageOptions, User } from 'discord.js';
 import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message, emojiName: string, defaultString: string): string {
@@ -53,23 +54,83 @@ export async function sendSplitText(message: Message, content: any) {
 	}
 }
 
-export async function sendAndCache(message: Message, content: any, asReply: boolean = false) {
-	let myReply;
+export function discordUserFromMessage(message: Message | CommandInteraction): APIUser | User | null | undefined {
+	let user = null;
+	if (message instanceof Message)
+		user = message.author;
+	else if (message instanceof CommandInteraction) {
+		if (message.user !== null)
+			user = message.user;
+		else if (message.member instanceof GuildMember)
+			user = message.member.user;
+		else
+			user = message.member?.user;
+	}
+	return user;
+}
 
-	if (asReply) {
-		myReply = await message.reply(content);
-	} else {
-		myReply = await message.channel.send(content);
+type SendOptions = {
+	asReply?: boolean
+	ephemeral?: boolean
+	isFollowUp?: boolean
+	embeds?: MessageEmbed[]
+}
+
+export async function sendAndCache(message: Message | CommandInteraction, content: string, options?: SendOptions) {
+
+	// Slash Commands have their own flow.
+	if (message instanceof CommandInteraction) {
+		let flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
+		if (options?.isFollowUp)
+			message.followUp(content, flags)
+		else
+			message.reply(content, flags)
+		while ((options?.embeds?.length ?? 0) > 0){
+			flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
+			message.followUp(flags);
+		}
+		return;
+	}
+	
+	const flags: ReplyMessageOptions = { split: true };
+	
+	// if (content instanceof MessageEmbed){
+	// 	options?.embeds
+	// }
+
+	let nEmbeds = options?.embeds?.length ?? 0;
+	if (nEmbeds > 0) {
+		flags.embed = options?.embeds![0];
 	}
 
-	if (myReply instanceof Message) {
-		let entries = MessageCache.get<string[]>(message.id);
-		if (entries) {
-			entries.push(myReply.id);
-			MessageCache.set(message.id, entries);
-		} else {
-			MessageCache.set(message.id, [myReply.id]);
+	
+	if (options?.asReply || message.channel == null) {
+		cache(await message.reply(content, flags as ReplyMessageOptions));
+	} else {
+		cache(await (message.channel as any).send(content, flags));
+	}
+
+	if (nEmbeds > 1) {
+		for (let additionalEmbed of options!.embeds!.slice(1)){
+			cache(await (message.channel as any).send(additionalEmbed));
 		}
+	}
+
+	function cache(replies: Message | Message[] | null) {
+		if (!replies)
+			return;
+		if (replies instanceof Message) {
+			replies = [replies];
+		}
+		replies.forEach(myReply => {
+			let entries = MessageCache.get<string[]>(message.id);
+			if (entries) {
+				entries.push(myReply.id);
+				MessageCache.set(message.id, entries);
+			} else {
+				MessageCache.set(message.id, [myReply.id]);
+			}
+		});
 	}
 }
 

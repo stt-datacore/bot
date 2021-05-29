@@ -31,17 +31,16 @@ async function asyncHandler(
 	if (results === undefined) {
 		sendAndCache(message, `Sorry, I couldn't find an item matching '${searchString}'`);
 	} else if (results.length > 1) {
-		sendAndCache(message, `There are ${results.length} items matching that. Which one did you mean?`);
-		results.forEach((item) => {
+		let embeds = results.map((item) => {
 			let shortSymbol = item.symbol.replace(/_quality.*/, '');
-			let embed = new MessageEmbed()
+			return new MessageEmbed()
 				.setTitle(item.name)
 				.setDescription(`\`${shortSymbol}\``)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 				.setColor(colorFromRarity(item.rarity))
 				.setURL(`${CONFIG.DATACORE_URL}item_info?symbol=${item.symbol}`);
-			sendAndCache(message, embed);
 		});
+		sendAndCache(message, `There are ${results.length} items matching that. Which one did you mean?`, { embeds });
 	} else {
 		let item = results[0];
 
@@ -101,7 +100,7 @@ async function asyncHandler(
 			}
 
 			if (embed.fields && embed.fields.length > 0) {
-				sendAndCache(message, embed);
+				sendAndCache(message, '', {embeds: [embed]});
 			}
 
 			if (laterSources.length > 0) {
@@ -113,8 +112,7 @@ async function asyncHandler(
 						.setURL(`${CONFIG.DATACORE_URL}item_info?symbol=${item.symbol}`)
 						.setDescription(laterSources);
 
-					// TODO: cache only holds the last one (for deletion)
-					sendAndCache(message, embed);
+					sendAndCache(message, '', {embeds: [embed]});
 				} else {
 					// The text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
 					sendAndCache(message, laterSources);
@@ -130,8 +128,7 @@ async function asyncHandler(
 						.setURL(`${CONFIG.DATACORE_URL}item_info?symbol=${item.symbol}`)
 						.setDescription(laterRecipe);
 
-					// TODO: cache only holds the last one (for deletion)
-					sendAndCache(message, embed);
+					sendAndCache(message, '', {embeds: [embed]});
 				} else {
 					// The text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
 					sendAndCache(message, laterRecipe);
@@ -154,6 +151,34 @@ class Farm implements Definitions.Command {
 	command = 'farm <rarity> <name..>';
 	aliases = ['item'];
 	describe = 'Searches drop rates and/or recipes for items';
+	options = [
+		{
+			name: 'rarity',
+			type: 'INTEGER',
+			description: 'rarity',
+			required: true,
+			choices: [
+				{ name: 'Basic (0)', value: 0 },
+				{ name: 'Common (1)', value: 1 },
+				{ name: 'Uncommon (2)', value: 2 },
+				{ name: 'Rare (3)', value: 3 },
+				{ name: 'Super Rare (4)', value: 4 },
+				{ name: 'Legendary (5)', value: 5 },
+			]
+		},
+		{
+			name: 'name',
+			type: 'STRING',
+			description: "(part of the) item's name",
+			required: true,
+		},
+		{
+			name: 'kit',
+			type: 'BOOLEAN',
+			description: 'adjust the chroniton cost for a supply kit',
+			required: false,
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('rarity', {
@@ -173,8 +198,8 @@ class Farm implements Definitions.Command {
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		let extended = args['_'][0] === 'item';
-		let searchString = (<string[]>args.name).join(' ');
+		let extended = args['_'] ? args['_'][0] === 'item' : (args.extended as boolean ?? false);
+		let searchString = typeof(args.name) === 'string' ? args.name : (<string[]>args.name).join(' ');
 		let raritySearch = args.rarity ? (args.rarity as number) : 0;
 		let adjustForKit = !!args.kit;
 

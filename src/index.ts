@@ -1,15 +1,21 @@
 import fs from 'fs';
-import { Client } from 'discord.js';
+import { Client, Intents } from 'discord.js';
 
 import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp } from './utils';
 import { MessageCache, sendAndCache } from './utils/discord';
 import { DCData } from './data/DCData';
 import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
+import { Commands } from './commands';
+import yargs from 'yargs';
+const Yargs = require('yargs/yargs');
 
 require('dotenv').config();
 
-const client = new Client();
+const client = new Client({
+	intents: [Intents.NON_PRIVILEGED],
+	partials: ['CHANNEL'],
+});
 
 /*
 For announcements (RSS from forum https://forum.disruptorbeam.com/stt/categories/starfleet-communications/feed.rss)
@@ -24,6 +30,7 @@ client.login(process.env.BOT_TOKEN);
 
 // TODO: merge config default with guild specific options
 const config = JSON.parse(fs.readFileSync(process.env.CONFIG_PATH!, 'utf8'));
+const devGuilds = Object.keys(config.guilds).filter((id) => config.guilds[id].dev === true);
 
 sequelize.sync().then(() => {
 	Logger.info('Database connection established');
@@ -31,6 +38,39 @@ sequelize.sync().then(() => {
 
 client.on('ready', () => {
 	Logger.info('Bot logged in', { bot_tag: client.user?.tag });
+	const slashCommands = Commands.map((com) => (
+		{
+			name: com.name,
+			description: com.describe || '',
+			options: com.options ?? []
+		}
+	));
+	if (process.env.NODE_ENV === 'production') {
+		Logger.info(`Registering commands globally`);
+		client?.application?.commands.set(slashCommands);
+	} else {
+		for (const gid of devGuilds) {
+			Logger.info(`Registering commands for guild ${gid}`);
+			client.guilds.cache.get(gid)?.commands.set(slashCommands);
+		}
+	}
+});
+
+client.on('interaction', (interaction) => {
+	  // If the interaction isn't a slash command, return
+		if (!interaction.isCommand()) return;
+
+		Commands.forEach((cmd) => {
+			if (cmd.name === interaction.commandName) {
+				let args = <any>{
+					message: interaction,
+				};
+				interaction.options.forEach((op) => {
+					args[op.name] = op.value;
+				})
+				cmd.handler(args);
+			}
+		});
 });
 
 client.on('messageDelete', (message) => {

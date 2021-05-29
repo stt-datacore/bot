@@ -33,7 +33,7 @@ async function asyncHandler(message: Message, searchString: string) {
 				embed = embed.addField('Choice C', formatChoice(message, dilemma.choiceC));
 			}
 
-			sendAndCache(message, embed);
+			sendAndCache(message, '', {embeds: [embed]});
 		});
 	}
 }
@@ -43,6 +43,14 @@ class Dilemma implements Definitions.Command {
 	command = 'dilemma <title...>';
 	aliases = ['dd'];
 	describe = 'Searches dilemmas with the given title';
+	options = [
+		{
+			name: 'title',
+			type: 'STRING',
+			description: "(part of) the dilemma's title",
+			required: true
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp.positional('title', {
 			describe: "(part of) the dilemma's title"
@@ -51,7 +59,7 @@ class Dilemma implements Definitions.Command {
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		let searchString = (<string[]>args.title).join(' ');
+		let searchString = typeof(args.title) === 'string' ? args.title : (<string[]>args.title).join(' ');
 
 		args.promisedResult = asyncHandler(message, searchString);
 	}

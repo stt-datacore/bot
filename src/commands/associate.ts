@@ -1,14 +1,26 @@
+import fs from 'fs';
 import { Message } from 'discord.js';
 import yargs from 'yargs';
-import { loadProfile, createUserFromMessage, associateUser } from '../utils/profile';
-import { sendAndCache } from '../utils/discord';
+import { loadProfile, createUserFromMessage, associateUser, getDbidFromDiscord, loadRemoteProfile } from '../utils/profile';
+import { discordUserFromMessage, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
+import { Profile } from '../models/Profile';
 
-async function asyncHandler(message: Message, dbid: string, access_token?: string) {
+async function asyncHandler(message: Message, dbid: string, devpull: boolean, access_token?: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await createUserFromMessage(message);
+	if (devpull){
+		if (process.env.NODE_ENV === 'production') {
+			sendAndCache(message, `This is a dev-only command.`, {asReply: true, ephemeral: true});
+			return;
+		}
+		dbid = await downloadProfile(message, dbid);
+		if (!dbid)
+			return;
+	}
+
 	let result = await associateUser(user, dbid, access_token);
 	if (result.error) {
 		sendAndCache(message, `Error: ${result.error}`);
@@ -23,10 +35,42 @@ async function asyncHandler(message: Message, dbid: string, access_token?: strin
 			sendAndCache(
 				message,
 				` I associated you with the captain profile '${profile.captainName}'. Remember to regularly update your profile online for accurate results!`,
-				true
+				{asReply: true}
 			);
 		}
 	}
+}
+
+async function downloadProfile(message: Message, dbid: string) {
+	let author = discordUserFromMessage(message);
+	if (isNaN(Number(dbid)))
+		dbid = await getDbidFromDiscord(author!.username, author!.discriminator);
+		if (!dbid) {
+			sendAndCache(message, `Sorry, I couldn't find a DBID associated with your Discord username ${author?.username}#${author?.discriminator}. Please manually enter your DBID.`)
+			throw(`Unable to find a DBID for Discord username ${author?.username}#${author?.discriminator}`);
+		}
+	let player_data = await loadRemoteProfile(dbid);
+	fs.writeFileSync(process.env.PROFILE_DATA_PATH + dbid, JSON.stringify(player_data, undefined, 4), 'utf8');
+	
+	let captainName = player_data.player.character.display_name;
+
+	let shortCrewList = {
+		crew: player_data.player.character.crew.map((crew: any) => ({ id: crew.archetype_id, rarity: crew.rarity })),
+		c_stored_immortals: player_data.player.character.c_stored_immortals,
+		stored_immortals: player_data.player.character.stored_immortals
+	};
+
+	let res = await Profile.findAll({ where: { dbid } });
+	if (res.length === 0) {
+		await Profile.create({ dbid, shortCrewList, captainName, lastUpdate: new Date() });
+	} else {
+		await res[0].update(
+			{ dbid, shortCrewList, captainName, lastUpdate: new Date() },
+			{ where: { dbid } }
+		);
+	}
+
+	return dbid;
 }
 
 class Associate implements Definitions.Command {
@@ -34,6 +78,14 @@ class Associate implements Definitions.Command {
 	command = 'associate <dbid> [test]';
 	aliases = [];
 	describe = 'Associate your discord user with a previously uploaded profile DBID';
+	options = [
+		{
+			name: 'dbid',
+			type: 'STRING',
+			description: 'your DBID',
+			required: true
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('dbid', {
@@ -43,6 +95,10 @@ class Associate implements Definitions.Command {
 			.positional('test', {
 				describe: 'UNUSED',
 				type: 'string'
+			})
+			.option('dev', {
+				desc: '(DEV ONLY) Pull your profile from the Datacore.app.',
+				type: 'boolean',
 			});
 	}
 
@@ -52,9 +108,13 @@ class Associate implements Definitions.Command {
 		args.promisedResult = asyncHandler(
 			message,
 			args.dbid as string,
-			args.test ? (args.test as string) : undefined
+			args.dev as boolean,
+			args.test ? (args.test as string) : undefined,
 		);
 	}
 }
 
 export let AssociateCommand = new Associate();
+
+
+

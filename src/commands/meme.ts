@@ -21,7 +21,7 @@ async function asyncHandler(message: Message, name: string, texts: string[]) {
         let mm = memes.find(meme => meme.name.toLowerCase().indexOf(name) >= 0);
         if (mm) {
             let url = await captionMeme(mm.id, texts);
-            sendAndCache(message, new MessageEmbed().setImage(url));
+            sendAndCache(message, '', {embeds: [new MessageEmbed().setImage(url)]});
 
             // TODO: delete message if it has the rights
         } else {
@@ -35,6 +35,20 @@ class Meme implements Definitions.Command {
 	command = 'meme <name> [text..]';
 	aliases = [];
 	describe = 'Generate a meme image and post it';
+	options = [
+		{
+			name: 'name',
+			type: 'STRING',
+			description: "name of the meme; use list to see what's available",
+			required: true,
+		},
+		{
+			name: 'text',
+			type: 'STRING',
+			description: 'lines of text. Enclose each line in quotes',
+			required: true,
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('name', {

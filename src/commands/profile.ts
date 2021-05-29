@@ -161,7 +161,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							embed = embed.addField('Member list (continued)', memberFields[1]);
 						}
 
-						sendAndCache(message, embed);
+						sendAndCache(message, '', {embeds: [embed]});
 					}
 				}
 			} else {
@@ -250,7 +250,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						await deleteOldReplies(message, profile.captainName);
 					}
 
-					sendAndCache(message, embed);
+					sendAndCache(message, '', {embeds: [embed] });
 				}
 			}
 		}
@@ -262,6 +262,19 @@ class Profile implements Definitions.Command {
 	command = 'profile [verb] [text...]';
 	aliases = [];
 	describe = 'Display a summary of your associated profile';
+	options = [
+		{
+			name: 'verb',
+			type: 'STRING',
+			description: 'additional profile actions',
+			required: false,
+			choices: [
+				{ name: 'Fleet', value: 'fleet' },
+				{ name: 'Daily', value: 'daily' },
+				{ name: 'Event', value: 'event' }
+			]
+		}
+	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('verb', {
