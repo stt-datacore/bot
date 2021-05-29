@@ -9,6 +9,7 @@ export function getEmoteOrString(message: Message | CommandInteraction, emojiNam
 			if (emoji) {
 				return emoji.toString();
 			}
+		}
 	}
 	
 	switch (emojiName) {
