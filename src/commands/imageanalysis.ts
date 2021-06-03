@@ -33,7 +33,14 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 				}\``
 			);
 		} else if (data.beholdResult && isPossibleBehold(data.beholdResult, 5)) {
-			await calculateBehold(message, data.beholdResult, false, false);
+			if (isValidBehold(data.beholdResult, 5)) {
+				await calculateBehold(message, data.beholdResult, false, false);
+			} else{
+				sendAndCache(
+					message,
+					"Sorry, the image appears to be a behold, but the crew cannot be identified. You can try submitting another screenshot, but there are some limitations related to low-height crew."
+				);
+			}
 		} else {
 			sendAndCache(
 				message,
