@@ -38,14 +38,11 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 			} else{
 				sendAndCache(
 					message,
-					"Sorry, the image appears to be a behold, but the crew cannot be identified. You can try submitting another screenshot, but there are some limitations related to low-height crew."
+					"Sorry, the image appears to be a behold, but the crew cannot be identified. " +
+					"This can be caused by lighting effects or background fuzzyness in the game, but there are some limitations related to low-height crew. " +
+					"Please try submitting another screenshot."
 				);
 			}
-		} else {
-			sendAndCache(
-				message,
-				"Sorry, the image does not appear to be either a valid voyage or behold."
-			);
 		}
 	}
 }
