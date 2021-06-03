@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
 
 import { analyzeImage, getVoyParams } from '../utils/imageanalysis';
-import { calculateBehold, isValidBehold } from '../utils/beholdcalc';
+import { calculateBehold, isValidBehold, isPossibleBehold } from '../utils/beholdcalc';
 import { voyCalc, formatVoyageReply } from '../utils/voyage';
 import { sendAndCache } from '../utils/discord';
 
@@ -32,8 +32,17 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 					data.voyResult.antimatter
 				}\``
 			);
-		} else if (data.beholdResult && isValidBehold(data.beholdResult, 5)) {
-			await calculateBehold(message, data.beholdResult, false, false);
+		} else if (data.beholdResult && isPossibleBehold(data.beholdResult, 5)) {
+			if (isValidBehold(data.beholdResult, 5)) {
+				await calculateBehold(message, data.beholdResult, false, false);
+			} else{
+				sendAndCache(
+					message,
+					"Sorry, the image appears to be a behold, but the crew cannot be identified. " +
+					"This can be caused by lighting effects or background fuzzyness in the game, but there are some limitations related to low-height crew. " +
+					"Please try submitting another screenshot."
+				);
+			}
 		}
 	}
 }
