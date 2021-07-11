@@ -25,42 +25,44 @@ class DCDataClass {
 	}
 
 	private _reloadData(filePath: string) {
-		console.log(`File ${filePath} has been changed`);
-		let parsedData = undefined;
-		try {
-			parsedData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-		} catch (err) {
-			console.error(err);
-			return;
-		}
+		if (filePath.endsWith('.json')) {
+			console.log(`File ${filePath} has been changed`);
+			let parsedData = undefined;
+			try {
+				parsedData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+			} catch (err) {
+				console.error(err);
+				return;
+			}
 
-		if (filePath.endsWith('items.json')) {
-			this._items = parsedData;
-		} else if (filePath.endsWith('quests.json')) {
-			this._quests = parsedData;
-		} else if (filePath.endsWith('dilemmas.json')) {
-			this._dilemmas = parsedData;
-		} else if (filePath.endsWith('crew.json')) {
-			this._rawCrew = parsedData;
+			if (filePath.endsWith('items.json')) {
+				this._items = parsedData;
+			} else if (filePath.endsWith('quests.json')) {
+				this._quests = parsedData;
+			} else if (filePath.endsWith('dilemmas.json')) {
+				this._dilemmas = parsedData;
+			} else if (filePath.endsWith('crew.json')) {
+				this._rawCrew = parsedData;
 
-			// Add pseudo-traits for the skills (for search to work)
-			this._rawCrew.forEach(crew => {
-				crew.traits_pseudo = [];
-				if (crew.base_skills.command_skill) crew.traits_pseudo.push('cmd');
-				if (crew.base_skills.science_skill) crew.traits_pseudo.push('sci');
-				if (crew.base_skills.security_skill) crew.traits_pseudo.push('sec');
-				if (crew.base_skills.engineering_skill) crew.traits_pseudo.push('eng');
-				if (crew.base_skills.diplomacy_skill) crew.traits_pseudo.push('dip');
-				if (crew.base_skills.medicine_skill) crew.traits_pseudo.push('med');
-			});
-		} else if (filePath.endsWith('upcomingevents.json')) {
-			// Fix up the dates
-			parsedData.forEach((entry: any) => {
-				entry.startDate = new Date(entry.startDate);
-				entry.endDate = new Date(entry.endDate);
-			});
+				// Add pseudo-traits for the skills (for search to work)
+				this._rawCrew.forEach(crew => {
+					crew.traits_pseudo = [];
+					if (crew.base_skills.command_skill) crew.traits_pseudo.push('cmd');
+					if (crew.base_skills.science_skill) crew.traits_pseudo.push('sci');
+					if (crew.base_skills.security_skill) crew.traits_pseudo.push('sec');
+					if (crew.base_skills.engineering_skill) crew.traits_pseudo.push('eng');
+					if (crew.base_skills.diplomacy_skill) crew.traits_pseudo.push('dip');
+					if (crew.base_skills.medicine_skill) crew.traits_pseudo.push('med');
+				});
+			} else if (filePath.endsWith('upcomingevents.json')) {
+				// Fix up the dates
+				parsedData.forEach((entry: any) => {
+					entry.startDate = new Date(entry.startDate);
+					entry.endDate = new Date(entry.endDate);
+				});
 
-			this._upcomingEvents = parsedData;
+				this._upcomingEvents = parsedData;
+			}
 		}
 	}
 
