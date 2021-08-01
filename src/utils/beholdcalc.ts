@@ -51,6 +51,9 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	if (crew.bigbook_tier) {
 		reply += `Big book **tier ${crew.bigbook_tier}** (Legacy), `;
 	}
+	if (crew.cab_ov) {
+		reply += `CAB **rating ${crew.cab_ov} (rank #${crew.cab_ov_rank})**, `;
+	}
 
 	reply += `Voyage #${crew.ranks.voyRank}, Gauntlet #${crew.ranks.gauntletRank}, ${crew.events || 0} event${
 		crew.events !== 1 ? 's' : ''
