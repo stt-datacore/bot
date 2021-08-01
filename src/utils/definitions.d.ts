@@ -157,6 +157,7 @@ declare namespace Definitions {
 		max_rarity: number;
 		bigbook_tier: number;
 		cab_ov: string;
+		cab_ov_rank: string;
 		events: number;
 		ranks: BotCrewRanks;
 		base_skills: Skills;
