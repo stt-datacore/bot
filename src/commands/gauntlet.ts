@@ -108,7 +108,7 @@ async function asyncHandler(message: Message, base: Boolean) {
 		.sort((a, b) => b.matched.length * relativeValue(b.crew) - a.matched.length * relativeValue(a.crew));
 
 	if (!results || results.length === 0) {
-		sendAndCache(message, `Something went wrong finding crew for current gauntlet.`);
+		sendAndCache(message, customized ? "Couldn't find any 45% or better 4/5 star crew in your roster. Try again with `--base` to see all possible crew." : `Something went wrong finding crew for current gauntlet.`);
 	} else {
 		let reply = `**Featured skill: ${
 			CONFIG.SKILLS[gstatus.contest_data.featured_skill as Definitions.SkillName]
