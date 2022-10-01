@@ -138,8 +138,8 @@ function recommendations(crew: CrewFromBehold[]) {
 	}
 	title += suffix;
 	if (best[0] !== bestCab[0]) {
-		title = `Big Book Recommendation: ${title}
-		CAB Power Ratings Recommendation: ${bestCab[0].crew.name}`
+		title = `Big Book recommendation: ${title}
+CAB Ratings recommendation: ${bestCab[0].crew.name}`
 	}
 
 	return {
