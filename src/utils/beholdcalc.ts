@@ -49,7 +49,7 @@ export function isPossibleBehold(data: any, threshold: number = 10) {
 export function formatCrewField(message: Message, crew: Definitions.BotCrew, stars: number, custom: string) {
 	let reply = '';
 	if (crew.bigbook_tier) {
-		reply += `Big book **tier ${crew.bigbook_tier}** (Legacy), `;
+		reply += `Big Book **tier ${crew.bigbook_tier}** ([link](https://www.bigbook.app/crew/${crew.symbol})), `;
 	}
 	if (crew.cab_ov) {
 		reply += `CAB **rating ${crew.cab_ov} (rank #${crew.cab_ov_rank})**, `;
@@ -131,7 +131,7 @@ function recommendations(crew: CrewFromBehold[]) {
 		}
 	}
 	if (best[0] !== bestCab[0]) {
-		title = `Big Book Recommendation (Legacy): ${title}
+		title = `Big Book Recommendation: ${title}
 		CAB Power Ratings Recommendation: ${bestCab[0].crew.name}`
 	}
 
