@@ -80,7 +80,7 @@ interface CrewFromBehold {
 
 function recommendations(crew: CrewFromBehold[]) {
 	let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
-	let bestCab = crew.sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
+	let bestCab = [...crew].sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
 	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
 
 	if (starBest.length > 0) {
@@ -88,16 +88,16 @@ function recommendations(crew: CrewFromBehold[]) {
 	}
 
 	let title = '';
-	if (best[0].crew.bigbook_tier > 7) {
+	if (best[0].crew.bigbook_tier > 8) {
 		if (starBest.length > 0) {
-			title = `All these options suck, so add a star to ${starBest[0].crew.name} I guess`;
+			title = `Add a star to ${starBest[0].crew.name}`;
 		} else {
-			title = `All these options suck, pick ${best[0].crew.name} if you have room`;
+			title = `Pick ${best[0].crew.name} if you have room`;
 		}
 	} else {
 		if (starBest.length > 0 && starBest[0].crew != best[0].crew) {
-			if (starBest[0].crew.bigbook_tier > 7) {
-				title = `${best[0].crew.name} is your best bet; star up the crappy ${starBest[0].crew.name} if you don't have any slots to spare`;
+			if (starBest[0].crew.bigbook_tier > 8) {
+				title = `${best[0].crew.name} is your best bet; star up ${starBest[0].crew.name} if you don't have any slots to spare`;
 			} else {
 				title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
 			}
@@ -130,6 +130,13 @@ function recommendations(crew: CrewFromBehold[]) {
 			}
 		}
 	}
+	let suffix = ".";
+	if (Math.abs(best[0].crew.bigbook_tier - best[1].crew.bigbook_tier) <= 1 &&
+		Math.abs(best[0].crew.bigbook_tier - best[2].crew.bigbook_tier) <= 1 &&
+		Math.abs(best[1].crew.bigbook_tier - best[2].crew.bigbook_tier) <= 1) {
+		suffix = " but check their links as tiers are similar."
+	}
+	title += suffix;
 	if (best[0] !== bestCab[0]) {
 		title = `Big Book Recommendation: ${title}
 		CAB Power Ratings Recommendation: ${bestCab[0].crew.name}`
