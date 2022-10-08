@@ -114,7 +114,7 @@ function recommendations(crew: CrewFromBehold[]) {
 		}
 	} else if (starBest.length > 0 && ff(best[0])) {
 		if (best[1].crew.bigbook_tier < 6 && !ff(best[1])) {
-			title = `${best[1].crew.name} is a good best bet, unless you want to start another ${best[0].crew.name}`;
+			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
 		} else {
 			title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
