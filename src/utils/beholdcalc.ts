@@ -79,6 +79,10 @@ interface CrewFromBehold {
 }
 
 function recommendations(crew: CrewFromBehold[]) {
+	const ff = (c: CrewFromBehold) => {
+		return c.stars == c.crew.max_rarity;
+	}
+
 	let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
 	let bestCab = [...crew].sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
 	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
@@ -94,42 +98,30 @@ function recommendations(crew: CrewFromBehold[]) {
 		} else {
 			title = `Pick ${best[0].crew.name} if you have room`;
 		}
-	} else {
-		if (starBest.length > 0 && starBest[0].crew != best[0].crew) {
-			if (starBest[0].crew.bigbook_tier > 8) {
-				title = `${best[0].crew.name} is your best bet; star up ${starBest[0].crew.name} if you don't have any slots to spare`;
-			} else {
-				title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
-			}
+	} else if (starBest.length > 0 && starBest[0].crew != best[0].crew && !ff(best[0])) {
+		if (starBest[0].crew.bigbook_tier > 5) {
+			title = `${best[0].crew.name} is your best bet; star up ${starBest[0].crew.name} if you don't have any slots to spare`;
 		} else {
-			if (best[0].crew.bigbook_tier == best[1].crew.bigbook_tier) {
-				title = `Pick either ${best[0].crew.name} or ${best[1].crew.name}`;
-			} else {
-				let stars = 0;
-				if (best[0].crew.symbol == crew[0].crew.symbol) {
-					stars = crew[0].stars;
-				} else if (best[0].crew.symbol == crew[1].crew.symbol) {
-					stars = crew[1].stars;
-				} else {
-					stars = crew[2].stars;
-				}
-
-				let allMaxed =
-					crew[0].stars == best[0].crew.max_rarity && crew[1].stars == best[0].crew.max_rarity && crew[2].stars == best[0].crew.max_rarity;
-
-				if (!allMaxed && stars == best[0].crew.max_rarity) {
-					if (best[1].crew.bigbook_tier < 6) {
-						title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
-					} else {
-						// TODO: if both best[0] and best[1] are FF-d
-						title = `It may be worth starting another ${best[0].crew.name}, pick ${best[1].crew.name} if you don't want dupes`;
-					}
-				} else {
-					title = `${best[0].crew.name} is your best bet`;
-				}
-			}
+			title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
 		}
+	} else if (best.find((c,i)=> i != 0 && c.crew.bigbook_tier == best[0].crew.bigbook_tier && !ff(c)) && !ff(best[0])) {
+		// There's an equally good option, neither FF
+		let equals = best.filter((c,i) => i != 0 && c.crew.bigbook_tier == best[0].crew.bigbook_tier && !ff(c));
+		if (equals.length == 2) {
+			title = `Pick anyone`
+		} else {
+			title = `Pick ${best[0].crew.name} or ${equals[0].crew.name}`;
+		}
+	} else if (starBest.length > 0 && ff(best[0])) {
+		if (best[1].crew.bigbook_tier < 6 && !ff(best[1])) {
+			title = `${best[1].crew.name} is a good best bet, unless you want to start another ${best[0].crew.name}`;
+		} else {
+			title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
+		}
+	} else {
+		title = `${best[0].crew.name} is your best bet`;
 	}
+
 	let suffix = ".";
 	if (Math.abs(best[0].crew.bigbook_tier - best[1].crew.bigbook_tier) <= 1 &&
 		Math.abs(best[0].crew.bigbook_tier - best[2].crew.bigbook_tier) <= 1 &&

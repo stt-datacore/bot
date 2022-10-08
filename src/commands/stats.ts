@@ -160,7 +160,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		if (extended && crew.markdownContent && crew.markdownContent.length < 980) {
-			embed = embed.addField('Book contents (legacy)', crew.markdownContent);
+			embed = embed.addField('Big Book note', crew.markdownContent);
 		}
 
 		sendAndCache(message, '', {embeds: [embed]});
@@ -168,7 +168,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		if (extended && crew.markdownContent && crew.markdownContent.length >= 980) {
 			if (crew.markdownContent.length < 2048) {
 				let embed = new MessageEmbed()
-					.setTitle(`Big book details for ${crew.name} (legacy)`)
+					.setTitle(`Big Book note for ${crew.name}`)
 					.setColor(colorFromRarity(crew.max_rarity))
 					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
 					.setDescription(crew.markdownContent);
