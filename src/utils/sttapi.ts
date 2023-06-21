@@ -5,7 +5,7 @@ import { URLSearchParams } from 'url';
 
 class CONFIG {
 	static readonly URL_PLATFORM: string = 'https://thorium.disruptorbeam.com/';
-	static readonly URL_SERVER: string = 'https://stt.disruptorbeam.com/';
+	static readonly URL_SERVER: string = 'https://app.startrektimelines.com/';
 	static readonly CLIENT_API_VERSION: number = 15;
 }
 
