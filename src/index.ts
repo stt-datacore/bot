@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Client, Intents } from 'discord.js';
+import { Client, Partials } from 'discord.js';
 
 import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp } from './utils';
 import { MessageCache, sendAndCache } from './utils/discord';
@@ -13,8 +13,8 @@ const Yargs = require('yargs/yargs');
 require('dotenv').config();
 
 const client = new Client({
-	intents: [Intents.NON_PRIVILEGED],
-	partials: ['CHANNEL'],
+	intents: ['Guilds', 'GuildMessages'],
+	partials: [Partials.Channel],
 });
 
 /*
@@ -65,7 +65,7 @@ client.on('interaction', (interaction) => {
 				let args = <any>{
 					message: interaction,
 				};
-				interaction.options.forEach((op) => {
+				interaction.options.forEach((op: any) => {
 					args[op.name] = op.value;
 				})
 				cmd.handler(args);

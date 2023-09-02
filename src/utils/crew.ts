@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { ColorResolvable, Message } from 'discord.js';
 import { getEmoteOrString } from './discord';
 
 function formatSkill(skill: Definitions.Skill, useSpace: boolean, forGauntlet: boolean = false) {
@@ -236,7 +236,7 @@ export function chargePhasesToString(action: Definitions.CrewAction): string[] {
 	}
 }
 
-export function colorFromRarity(rarity: number): 'LIGHT_GREY' | [number, number, number] {
+export function colorFromRarity(rarity: number): ColorResolvable {
 	switch (rarity) {
 		case 1: // Common
 			return [155, 155, 155];
@@ -254,7 +254,7 @@ export function colorFromRarity(rarity: number): 'LIGHT_GREY' | [number, number,
 			return [253, 210, 106];
 
 		default:
-			return 'LIGHT_GREY';
+			return 'LightGrey';
 	}
 }
 

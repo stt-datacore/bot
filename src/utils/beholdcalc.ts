@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, Embed, EmbedBuilder } from 'discord.js';
 
 import { DCData } from '../data/DCData';
 import { formatStatLine, formatCrewCoolRanks, colorFromRarity } from './crew';
@@ -175,7 +175,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		return false;
 	}
 
-	let embed = new MessageEmbed()
+	let embed = new EmbedBuilder()
 		.setTitle('Detailed comparison')
 		.setColor(colorFromRarity(crew1.max_rarity))
 		.setURL(`${CONFIG.DATACORE_URL}behold/?crew=${crew1.symbol}&crew=${crew2.symbol}&crew=${crew3.symbol}`);
@@ -224,10 +224,10 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 						1}, Gauntlet #${gauntletranks[i] + 1}`;
 				}
 
-				embed = embed.addField(
-					user.profiles[0].captainName,
-					`Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
-				);
+				embed = embed.addFields({
+					name: user.profiles[0].captainName,
+					value: `Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
+				});
 			}
 		}
 	}
@@ -240,15 +240,15 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 
 	embed = embed
 		.setThumbnail(`${CONFIG.ASSETS_URL}${best.imageUrlPortrait}`)
-		.setDescription(description)
-		.addField(crew1.name, formatCrewField(message, crew1, beholdResult.crew1.stars, customranks[0]))
-		.addField(crew2.name, formatCrewField(message, crew2, beholdResult.crew2.stars, customranks[1]))
-		.addField(crew3.name, formatCrewField(message, crew3, beholdResult.crew3.stars, customranks[2]))
-		.setFooter(
-			customranks[0]
+		.setDescription(description)		
+		.addFields({ name: crew1.name, value: formatCrewField(message, crew1, beholdResult.crew1.stars, customranks[0])})
+		.addFields({ name: crew2.name, value: formatCrewField(message, crew2, beholdResult.crew2.stars, customranks[1])})
+		.addFields({ name: crew3.name, value: formatCrewField(message, crew3, beholdResult.crew3.stars, customranks[2])})
+		.setFooter({
+			text: customranks[0]
 				? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
 				: `Upload your profile to get custom recommendations`
-		);
+		});
 
 	sendAndCache(message, '', {embeds: [embed]});
 

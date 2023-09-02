@@ -1,10 +1,10 @@
 import { APIUser } from 'discord-api-types';
-import { CommandInteraction, GuildMember, Message, MessageEmbed, ReplyMessageOptions, User } from 'discord.js';
+import { CommandInteraction, GuildMember, Message, EmbedBuilder, MessageReplyOptions, User, GuildChannel, NonThreadGuildBasedChannel, Embed, MessageFlags } from 'discord.js';
 import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message | CommandInteraction, emojiName: string, defaultString: string): string {
 	if (message instanceof CommandInteraction) {
-		if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel!).has('USE_EXTERNAL_EMOJIS')) {
+		if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis')) {
 			let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
 			if (emoji) {
 				return emoji.toString();
@@ -45,12 +45,7 @@ export function getEmoteOrString(message: Message | CommandInteraction, emojiNam
 export let MessageCache = new NodeCache({ stdTTL: 600 });
 
 export async function sendSplitText(message: Message, content: any) {
-	let myReply = await message.channel.send(content, {
-		split: {
-			prepend: '```\n',
-			append: '```\n'
-		}
-	});
+	let myReply = await message.channel.send('```\n' + content + '```\n');
 
 	if (myReply instanceof Message) {
 		let entries = MessageCache.get<string[]>(message.id);
@@ -64,7 +59,7 @@ export async function sendSplitText(message: Message, content: any) {
 }
 
 export function discordUserFromMessage(message: Message | CommandInteraction): APIUser | User | null | undefined {
-	let user = null;
+	let user: User | APIUser | null | undefined = null;
 	if (message instanceof Message)
 		user = message.author;
 	else if (message instanceof CommandInteraction) {
@@ -73,7 +68,7 @@ export function discordUserFromMessage(message: Message | CommandInteraction): A
 		else if (message.member instanceof GuildMember)
 			user = message.member.user;
 		else
-			user = message.member?.user;
+			user = message.member?.user as APIUser;
 	}
 	return user;
 }
@@ -82,26 +77,27 @@ type SendOptions = {
 	asReply?: boolean
 	ephemeral?: boolean
 	isFollowUp?: boolean
-	embeds?: MessageEmbed[]
+	embeds?: EmbedBuilder[]
 }
 
 export async function sendAndCache(message: Message | CommandInteraction, content: string, options?: SendOptions) {
 
 	// Slash Commands have their own flow.
 	if (message instanceof CommandInteraction) {
-		let flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
+
+		let flags = options?.ephemeral ? MessageFlags.Ephemeral : 0; // { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
 		if (options?.isFollowUp)
-			message.followUp(content, flags)
+			message.followUp({ content, flags, embeds: options?.embeds?.splice(0,10) })
 		else
-			message.reply(content, flags)
+			message.reply({ content, flags, embeds: options?.embeds?.splice(0,10) })
 		while ((options?.embeds?.length ?? 0) > 0){
-			flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
-			message.followUp(flags);
+			let msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
+			message.followUp(msg);
 		}
 		return;
 	}
 	
-	const flags: ReplyMessageOptions = { split: true };
+	const flags: MessageReplyOptions = {};
 	
 	// if (content instanceof MessageEmbed){
 	// 	options?.embeds
@@ -109,12 +105,13 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 
 	let nEmbeds = options?.embeds?.length ?? 0;
 	if (nEmbeds > 0) {
-		flags.embed = options?.embeds![0];
+		flags.embeds = options?.embeds!.slice(0, 1);
 	}
 
 	
 	if (options?.asReply || message.channel == null) {
-		cache(await message.reply(content, flags as ReplyMessageOptions));
+		flags.content = content;
+		cache(await message.reply(flags));
 	} else {
 		cache(await (message.channel as any).send(content, flags));
 	}
