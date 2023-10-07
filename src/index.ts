@@ -13,7 +13,14 @@ const Yargs = require('yargs/yargs');
 require('dotenv').config();
 
 const client = new Client({
-	intents: ['Guilds', 'GuildMessages', 'MessageContent', 'GuildEmojisAndStickers', 'GuildMessageTyping', 'GuildIntegrations', 'GuildMessageReactions'],
+	intents: ['Guilds', 
+		'GuildMessages', 
+		'MessageContent', 
+		'GuildEmojisAndStickers', 
+		'GuildMessageTyping', 
+		'GuildIntegrations', 
+		'GuildMessageReactions',
+		],
 	partials: [Partials.Channel, Partials.Message, Partials.GuildMember],
 });
 
@@ -63,7 +70,7 @@ client.on('ready', () => {
 	}
 });
 
-client.on('interaction', (interaction) => {
+client.on('interactionCreate', (interaction) => {
 	  // If the interaction isn't a slash command, return
 		if (!interaction.isCommand()) return;
 
@@ -72,7 +79,7 @@ client.on('interaction', (interaction) => {
 				let args = <any>{
 					message: interaction,
 				};
-				interaction.options.forEach((op: any) => {
+				interaction.options.data.forEach((op: any) => {
 					args[op.name] = op.value;
 				})
 				cmd.handler(args);
