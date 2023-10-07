@@ -49,6 +49,13 @@ client.on('ready', () => {
 		Logger.info(`Registering commands globally`);
 		client?.application?.commands.set(slashCommands);
 	} else {
+		
+		if (!!process.env.DEFAULT_GUILD) {
+			const gid = process.env.DEFAULT_GUILD;
+			Logger.info(`Registering commands for guild ${gid}`);
+			client.guilds.cache.get(gid)?.commands.set(slashCommands);	
+		}
+		
 		for (const gid of devGuilds) {
 			Logger.info(`Registering commands for guild ${gid}`);
 			client.guilds.cache.get(gid)?.commands.set(slashCommands);
