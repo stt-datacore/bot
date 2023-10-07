@@ -36,7 +36,11 @@ async function asyncHandler(
 	let profileItems = profile.player.character.items;
 	let candidatesForImmortalisation = profileCrew.filter((c: any) => {
 		if (c.level === 100) {
-			return false;
+			let needed = getNeededItems(c.symbol, c.level);
+			if (!needed) {
+				return false;
+			}
+			return true;
 		}
 		if (c.rarity === crew.find((d) => d.symbol === c.symbol)?.max_rarity) {
 			return true;
