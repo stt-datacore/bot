@@ -3,7 +3,7 @@ require('dotenv').config();
 export default class CONFIG {
 	static readonly DATACORE_URL = process.env.DATACORE_URL;
 	static readonly ASSETS_URL = process.env.ASSETS_URL;
-	static readonly IMAGE_ANALYSIS_URL = 'http://localhost:5000';
+	static readonly IMAGE_ANALYSIS_URL = process.env.IMAGE_ANALYSIS_URL;
 
 	static readonly SKILLS: { [key in Definitions.SkillName]: string } = {
 		command_skill: 'Command',
