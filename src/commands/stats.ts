@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -71,17 +71,17 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			raritySearch = 1;
 		}
 
-		let embed = new MessageEmbed()
+		let embed = new EmbedBuilder()
 			.setTitle(crew.name)
 			.setThumbnail(`${CONFIG.ASSETS_URL}${crew.imageUrlPortrait}`)
 			.setColor(colorFromRarity(crew.max_rarity))
 			.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`);
 
 		if (extended && crew.nicknames && crew.nicknames.length > 0) {
-			embed = embed.addField('Also known as', `${crew.nicknames.map((n) => `${n.cleverThing}${n.creator ? ` (coined by _${n.creator}_)` : ''}`).join(', ')}`);
+			embed = embed.addFields({ name: 'Also known as', value: `${crew.nicknames.map((n) => `${n.cleverThing}${n.creator ? ` (coined by _${n.creator}_)` : ''}`).join(', ')}` });
 		}
 
-		embed = embed.addField('Traits', `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*`);
+		embed = embed.addFields({ name: 'Traits', value: `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*` });
 
 		if (!base) {
 			let user = await userFromMessage(message);
@@ -97,42 +97,42 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 						sd.base_skills = applyCrewBuffs(sd.base_skills, profile!.buffConfig, false);
 					});
 
-					embed = embed.addField(
-						user.profiles[0].captainName,
-						`Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
-					);
+					embed = embed.addFields({
+						name: user.profiles[0].captainName,
+						value: `Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
+					});
 				}
 			}
 		}
 
 		embed = embed
-			.addField('Stats', formatStatLine(message, crew, raritySearch))
-			.addField('Voyage Rank', `${crew.ranks.voyRank} of ${DCData.totalCrew()}`, true)
-			.addField('Voyage Triplet', crew.ranks.voyTriplet ? `#${crew.ranks.voyTriplet.rank} ${crew.ranks.voyTriplet.name.replace(/ /g, '')}` : 'N/A', true)
-			.addField('Gauntlet Rank', `${crew.ranks.gauntletRank} of ${DCData.totalCrew()}`, true)
-			.addField(
-				'Estimated Cost',
-				`${crew.totalChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${crew.factionOnlyTotal} faction`,
-				true
-			)
-			.addField('Difficulty', getDifficulty(crew.ranks.chronCostRank), true)
-			.setFooter(formatCrewCoolRanks(crew));
+			.addFields({ name: 'Stats', value: formatStatLine(message, crew, raritySearch) })
+			.addFields({ name: 'Voyage Rank', value: `${crew.ranks.voyRank} of ${DCData.totalCrew()}`, inline: true })
+			.addFields({ name: 'Voyage Triplet', value: crew.ranks.voyTriplet ? `#${crew.ranks.voyTriplet.rank} ${crew.ranks.voyTriplet.name.replace(/ /g, '')}` : 'N/A', inline: true })
+			.addFields({ name: 'Gauntlet Rank', value: `${crew.ranks.gauntletRank} of ${DCData.totalCrew()}`, inline: true })
+			.addFields({
+				name: 'Estimated Cost',
+				value: `${crew.totalChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${crew.factionOnlyTotal} faction`,
+				inline: true
+			})
+			.addFields({ name: 'Difficulty', value: getDifficulty(crew.ranks.chronCostRank), inline: true })
+			.setFooter({ text: formatCrewCoolRanks(crew) });
 
 		if (crew.bigbook_tier && crew.events) {
 			embed = embed
-				.addField('Events', crew.events, true)
-				.addField('Big Book Tier ', crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `[${crew.bigbook_tier}](https://www.bigbook.app/crew/${crew.symbol})`, true);
+				.addFields({ name: 'Events', value: crew.events.toString(), inline: true })
+				.addFields({ name: 'Big Book Tier ', value: crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `[${crew.bigbook_tier}](https://www.bigbook.app/crew/${crew.symbol})`, inline: true });
 		}
 
 		if (crew.cab_ov) {
-			embed = embed.addField('CAB Rating', `[${crew.cab_ov}](https://sttpowerratings.com/)`, true);
+			embed = embed.addFields({ name: 'CAB Rating', value: `[${crew.cab_ov}](https://sttpowerratings.com/)`, inline: true });
 		}
 
 		if (crew.collections && crew.collections.length > 0) {
-			embed = embed.addField(
-				'Collections',
-				crew.collections.map((c: string) => `[${c}](${CONFIG.DATACORE_URL}collections/#${encodeURIComponent(c)}/)`).join(', ')
-			);
+			embed = embed.addFields({
+				name: 'Collections',
+				value: crew.collections.map((c: string) => `[${c}](${CONFIG.DATACORE_URL}collections/#${encodeURIComponent(c)}/)`).join(', ')
+			});
 		}
 
 		if (extended) {
@@ -156,18 +156,18 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				shipAbilities += `\n**Uses:** ${crew.action.limit}`;
 			}
 
-			embed = embed.addField('Ship Abilities', shipAbilities);
+			embed = embed.addFields({ name: 'Ship Abilities', value: shipAbilities });
 		}
 
 		if (extended && crew.markdownContent && crew.markdownContent.length < 980) {
-			embed = embed.addField('Big Book note', crew.markdownContent);
+			embed = embed.addFields({ name: 'Big Book note', value: crew.markdownContent });
 		}
 
 		sendAndCache(message, '', {embeds: [embed]});
 
 		if (extended && crew.markdownContent && crew.markdownContent.length >= 980) {
 			if (crew.markdownContent.length < 2048) {
-				let embed = new MessageEmbed()
+				let embed = new EmbedBuilder()
 					.setTitle(`Big Book note for ${crew.name}`)
 					.setColor(colorFromRarity(crew.max_rarity))
 					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)

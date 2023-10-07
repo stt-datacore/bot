@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import yargs from 'yargs';
 import {
 	userFromMessage,
@@ -138,27 +138,27 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							}
 						});
 
-						let embed = new MessageEmbed()
+						let embed = new EmbedBuilder()
 							.setTitle(fleet.name)
 							.setURL(`${CONFIG.DATACORE_URL}fleet_info/?fleetid=${fleetId}`)
 							.setThumbnail(`${CONFIG.ASSETS_URL}${imageUrl}`)
-							.setColor('DARK_GREEN')
-							.addField('Starbase level', fleet.nstarbase_level, true)
-							.addField('Created', new Date(fleet.created).toLocaleDateString(), true)
-							.addField('Size', `${fleet.cursize} / ${fleet.maxsize}`, true);
+							.setColor('DarkGreen')
+							.addFields({ name: 'Starbase level', value: fleet.nstarbase_level.toString(), inline: true })
+							.addFields({ name: 'Created', value: new Date(fleet.created).toLocaleDateString(), inline: true })
+							.addFields({ name: 'Size', value: `${fleet.cursize} / ${fleet.maxsize}`, inline: true });
 
 						if (fleet.motd) {
-							embed = embed.addField('MOTD', fleet.motd);
+							embed = embed.addFields({ name: 'MOTD', value: fleet.motd });;
 						}
 
 						embed = embed
-							.addField(fleet.leaderboard[0].event_name, `Rank ${fleet.leaderboard[0].fleet_rank}`, true)
-							.addField(fleet.leaderboard[1].event_name, `Rank ${fleet.leaderboard[1].fleet_rank}`, true)
-							.addField(fleet.leaderboard[2].event_name, `Rank ${fleet.leaderboard[2].fleet_rank}`, true)
-							.addField('Member list', memberFields[0]);
+							.addFields({ name: fleet.leaderboard[0].event_name, value: `Rank ${fleet.leaderboard[0].fleet_rank}`, inline: true })
+							.addFields({ name: fleet.leaderboard[1].event_name, value: `Rank ${fleet.leaderboard[1].fleet_rank}`, inline: true })
+							.addFields({ name: fleet.leaderboard[2].event_name, value: `Rank ${fleet.leaderboard[2].fleet_rank}`, inline: true })
+							.addFields({ name: 'Member list', value: memberFields[0] });
 
 						if (memberFields.length > 0) {
-							embed = embed.addField('Member list (continued)', memberFields[1]);
+							embed = embed.addFields({ name: 'Member list (continued)', value: memberFields[1] });;
 						}
 
 						sendAndCache(message, '', {embeds: [embed]});
@@ -177,21 +177,21 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 			for (let profile of user.profiles) {
 				let profileData = loadFullProfile(profile.dbid);
 				if (profileData) {
-					let embed = new MessageEmbed().setTitle(profile.captainName).setColor('DARK_GREEN');
+					let embed = new EmbedBuilder().setTitle(profile.captainName).setColor('DarkGreen');
 
 					if (eventReply) {
 						embed = embed
-							.addField('Last update', profile.lastUpdate.toDateString(), true)
-							.addField('Stats', `VIP${profileData.player.vip_level}; Level ${profileData.player.character.level}`, true);
+							.addFields({ name: 'Last update', value: profile.lastUpdate.toDateString(), inline: true })
+							.addFields({ name: 'Stats', value: `VIP${profileData.player.vip_level}; Level ${profileData.player.character.level}`, inline: true });
 					} else {
 						embed = embed
 							.setURL(`${CONFIG.DATACORE_URL}profile/?dbid=${profile.dbid}`)
-							.addField('Last update', profile.lastUpdate.toDateString())
-							.addField('VIP', profileData.player.vip_level, true)
-							.addField('Level', profileData.player.character.level, true);
+							.addFields({ name: 'Last update', value: profile.lastUpdate.toDateString() })
+							.addFields({ name: 'VIP', value: profileData.player.vip_level, inline: true })
+							.addFields({ name: 'Level', value: profileData.player.character.level, inline: true });
 					}
 
-					embed = embed.addField('Shuttles', profileData.player.character.shuttle_bays, true);
+					embed = embed.addFields({ name: 'Shuttles', value: profileData.player.character.shuttle_bays, inline: true });
 
 					if (profileData.player.character.crew_avatar && profileData.player.character.crew_avatar.portrait) {
 						embed = embed.setThumbnail(`${CONFIG.ASSETS_URL}${profileData.player.character.crew_avatar.portrait}`);
@@ -228,22 +228,22 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 										.join(', ')
 						}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
 
-						//embed = embed.addField('Total crew', roster.length, true);
-						embed = embed.addField(`**${event.name}** (${event.type})`, reply); // ending on *${event.endDate.toDateString()}*
+						//embed = embed.addFields({ name: 'Total crew', value: roster.length, true });;
+						embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply }); // ending on *${event.endDate.toDateString()}*
 					}
 
 					if (text) {
-						embed = embed.addField('Other details', text);
+						embed = embed.addFields({ name: 'Other details', value: text });;
 
 						// TODO: save this for the fleet admiral's report view
 						// userId, eventId, eventGoals, ? eventCrew
 					}
 
 					if (!eventReply && profileData.player.fleet && profileData.player.fleet.id) {
-						embed = embed.addField(
-							'Fleet',
-							`[${profileData.player.fleet.slabel}](${CONFIG.DATACORE_URL}fleet_info?fleetid=${profileData.player.fleet.id})`
-						);
+						embed = embed.addFields({
+							name: 'Fleet',
+							value: `[${profileData.player.fleet.slabel}](${CONFIG.DATACORE_URL}fleet_info?fleetid=${profileData.player.fleet.id})`
+						});
 					}
 
 					if (eventReply) {

@@ -13,8 +13,8 @@ const Yargs = require('yargs/yargs');
 require('dotenv').config();
 
 const client = new Client({
-	intents: ['Guilds', 'GuildMessages'],
-	partials: [Partials.Channel],
+	intents: ['Guilds', 'GuildMessages', 'MessageContent', 'GuildEmojisAndStickers', 'GuildMessageTyping', 'GuildIntegrations', 'GuildMessageReactions'],
+	partials: [Partials.Channel, Partials.Message, Partials.GuildMember],
 });
 
 /*
@@ -93,7 +93,7 @@ client.on('messageDelete', (message) => {
 	}
 });
 
-client.on('message', (message) => {
+client.on('messageCreate', (message) => {
 	if (message.author.id === client.user?.id) {
 		return;
 	}
@@ -135,6 +135,7 @@ client.on('message', (message) => {
 
 	const prefix = message.content.match(prefixRegex);
 	let usedPrefix = '';
+	
 	if (prefix === null) {
 		// special case for attached images (for behold / voyage)
 		let cmdConfig = guildConfig && guildConfig.commands ? guildConfig.commands.find((c: any) => c.command === 'imageAnalysis') : undefined;

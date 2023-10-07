@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -81,19 +81,38 @@ async function asyncHandler(
 
 
 	const embeds = candidatesForImmortalisation.slice(0, 5).map((can: any) => {
-		const matched = crew.find((crew) => crew.symbol === can.symbol);
+		
+		const matched = crew.find((crew) => {
+			return crew.symbol === can.symbol
+		});
+		
 		if (!matched) {
 			return;
 		}
-		return new MessageEmbed()
-		.setTitle(`${matched.name} (Level ${can.level})`)
-		.setDescription(`Missing item costs:`)
-		.setThumbnail(`${CONFIG.ASSETS_URL}${matched.imageUrlPortrait}`)
-		.setColor(colorFromRarity(matched.max_rarity))
-		.addField(getEmoteOrString(message, 'chrons', 'Chrons'), Math.round(can.requiredChronCost), true)
-		.addField(getEmoteOrString(message, 'shuttle', 'Faction'), `${can.requiredFactionItems} items`, true)
-		.addField(getEmoteOrString(message, 'credits', 'Credits'), can.craftCost, true)
-		.setFooter(`${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}`);
+
+		return new EmbedBuilder()
+			.setTitle(`${matched.name} (Level ${can.level})`)
+			.setDescription(`Missing item costs:`)
+			.setThumbnail(`${CONFIG.ASSETS_URL}${matched.imageUrlPortrait}`)
+			.setColor(colorFromRarity(matched.max_rarity))
+			.addFields(
+				{
+					name: getEmoteOrString(message, 'chrons', 'Chrons'),
+					value: Math.round(can.requiredChronCost).toString(),
+					inline: true
+				},
+				{
+					name: getEmoteOrString(message, 'shuttle', 'Faction'),
+					value:	`${can.requiredFactionItems} items`,
+					inline: true
+				},
+				{
+					name: getEmoteOrString(message, 'credits', 'Credits'),
+					value: can.craftCost.toString(),
+					inline: true
+				}
+			)
+			.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}` });
 	});
 
 	sendAndCache(message, 

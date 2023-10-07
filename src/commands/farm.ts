@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -33,7 +33,7 @@ async function asyncHandler(
 	} else if (results.length > 1) {
 		let embeds = results.map((item) => {
 			let shortSymbol = item.symbol.replace(/_quality.*/, '');
-			return new MessageEmbed()
+			return new EmbedBuilder()
 				.setTitle(item.name)
 				.setDescription(`\`${shortSymbol}\``)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
@@ -46,7 +46,7 @@ async function asyncHandler(
 
 		if (extended) {
 			// TODO: crew that equips it, recipes it's part of, etc.
-			let embed = new MessageEmbed()
+			let embed = new EmbedBuilder()
 				.setTitle(item.name)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 				.setColor(colorFromRarity(item.rarity))
@@ -54,7 +54,7 @@ async function asyncHandler(
 
 			if (item.bonuses) {
 				let bonuses = Object.keys(item.bonuses).map(bonus => `${bonusName(bonus)} +${item.bonuses[bonus]}`);
-				embed = embed.addField('Bonuses', bonuses.join(', '));
+				embed = embed.addFields({ name: 'Bonuses', value: bonuses.join(', ') });
 			}
 
 			let laterRecipe = '';
@@ -63,13 +63,13 @@ async function asyncHandler(
 			if (!item.item_sources || item.item_sources.length === 0) {
 				laterRecipe = formatRecipe(message, item, true);
 				if (laterRecipe.length < 1000) {
-					embed = embed.addField('Recipe', laterRecipe);
+					embed = embed.addFields({ name: 'Recipe', value: laterRecipe });
 					laterRecipe = '';
 				}
 			} else {
 				laterSources = formatSources(message, item, adjustForKit, true);
 				if (laterSources.length < 1000) {
-					embed = embed.addField('Sources', laterSources);
+					embed = embed.addFields({ name: 'Sources', value: laterSources });
 					laterSources = '';
 				}
 			}
@@ -96,16 +96,16 @@ async function asyncHandler(
 					equip += `\nand ${crew_levels.length - 10} more (see site for details)`;
 				}
 
-				embed = embed.addField('Equippable by this crew', equip);
+				embed = embed.addFields({ name: 'Equippable by this crew', value: equip });
 			}
-
-			if (embed.fields && embed.fields.length > 0) {
+			
+			if (embed.data.fields && embed.data.fields.length > 0) {
 				sendAndCache(message, '', {embeds: [embed]});
 			}
 
 			if (laterSources.length > 0) {
 				if (laterSources.length < 1024) {
-					let embed = new MessageEmbed()
+					let embed = new EmbedBuilder()
 						.setTitle(`Item sources for ${item.name}`)
 						.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 						.setColor(colorFromRarity(item.rarity))
@@ -121,7 +121,7 @@ async function asyncHandler(
 
 			if (laterRecipe.length > 0) {
 				if (laterRecipe.length < 2048) {
-					let embed = new MessageEmbed()
+					let embed = new EmbedBuilder()
 						.setTitle(`Recipe for ${item.name}`)
 						.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 						.setColor(colorFromRarity(item.rarity))

@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -23,14 +23,14 @@ async function asyncHandler(message: Message, searchString: string) {
 		sendAndCache(message, `Sorry, I couldn't find a dilemma matching '${searchString}'`);
 	} else {
 		results.forEach((dilemma: any) => {
-			let embed = new MessageEmbed()
+			let embed = new EmbedBuilder()
 				.setTitle(dilemma.title)
-				.setColor('DARK_GREEN')
-				.addField('Choice A', formatChoice(message, dilemma.choiceA))
-				.addField('Choice B', formatChoice(message, dilemma.choiceB));
+				.setColor('DarkGreen')
+				.addFields({ name: 'Choice A', value: formatChoice(message, dilemma.choiceA) })
+				.addFields({ name: 'Choice B', value: formatChoice(message, dilemma.choiceB) });
 
 			if (dilemma.choiceC != null) {
-				embed = embed.addField('Choice C', formatChoice(message, dilemma.choiceC));
+				embed = embed.addFields({ name: 'Choice C', value: formatChoice(message, dilemma.choiceC) });
 			}
 
 			sendAndCache(message, '', {embeds: [embed]});

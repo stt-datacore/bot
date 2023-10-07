@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import yargs from 'yargs';
 
 import { captionMeme, listMemesTop100, listMemesHardCoded } from '../utils/imgflip';
@@ -21,7 +21,7 @@ async function asyncHandler(message: Message, name: string, texts: string[]) {
         let mm = memes.find(meme => meme.name.toLowerCase().indexOf(name) >= 0);
         if (mm) {
             let url = await captionMeme(mm.id, texts);
-            sendAndCache(message, '', {embeds: [new MessageEmbed().setImage(url)]});
+            sendAndCache(message, '', {embeds: [new EmbedBuilder().setImage(url)]});
 
             // TODO: delete message if it has the rights
         } else {
