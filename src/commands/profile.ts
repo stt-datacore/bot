@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 import {
 	userFromMessage,
@@ -265,7 +265,7 @@ class Profile implements Definitions.Command {
 	options = [
 		{
 			name: 'verb',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'additional profile actions',
 			required: false,
 			choices: [

@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
 import { captionMeme, listMemesTop100, listMemesHardCoded } from '../utils/imgflip';
@@ -38,13 +38,13 @@ class Meme implements Definitions.Command {
 	options = [
 		{
 			name: 'name',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: "name of the meme; use list to see what's available",
 			required: true,
 		},
 		{
 			name: 'text',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'lines of text. Enclose each line in quotes',
 			required: true,
 		}

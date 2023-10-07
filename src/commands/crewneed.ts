@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -216,31 +216,31 @@ class CrewNeed implements Definitions.Command {
 	options = [
 		{
 			name: 'crew',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'name of crew or part of the name',
 			required: true,
 		},
 		{
 			name: 'level',
-			type: 'INTEGER',
+			type: ApplicationCommandOptionType.Integer,
 			description: 'starting level',
 			required: false,
 		},
 		{
 			name: 'item',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'filter to specific items',
 			required: false,
 		},
 		{
 			name: 'all',
-			type: 'BOOLEAN',
+			type: ApplicationCommandOptionType.Boolean,
 			description: 'expand the entire recipe (including owned items)',
 			required: false,
 		},
 		{
 			name: 'base',
-			type: 'BOOLEAN',
+			type: ApplicationCommandOptionType.Boolean,
 			description: 'return common stats (not adjusted for your profile)',
 			required: false,
 		}

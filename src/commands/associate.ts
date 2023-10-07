@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Message } from 'discord.js';
+import { ApplicationCommandOptionType, Message } from 'discord.js';
 import yargs from 'yargs';
 import { loadProfile, createUserFromMessage, associateUser, getDbidFromDiscord, loadRemoteProfile } from '../utils/profile';
 import { discordUserFromMessage, sendAndCache } from '../utils/discord';
@@ -81,7 +81,7 @@ class Associate implements Definitions.Command {
 	options = [
 		{
 			name: 'dbid',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'your DBID',
 			required: true
 		}

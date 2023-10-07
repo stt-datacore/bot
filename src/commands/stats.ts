@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -190,25 +190,25 @@ class Stats implements Definitions.Command {
 	options = [
 		{
 			name: 'crew',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'name of crew or part of the name',
 			required: true,
 		},
 		{
 			name: 'extended',
-			type: 'BOOLEAN',
+			type: ApplicationCommandOptionType.Boolean,
 			description: 'return extended information',
 			required: false,
 		},
 		{
 			name: 'stars',
-			type: 'INTEGER',
+			type: ApplicationCommandOptionType.Integer,
 			description: 'number of stars (fuse level) for which to display stats',
 			required: false,
 		},
 		{
 			name: 'base',
-			type: 'BOOLEAN',
+			type: ApplicationCommandOptionType.Boolean,
 			description: 'return base stats (not adjusted for your profile)',
 			required: false,
 		}

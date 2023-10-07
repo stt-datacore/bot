@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 import fetch from 'node-fetch';
 import NodeCache from 'node-cache';
@@ -81,7 +81,7 @@ class Offers implements Definitions.Command {
 	options = [
 		{
 			name: 'offer_name',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: "name of the offer to show details of",
 			required: false,
 		}

@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -154,7 +154,7 @@ class Farm implements Definitions.Command {
 	options = [
 		{
 			name: 'rarity',
-			type: 'INTEGER',
+			type: ApplicationCommandOptionType.Integer,
 			description: 'rarity',
 			required: true,
 			choices: [
@@ -168,13 +168,13 @@ class Farm implements Definitions.Command {
 		},
 		{
 			name: 'name',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: "(part of the) item's name",
 			required: true,
 		},
 		{
 			name: 'kit',
-			type: 'BOOLEAN',
+			type: ApplicationCommandOptionType.Boolean,
 			description: 'adjust the chroniton cost for a supply kit',
 			required: false,
 		}

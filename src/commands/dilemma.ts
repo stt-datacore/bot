@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -46,7 +46,7 @@ class Dilemma implements Definitions.Command {
 	options = [
 		{
 			name: 'title',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: "(part of) the dilemma's title",
 			required: true
 		}
