@@ -86,20 +86,10 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 	if (message instanceof CommandInteraction) {
 
 		let flags = options?.ephemeral ? MessageFlags.Ephemeral : 0; // { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
-		if (options?.isFollowUp) {
-			let result = await message.followUp({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
-			if (result instanceof Message) {
-				result.edit({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
-			}
-		}	
-			
-		else {
-			let result = await message.reply({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
-			if (result instanceof Message) {
-				result.edit({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
-			}
-		}
-			
+		if (options?.isFollowUp)
+			message.followUp({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
+		else
+			message.reply({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
 		while ((options?.embeds?.length ?? 0) > 0){
 			let msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
 			message.followUp(msg);
