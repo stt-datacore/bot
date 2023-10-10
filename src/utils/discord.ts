@@ -93,6 +93,7 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 			msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
 			let result = await message.followUp({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) });
 			if (result) {
+				msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
 				result.edit(msg as MessageEditOptions);
 			}
 		}			
@@ -100,6 +101,7 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 			msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
 			let result = await message.reply({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) });
 			if (result) {
+				msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
 				result.edit(msg as MessageEditOptions);
 			}
 		}
@@ -108,6 +110,7 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 			let msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
 			let result = await message.followUp(msg);
 			if (result) {
+				msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
 				result.edit(msg as MessageEditOptions);
 			}
 		}
