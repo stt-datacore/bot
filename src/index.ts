@@ -19,7 +19,7 @@ const client = new Client({
 		'GuildEmojisAndStickers', 
 		'GuildMessageTyping', 
 		'GuildIntegrations', 
-		'GuildMessageReactions',
+		'GuildMessageReactions',		
 		],
 	partials: [Partials.Channel, Partials.Message, Partials.GuildMember],
 });

@@ -4,7 +4,8 @@ import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message | CommandInteraction, emojiName: string, defaultString: string): string {
 	if (message instanceof CommandInteraction) {		
-		if (message.guild && (!message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis') || !message.guild?.members.me?.premiumSince)) {
+		//if (message.guild && (!message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis') || !message.guild?.members.me?.premiumSince)) {
+		if (message.guild && (!message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis'))) {
 			let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
 			if (emoji) {
 				return emoji.toString();
