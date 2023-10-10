@@ -1,11 +1,10 @@
 
-import { CommandInteraction, GuildMember, Message, EmbedBuilder, MessageReplyOptions, User, GuildChannel, NonThreadGuildBasedChannel, Embed, MessageFlags, APIUser, InteractionReplyOptions, MessageEditOptions } from 'discord.js';
+import { CommandInteraction, GuildMember, Message, EmbedBuilder, MessageReplyOptions, User, GuildChannel, NonThreadGuildBasedChannel, Embed, MessageFlags, APIUser } from 'discord.js';
 import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message | CommandInteraction, emojiName: string, defaultString: string): string {
 	if (message instanceof CommandInteraction) {		
-		//if (message.guild && (!message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis') || !message.guild?.members.me?.premiumSince)) {
-		if (message.guild && (!message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis'))) {
+		if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis')) {
 			let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
 			if (emoji) {
 				return emoji.toString();
@@ -87,32 +86,13 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 	if (message instanceof CommandInteraction) {
 
 		let flags = options?.ephemeral ? MessageFlags.Ephemeral : 0; // { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
-		let msg: InteractionReplyOptions;
-
-		if (options?.isFollowUp) {
-			msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
-			let result = await message.followUp({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) });
-			if (result) {
-				msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
-				result.edit(msg as MessageEditOptions);
-			}
-		}			
-		else {
-			msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
-			let result = await message.reply({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) });
-			if (result) {
-				msg = { content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
-				result.edit(msg as MessageEditOptions);
-			}
-		}
-			
+		if (options?.isFollowUp)
+			message.followUp({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
+		else
+			message.reply({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
 		while ((options?.embeds?.length ?? 0) > 0){
 			let msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
-			let result = await message.followUp(msg);
-			if (result) {
-				msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
-				result.edit(msg as MessageEditOptions);
-			}
+			message.followUp(msg);
 		}
 		return;
 	}
