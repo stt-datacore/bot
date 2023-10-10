@@ -97,19 +97,15 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 		return;
 	}
 	
-	const flags: MessageReplyOptions = {};
+	let flags: MessageReplyOptions = {};
 	
-	// if (content instanceof MessageEmbed){
-	// 	options?.embeds
-	// }
-
 	flags.content = content;
 
 	let nEmbeds = options?.embeds?.length ?? 0;
-	if (nEmbeds > 0) {
-		flags.embeds = options?.embeds!.slice(0, 10)?.map((e) => e.toJSON());
-	}
 
+	if (nEmbeds > 0) {
+		flags.embeds = options?.embeds!.slice(0, 1)?.map((e) => e.toJSON());
+	}
 	
 	if (options?.asReply || message.channel == null) {
 		flags.content = content;
@@ -118,11 +114,12 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 		cache(await (message.channel as any).send(flags));
 	}
 
-	// if (nEmbeds > 1) {
-	// 	for (let additionalEmbed of options!.embeds!.slice(1)){
-	// 		cache(await (message.channel as any).send(additionalEmbed));
-	// 	}
-	// }
+	if (nEmbeds > 1) {
+		for (let additionalEmbed of options!.embeds!.slice(1)){
+			flags = { embeds: [additionalEmbed] };
+			cache(await (message.channel as any).send(flags));
+		}
+	}
 
 	function cache(replies: Message | Message[] | null) {
 		if (!replies)
