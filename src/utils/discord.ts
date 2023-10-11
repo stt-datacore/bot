@@ -3,34 +3,35 @@ import { CommandInteraction, GuildMember, Message, EmbedBuilder, MessageReplyOpt
 import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message | CommandInteraction, emojiName: string, defaultString: string): string {
-	if (message instanceof CommandInteraction) {		
-		//
-		// Old Code
-		//		
+	//
+	// Old Code
+	//		
+	//if (message instanceof CommandInteraction) {		
 		// if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis')) {
 		// 	let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
 		// 	if (emoji) {
 		// 		return emoji.toString();
 		// 	}
 		// }
+	//}
 
-		// New code addresses github issues:
-		
-		// https://github.com/discord/discord-api-docs/issues/5524
-		// https://github.com/discord/discord-api-docs/issues/5279
+	// New code addresses github issues:
+	
+	// https://github.com/discord/discord-api-docs/issues/5524
+	// https://github.com/discord/discord-api-docs/issues/5279
 
-		// Cannot seem to sync external emoji on bots, right now.
-		// This bug has been opened for over a year (with no current resolutions)
-		
-		// Instead of checking if there are any guild permissions for external emoji
-		// Just use this server's emoji by default, if available.
-		if (message.guild) {
-			let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
-			if (emoji) {
-				return emoji.toString();
-			}
+	// Cannot seem to sync external emoji on bots, right now.
+	// This bug has been opened for over a year (with no current resolutions)
+	
+	// Instead of checking if there are any guild permissions for external emoji
+	// Just use this server's emoji by default, if available.
+	if (message.guild) {
+		let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
+		if (emoji) {
+			return emoji.toString();
 		}
 	}
+
 	
 	switch (emojiName) {
 		case 'credits':
