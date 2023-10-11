@@ -115,9 +115,14 @@ async function asyncHandler(
 					name: getEmoteOrString(message, 'credits', 'Credits'),
 					value: can.craftCost.toString(),
 					inline: true
+				},
+				{
+					name: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: `}`,
+					value: matched.collections.map(c => formatCollectionName(c)).join(", "),
+					inline: true
 				}
 			)
-			.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.map(c => formatCollectionName(c)).join(', ')}`}` });
+			//.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.join(', ')}`}` });
 	});
 
 	sendAndCache(message, 
