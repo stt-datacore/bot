@@ -1,5 +1,6 @@
 import { ColorResolvable, Message } from 'discord.js';
 import { getEmoteOrString } from './discord';
+import CONFIG from './config';
 
 function formatSkill(skill: Definitions.Skill, useSpace: boolean, forGauntlet: boolean = false) {
 	if (forGauntlet) {
@@ -272,4 +273,9 @@ export function formatStatLine(message: Message, crew: Definitions.BotCrew, rari
 		' ' +
 		formatCrewStatsWithEmotes(message, crew)
 	);
+}
+
+export function formatCollectionName(collection: string): string {
+
+	return `[${collection}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(collection)})`;
 }

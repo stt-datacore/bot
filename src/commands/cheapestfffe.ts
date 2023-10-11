@@ -3,7 +3,7 @@ import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
 import { formatSources, formatRecipe } from '../utils/items';
-import { colorFromRarity } from '../utils/crew';
+import { colorFromRarity, formatCollectionName } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { loadFullProfile, userFromMessage } from '../utils/profile';
@@ -117,7 +117,7 @@ async function asyncHandler(
 					inline: true
 				}
 			)
-			.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}` });
+			.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.map(c => formatCollectionName(c)).join(', ')}`}` });
 	});
 
 	sendAndCache(message, 
