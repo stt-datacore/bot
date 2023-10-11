@@ -3,7 +3,7 @@ import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
 import { formatSources, formatRecipe } from '../utils/items';
-import { colorFromRarity, formatCollectionName } from '../utils/crew';
+import { colorFromRarity } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { loadFullProfile, userFromMessage } from '../utils/profile';
@@ -115,14 +115,9 @@ async function asyncHandler(
 					name: getEmoteOrString(message, 'credits', 'Credits'),
 					value: can.craftCost.toString(),
 					inline: true
-				},
-				{
-					name: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: `}`,
-					value: matched.collections.map(c => formatCollectionName(c)).join(", "),
-					inline: true
 				}
 			)
-			//.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.join(', ')}`}` });
+			.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}` });
 	});
 
 	sendAndCache(message, 

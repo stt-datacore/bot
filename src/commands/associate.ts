@@ -11,7 +11,7 @@ async function asyncHandler(message: Message, dbid: string, devpull: boolean, ac
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await createUserFromMessage(message);
-	if (devpull || process.env.DEV_PULL_ALWAYS?.toString() === '1'){
+	if (devpull){
 		if (process.env.NODE_ENV === 'production') {
 			sendAndCache(message, `This is a dev-only command.`, {asReply: true, ephemeral: true});
 			return;
