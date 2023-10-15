@@ -41,17 +41,24 @@ async function asyncHandler(message: Message, searchString: string) {
 		}
 	});
 
-	intermediate.sort((a, b) => {
-		let r = a.distance - b.distance;
-		if (!r) r = a.dilemma.title.localeCompare(b.dilemma.title);
-		return r;
-	});
-
-	if (intermediate.some(i => i.distance === 0)) {
-		results = intermediate.filter(i => i.distance === 0).map(i => i.dilemma);
+	if (intermediate.length) {
+		intermediate.sort((a, b) => {
+			let r = a.distance - b.distance;
+			if (!r) r = a.dilemma.title.localeCompare(b.dilemma.title);
+			return r;
+		});
+	
+		if (intermediate.some(i => i.distance === 0)) {
+			results = intermediate.filter(i => i.distance === 0).map(i => i.dilemma);
+		}
+		else {
+			results = intermediate.map(i => i.dilemma);
+		}	
 	}
 	else {
-		results = intermediate.map(i => i.dilemma);
+		results = dilemmas.filter(
+			(dilemma: any) => dilemma.title.toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').indexOf(test_search) >= 0
+		);
 	}
 
 	if ((results === undefined) || (results.length === 0)) {
