@@ -67,7 +67,7 @@ async function asyncHandler(message: Message, offer_name?: String) {
 	let embed = new EmbedBuilder()
 		.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title}`);
 	relevantCrew.forEach((crew) => {
-		embed.addFields({ name: crew.name, value: formatCrewField(message, crew, crew.max_rarity, '') });
+		embed.addFields({ name: crew.name, value: formatCrewField(message, crew, crew.max_rarity, '', crew.collections) });
 	});
 	sendAndCache(message, '', {embeds: [embed]});
 	return;
