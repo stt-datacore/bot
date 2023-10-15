@@ -21,16 +21,28 @@ async function asyncHandler(message: Message, searchString: string) {
 	let test_search = searchString.trim().toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '');
 	let dilemmas = DCData.getDilemmas();
 
-	let results = dilemmas.filter(
-		(dilemma: any) => dilemma.title.toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').indexOf(test_search) >= 0
-	);
+	// let results = dilemmas.filter(
+	// 	(dilemma: any) => dilemma.title.toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').indexOf(test_search) >= 0
+	// );
 
-	// dilemmas.forEach((dilemma: any, idx: number) => {
-	// 	let ldist = levenshtein(test_search, dilemma.title.toLowerCase().trim());
-	// 	if (ldist < 10 && !results.some(r => r.title === dilemma.title)) {
-	// 		results.push(dilemma);
-	// 	}
-	// });
+	let intermediate = [] as { distance: number, dilemma: any }[];
+	let results = [] as any[];
+
+	dilemmas.forEach((dilemma: any, idx: number) => {
+		let distance = levenshtein(test_search, dilemma.title.toLowerCase().trim());
+		if (distance < 10 && !results.some(r => r.title === dilemma.title)) {
+			intermediate.push({ distance, dilemma });
+		}
+	});
+
+	intermediate.sort((a, b) => a.distance - b.distance);
+
+	if (intermediate.some(i => i.distance === 0)) {
+		results = intermediate.filter(i => i.distance === 0).map(i => i.dilemma);
+	}
+	else {
+		results = intermediate.map(i => i.dilemma);
+	}
 
 	if ((results === undefined) || (results.length === 0)) {
 		sendAndCache(message, `Sorry, I couldn't find a dilemma matching '${searchString}'`);
