@@ -62,11 +62,11 @@ async function asyncHandler(message: Message, searchString: string) {
 
 			if (dilemma.choiceC != null) {
 				embed = embed.addFields({ name: 'Choice C', value: formatChoice(message, dilemma.choiceC) });
-				embeds.push(embed);
 			}
 
+			embeds.push(embed);
 		}
-		
+
 		await sendAndCache(message, '', {embeds: embeds});
 	}
 }
