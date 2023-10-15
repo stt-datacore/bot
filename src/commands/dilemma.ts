@@ -4,15 +4,22 @@ import yargs from 'yargs';
 import { DCData } from '../data/DCData';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import levenshtein from 'js-levenshtein';
+import { colorFromRarity } from 'src/utils/crew';
 
 function formatChoice(message: Message, choice: any): string {
 	let result = choice.text + '\n' + choice.reward.join(', ');
 	result = result.split(':honor:').join(getEmoteOrString(message, 'honor', 'honor'));
 	result = result.split(':chrons:').join(getEmoteOrString(message, 'chrons', 'chrons'));
+	result = result.split(':merits:').join(getEmoteOrString(message, 'merits', 'merits'));
 	return result;
 }
 
-
+function getChoiceRarity(choice: any) {
+	if (choice.reward.some((r: string) => r.includes("100 :honor:"))) return 5;
+	else if (choice.reward.some((r: string) => r.includes("60 :honor:"))) return 4;
+	else if (choice.reward.some((r: string) => r.includes("30 :honor:"))) return 3;
+	return 2;
+}
 
 async function asyncHandler(message: Message, searchString: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
@@ -53,10 +60,15 @@ async function asyncHandler(message: Message, searchString: string) {
 	} else {
 		let embeds = [] as EmbedBuilder[];
 
-		for (let dilemma of results) {
+		for (let dilemma of results) {			
+			let r = getChoiceRarity(dilemma.choiceA);
+			let r2 = getChoiceRarity(dilemma.choiceB);
+			let r3 = dilemma.choiceC ? getChoiceRarity(dilemma.choiceC) : 0;
+			if (r2 > r) r = r2;
+			if (r3 > r) r = r3;
 			let embed = new EmbedBuilder()
 				.setTitle(dilemma.title)
-				.setColor('DarkGreen')
+				.setColor(colorFromRarity(r))
 				.addFields({ name: 'Choice A', value: formatChoice(message, dilemma.choiceA) })
 				.addFields({ name: 'Choice B', value: formatChoice(message, dilemma.choiceB) });
 
