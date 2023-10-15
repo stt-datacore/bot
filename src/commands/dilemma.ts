@@ -30,7 +30,7 @@ async function asyncHandler(message: Message, searchString: string) {
 
 	dilemmas.forEach((dilemma: any, idx: number) => {
 		let distance = levenshtein(test_search, dilemma.title.toLowerCase().trim());
-		if (distance < 10 && !results.some(r => r.title === dilemma.title)) {
+		if (distance <= 5 && !results.some(r => r.title === dilemma.title)) {
 			intermediate.push({ distance, dilemma });
 		}
 	});
