@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { DCData } from '../data/DCData';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import levenshtein from 'js-levenshtein';
-import { colorFromRarity } from 'src/utils/crew';
+import { colorFromRarity } from '../utils/crew';
 
 function formatChoice(message: Message, choice: any): string {
 	let result = choice.text + '\n' + choice.reward.join(', ');
