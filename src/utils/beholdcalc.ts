@@ -67,7 +67,7 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	reply += '\n' + formatStatLine(message, crew, stars + 1);
 	
 	if (collections?.length) {
-		reply += "Collections: " + collections.map(c => `[${c}](${CONFIG.DATACORE_URL}collections?select=${c})`).join(', ') + "";
+		reply += "\nCollections: " + collections.map(c => `[${c}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(c)})`).join(', ') + "";
 	}
 
 	if (custom) {
