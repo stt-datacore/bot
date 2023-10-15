@@ -3,6 +3,7 @@ import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
+import levenshtein from 'js-levenshtein';
 
 function formatChoice(message: Message, choice: any): string {
 	let result = choice.text + '\n' + choice.reward.join(', ');
@@ -11,13 +12,25 @@ function formatChoice(message: Message, choice: any): string {
 	return result;
 }
 
+
+
 async function asyncHandler(message: Message, searchString: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
+	
+	let test_search = searchString.trim().toLowerCase();
+	let dilemmas = DCData.getDilemmas();
 
-	let results = DCData.getDilemmas().filter(
-		(dilemma: any) => dilemma.title.toLowerCase().indexOf(searchString.trim().toLowerCase()) >= 0
+	let results = dilemmas.filter(
+		(dilemma: any) => dilemma.title.toLowerCase().indexOf(test_search) >= 0
 	);
+
+	dilemmas.forEach((dilemma: any, idx: number) => {
+		let ldist = levenshtein(test_search, dilemma.title.toLowerCase().trim());
+		if (ldist < 10 && !results.some(r => r.title === dilemma.title)) {
+			results.push(dilemma);
+		}
+	});
 
 	if ((results === undefined) || (results.length === 0)) {
 		sendAndCache(message, `Sorry, I couldn't find a dilemma matching '${searchString}'`);
