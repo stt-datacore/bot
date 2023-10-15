@@ -51,6 +51,8 @@ async function asyncHandler(message: Message, searchString: string) {
 	if ((results === undefined) || (results.length === 0)) {
 		sendAndCache(message, `Sorry, I couldn't find a dilemma matching '${searchString}'`);
 	} else {
+		let embeds = [] as EmbedBuilder[];
+
 		for (let dilemma of results) {
 			let embed = new EmbedBuilder()
 				.setTitle(dilemma.title)
@@ -60,10 +62,12 @@ async function asyncHandler(message: Message, searchString: string) {
 
 			if (dilemma.choiceC != null) {
 				embed = embed.addFields({ name: 'Choice C', value: formatChoice(message, dilemma.choiceC) });
+				embeds.push(embed);
 			}
 
-			await sendAndCache(message, '', {embeds: [embed]});
 		}
+		
+		await sendAndCache(message, '', {embeds: embeds});
 	}
 }
 
