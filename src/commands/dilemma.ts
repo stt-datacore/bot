@@ -35,7 +35,11 @@ async function asyncHandler(message: Message, searchString: string) {
 		}
 	});
 
-	intermediate.sort((a, b) => a.distance - b.distance);
+	intermediate.sort((a, b) => {
+		let r = a.distance - b.distance;
+		if (!r) r = a.dilemma.title.localeCompare(b.dilemma.title);
+		return r;
+	});
 
 	if (intermediate.some(i => i.distance === 0)) {
 		results = intermediate.filter(i => i.distance === 0).map(i => i.dilemma);
@@ -47,7 +51,7 @@ async function asyncHandler(message: Message, searchString: string) {
 	if ((results === undefined) || (results.length === 0)) {
 		sendAndCache(message, `Sorry, I couldn't find a dilemma matching '${searchString}'`);
 	} else {
-		results.forEach((dilemma: any) => {
+		for (let dilemma of results) {
 			let embed = new EmbedBuilder()
 				.setTitle(dilemma.title)
 				.setColor('DarkGreen')
@@ -58,8 +62,8 @@ async function asyncHandler(message: Message, searchString: string) {
 				embed = embed.addFields({ name: 'Choice C', value: formatChoice(message, dilemma.choiceC) });
 			}
 
-			sendAndCache(message, '', {embeds: [embed]});
-		});
+			await sendAndCache(message, '', {embeds: [embed]});
+		}
 	}
 }
 
