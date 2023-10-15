@@ -17,8 +17,7 @@ function formatChoice(message: Message, choice: any): string {
 function getChoiceRarity(choice: any) {
 	if (choice.reward.some((r: string) => r.includes("100 :honor:"))) return 5;
 	else if (choice.reward.some((r: string) => r.includes("60 :honor:"))) return 4;
-	else if (choice.reward.some((r: string) => r.includes("30 :honor:"))) return 3;
-	return 2;
+	else return 3;
 }
 
 async function asyncHandler(message: Message, searchString: string) {
