@@ -62,7 +62,7 @@ async function asyncHandler(
 			fnum = fuse;
 		}
 
-		if (c.rarity >= (findcrew?.max_rarity ?? 0) - fnum) {
+		if (c.rarity === (findcrew?.max_rarity ?? 0) - fnum) {
 			c.max_rarity = findcrew?.max_rarity;
 			return true;
 		}
@@ -157,10 +157,18 @@ async function asyncHandler(
 			//.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}` });
 	});
 
-	sendAndCache(message, 
-				 `Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
-				 { embeds }
-				);
+	if (fuse) {
+		sendAndCache(message, 
+			`Cheapest candidates for immortalisation that need ${fuse} fuses for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
+			{ embeds }
+		   );
+	}
+	else {
+		sendAndCache(message, 
+			`Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
+			{ embeds }
+		   );
+	}
 }
 
 class CheapestFFFE implements Definitions.Command {
@@ -171,7 +179,7 @@ class CheapestFFFE implements Definitions.Command {
 	options = [{
 			name: 'fuseneed',
 			type: ApplicationCommandOptionType.Integer,
-			description: 'show crew with a maximum fuse need',
+			description: 'show crew with the specified needed fuses',
 			required: false,
 			default: 0,
 			choices: [
@@ -185,7 +193,7 @@ class CheapestFFFE implements Definitions.Command {
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp.option('fuseneed', {
 			alias: 'f',
-			desc: 'show crew with a maximum fuse need'			
+			desc: 'show crew with the specified needed fuses'			
 		});
 	}
 
