@@ -61,6 +61,17 @@ async function asyncHandler(
 				return true;
 			}
 		}
+		else {
+			try {
+				let n = Number.parseInt(fuse);
+				if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - n) {
+					return true;
+				}
+			}
+			catch {
+
+			}
+		}
 		return false;
 	});
 
@@ -156,7 +167,7 @@ class CheapestFFFE implements Definitions.Command {
 			alias: 'f',
 			desc: 'fuse need',
 			type: 'string',
-			choices: ['one', 'two']
+			choices: ['one', 'two', '1', '2', '3', '4', '5']
 		});
 	}
 
