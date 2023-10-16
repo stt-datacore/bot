@@ -20,7 +20,7 @@ function bonusName(bonus: string) {
 
 async function asyncHandler(
 	message: Message,
-	fuse?: string
+	fuse?: number
 ) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
@@ -60,17 +60,6 @@ async function asyncHandler(
 
 		if (typeof fuse === 'number') {
 			fnum = fuse;
-		}
-		else if (fuses.includes(fuse)) {			
-			fnum = fuses.findIndex(f => f === fuse) + 1;
-		}
-		else {
-			try {
-				fnum = Number.parseInt(fuse);
-			}
-			catch {
-				return false;
-			}
 		}
 
 		if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - fnum) {
@@ -191,7 +180,7 @@ class CheapestFFFE implements Definitions.Command {
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		let fuse = args.fuseneed as string | undefined;
+		let fuse = args.fuseneed as number;
 		args.promisedResult = asyncHandler(message, fuse);
 	}
 }
