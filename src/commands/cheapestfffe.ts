@@ -44,8 +44,6 @@ async function asyncHandler(
 			// return true;
 			return false;
 		}
-		
-		let fuses = ['one', 'two', 'three', 'four', 'five'];
 
 		if (!fuse) {		
 			if (c.rarity === crew.find((d) => d.symbol === c.symbol)?.max_rarity) {
@@ -123,6 +121,11 @@ async function asyncHandler(
 			.setColor(colorFromRarity(matched.max_rarity))
 			.addFields(
 				{
+					name: 'Rarity',
+					value: '⭐'.repeat(can.rarity) + '🌑'.repeat(matched.max_rarity - can.rarity),
+					inline: false
+				},
+				{
 					name: getEmoteOrString(message, 'chrons', 'Chrons'),
 					value: Math.round(can.requiredChronCost).toString(),
 					inline: true
@@ -138,8 +141,8 @@ async function asyncHandler(
 					inline: true
 				},
 				{
-					name: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: `}`,
-					value: matched.collections.map(c => formatCollectionName(c)).join(", "),
+					name: `${matched.name} is in ${!matched?.collections?.length ? 'no collections' : `the following collections: `}`,
+					value: matched?.collections?.map(c => formatCollectionName(c))?.join(", ") ?? 'No collections',
 					inline: true
 				}
 			)
