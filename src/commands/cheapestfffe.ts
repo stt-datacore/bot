@@ -191,7 +191,7 @@ class CheapestFFFE implements Definitions.Command {
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		let fuse = args.fuse as string | undefined;
+		let fuse = args.fuseneed as string | undefined;
 		args.promisedResult = asyncHandler(message, fuse);
 	}
 }
