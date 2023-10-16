@@ -159,7 +159,7 @@ async function asyncHandler(
 
 	if (fuse) {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation that need ${fuse} fuses for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
+			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
 			{ embeds }
 		   );
 	}
