@@ -44,35 +44,38 @@ async function asyncHandler(
 			// return true;
 			return false;
 		}
-
-		if (!fuse) {
 		
+		let fuses = ['one', 'two', 'three', 'four', 'five'];
+
+		if (!fuse) {		
 			if (c.rarity === crew.find((d) => d.symbol === c.symbol)?.max_rarity) {
 				return true;
 			}
-		}
-		else if (fuse === 'one') {
-			if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - 1) {
-				return true;
+			else {
+				return false;
 			}
 		}
-		else if (fuse === 'two') {
-			if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - 2) {
-				return true;
-			}
+
+		let fnum = 0;
+
+		if (fuses.includes(fuse)) {			
+			fnum = fuses.findIndex(f => f === fuse) + 1;
 		}
 		else {
 			try {
-				let n = Number.parseInt(fuse);
-				if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - n) {
-					return true;
-				}
+				fnum = Number.parseInt(fuse);
 			}
 			catch {
-
+				return false;
 			}
 		}
-		return false;
+
+		if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - fnum) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	});
 
 	candidatesForImmortalisation = candidatesForImmortalisation.map((c: any) => {
@@ -167,7 +170,7 @@ class CheapestFFFE implements Definitions.Command {
 			alias: 'f',
 			desc: 'fuse need',
 			type: 'string',
-			choices: ['one', 'two', '1', '2', '3', '4', '5']
+			choices: ['one', 'two', 'three', 'four', 'five', '1', '2', '3', '4', '5']
 		});
 	}
 
