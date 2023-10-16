@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -165,12 +165,23 @@ class CheapestFFFE implements Definitions.Command {
 	command = 'cheapestfffe';
 	aliases = [];
 	describe = 'Shows FF crew on your roster who are cheapest to FE';
+	options = [{
+			name: 'fuseneed',
+			type: ApplicationCommandOptionType.Integer,
+			description: 'show crew with a maximum fuse need',
+			required: false,
+			choices: [
+				{ name: '1', value: 1 },
+				{ name: '2', value: 2 },
+				{ name: '3', value: 3 },
+				{ name: '4', value: 4 },
+				{ name: '5', value: 5 },
+			]
+		}]
 	builder(yp: yargs.Argv): yargs.Argv {
-		return yp.option('fuse', {
+		return yp.option('fuseneed', {
 			alias: 'f',
-			desc: 'fuse need',
-			type: 'string',
-			choices: ['one', 'two', 'three', 'four', 'five', '1', '2', '3', '4', '5']
+			desc: 'show crew with a maximum fuse need'			
 		});
 	}
 
