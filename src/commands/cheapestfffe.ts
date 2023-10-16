@@ -58,7 +58,10 @@ async function asyncHandler(
 
 		let fnum = 0;
 
-		if (fuses.includes(fuse)) {			
+		if (typeof fuse === 'number') {
+			fnum = fuse;
+		}
+		else if (fuses.includes(fuse)) {			
 			fnum = fuses.findIndex(f => f === fuse) + 1;
 		}
 		else {
@@ -170,6 +173,7 @@ class CheapestFFFE implements Definitions.Command {
 			type: ApplicationCommandOptionType.Integer,
 			description: 'show crew with a maximum fuse need',
 			required: false,
+			default: 0,
 			choices: [
 				{ name: '1', value: 1 },
 				{ name: '2', value: 2 },
