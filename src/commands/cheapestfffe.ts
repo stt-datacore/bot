@@ -45,7 +45,7 @@ async function asyncHandler(
 			return false;
 		}
 
-		if (!fuse || fuse === 'full') {
+		if (!fuse) {
 		
 			if (c.rarity === crew.find((d) => d.symbol === c.symbol)?.max_rarity) {
 				return true;
@@ -156,7 +156,7 @@ class CheapestFFFE implements Definitions.Command {
 			alias: 'f',
 			desc: 'fuse need',
 			type: 'string',
-			choices: ['full', 'one', 'two']
+			choices: ['one', 'two']
 		});
 	}
 
