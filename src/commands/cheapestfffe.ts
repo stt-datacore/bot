@@ -44,9 +44,11 @@ async function asyncHandler(
 			// return true;
 			return false;
 		}
+		let findcrew = crew.find((d) => d.symbol === c.symbol);
 
 		if (!fuse) {		
-			if (c.rarity === crew.find((d) => d.symbol === c.symbol)?.max_rarity) {
+			if (c.rarity === findcrew?.max_rarity) {
+				c.max_rarity = findcrew?.max_rarity;
 				return true;
 			}
 			else {
@@ -60,7 +62,8 @@ async function asyncHandler(
 			fnum = fuse;
 		}
 
-		if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - fnum) {
+		if (c.rarity >= (findcrew?.max_rarity ?? 0) - fnum) {
+			c.max_rarity = findcrew?.max_rarity;
 			return true;
 		}
 		else {
@@ -101,7 +104,12 @@ async function asyncHandler(
 			requiredFactionItems,
 			craftCost: needed.craftCost,
 		}
-	}).sort((a: any, b: any) => a.requiredChronCost - b.requiredChronCost);
+	}).sort((a: any, b: any) => {
+		let r = 0;		
+		if (!r) r = (b.rarity/b.max_rarity) - (a.rarity/a.max_rarity);
+		if (!r) r = a.requiredChronCost - b.requiredChronCost;
+		return r;
+	});
 
 
 	const embeds = candidatesForImmortalisation.slice(0, 5).map((can: any) => {
@@ -141,8 +149,8 @@ async function asyncHandler(
 					inline: true
 				},
 				{
-					name: `${matched.name} is in ${!matched?.collections?.length ? 'no collections' : `the following collections: `}`,
-					value: matched?.collections?.map(c => formatCollectionName(c))?.join(", ") ?? 'No collections',
+					name: `${matched.name} is in the following collections: `,
+					value: !matched?.collections?.length ? 'No Collections' : matched?.collections?.map(c => formatCollectionName(c))?.join(", ") ?? '',
 					inline: true
 				}
 			)
