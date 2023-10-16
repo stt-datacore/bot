@@ -20,6 +20,7 @@ function bonusName(bonus: string) {
 
 async function asyncHandler(
 	message: Message,
+	fuse?: string
 ) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
@@ -43,8 +44,22 @@ async function asyncHandler(
 			// return true;
 			return false;
 		}
-		if (c.rarity === crew.find((d) => d.symbol === c.symbol)?.max_rarity) {
-			return true;
+
+		if (!fuse || fuse === 'full') {
+		
+			if (c.rarity === crew.find((d) => d.symbol === c.symbol)?.max_rarity) {
+				return true;
+			}
+		}
+		else if (fuse === 'one') {
+			if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - 1) {
+				return true;
+			}
+		}
+		else if (fuse === 'two') {
+			if (c.rarity >= (crew.find((d) => d.symbol === c.symbol)?.max_rarity ?? 0) - 2) {
+				return true;
+			}
 		}
 		return false;
 	});
@@ -137,12 +152,18 @@ class CheapestFFFE implements Definitions.Command {
 	aliases = [];
 	describe = 'Shows FF crew on your roster who are cheapest to FE';
 	builder(yp: yargs.Argv): yargs.Argv {
-		return yp;
+		return yp.option('fuse', {
+			alias: 'f',
+			desc: 'fuse need',
+			type: 'string',
+			choices: ['full', 'one', 'two']
+		});
 	}
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
-		args.promisedResult = asyncHandler(message);
+		let fuse = args.fuse as string | undefined;
+		args.promisedResult = asyncHandler(message, fuse);
 	}
 }
 
