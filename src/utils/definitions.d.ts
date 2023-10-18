@@ -170,7 +170,7 @@ declare namespace Definitions {
 			cleverThing: string;
 			creator?: string;
 		}[];
-
+		date_added: Date | string;
 		// Added by the loading code
 		traits_pseudo: string[];
 	}

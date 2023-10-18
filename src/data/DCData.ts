@@ -73,7 +73,12 @@ class DCDataClass {
 	}
 
 	public getBotCrew(): Definitions.BotCrew[] {
-		return this._rawCrew;
+		return this._rawCrew.map((rc) => {
+			if (typeof rc.date_added === 'string') {
+				rc.date_added = new Date(rc.date_added);
+			}
+			return rc;
+		});
 	}
 
 	public getItems(): Definitions.Item[] {

@@ -99,21 +99,22 @@ type SendOptions = {
 	ephemeral?: boolean
 	isFollowUp?: boolean
 	embeds?: EmbedBuilder[]
+	maxEmbeds?: number;
 }
 
 export async function sendAndCache(message: Message | CommandInteraction, content: string, options?: SendOptions) {
 
 	// Slash Commands have their own flow.
 	if (message instanceof CommandInteraction) {
-
+		let max = options?.maxEmbeds ?? 10;
 		let flags = options?.ephemeral ? MessageFlags.Ephemeral : 0; // { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
 		if (options?.isFollowUp)
-			message.followUp({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
+			await message.followUp({ content, flags, embeds: options?.embeds?.splice(0,max)?.map((e) => e.toJSON()) })
 		else
-			message.reply({ content, flags, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) })
+			await message.reply({ content, flags, embeds: options?.embeds?.splice(0,max)?.map((e) => e.toJSON()) })
 		while ((options?.embeds?.length ?? 0) > 0){
-			let msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10)?.map((e) => e.toJSON()) };
-			message.followUp(msg);
+			let msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,max)?.map((e) => e.toJSON()) };
+			await message.followUp(msg);
 		}
 		return;
 	}
