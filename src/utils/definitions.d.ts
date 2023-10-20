@@ -171,6 +171,7 @@ declare namespace Definitions {
 			creator?: string;
 		}[];
 		date_added: Date | string;
+		obtained: string;
 		// Added by the loading code
 		traits_pseudo: string[];
 	}
