@@ -70,17 +70,20 @@ async function asyncHandler(message: Message, searchString: string) {
 		let rex = new RegExp(/.*\*\*(.+)\*\*.*/);
 		let embeds = [] as EmbedBuilder[];
 		let botCrew = DCData.getBotCrew().filter(crew => crew.obtained === 'Voyage');
-		
+		let legend = [] as string[];
 		results = JSON.parse(JSON.stringify(results));
 		
 		for (let dilemma of results) {			
 			let crewurl = undefined as string | undefined;
-
+			let dil = 0;
 			[dilemma.choiceA, dilemma.choiceB, dilemma.choiceC ?? null].forEach((choice) => {
 				if (choice) {
 					let i = 0;
 					for (let s of choice.reward) {
-						if (rex.test(s)) {
+						if (s.includes('4') && s.includes(':star:')) {
+							legend.push(dil === 0 ? 'A' : (dil === 1 ? 'B' : 'C'));
+						}
+						else if (rex.test(s)) {
 							let result = rex.exec(s);
 							if (result && result.length) {
 								let crewname = result[1];
@@ -94,6 +97,7 @@ async function asyncHandler(message: Message, searchString: string) {
 						i++;
 					}
 				}
+				dil++;
 			});
 			
 			let r = getChoiceRarity(dilemma.choiceA);
@@ -113,10 +117,10 @@ async function asyncHandler(message: Message, searchString: string) {
 			if (dilemma.choiceC != null) {
 				embed = embed.addFields({ name: 'Choice C', value: formatChoice(message, dilemma.choiceC) });
 			}
-			if (r === 5) {
+			if (r === 5 && legend.length) {
 				let featured = botCrew.filter(crew => crew.max_rarity === 5).sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime());
 				if (featured?.length) {
-					embed = embed.addFields({ name: 'Chance of Legendary Behold', value: featured.map(f => `**[${f.name}](${CONFIG.DATACORE_URL}crew/${f.symbol})**`).join(", ") })
+					embed = embed.addFields({ name: `Chance of Legendary Behold (Choice ${legend.length === 3 ? 'A, B or C' : legend.join(" or ")})`, value: featured.map(f => `**[${f.name}](${CONFIG.DATACORE_URL}crew/${f.symbol})**`).join(", ") })
 					if (!crewurl) {
 						embed = embed.setThumbnail(CONFIG.ASSETS_URL+featured[0].imageUrlPortrait);
 					}
