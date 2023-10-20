@@ -69,8 +69,10 @@ async function asyncHandler(message: Message, searchString: string) {
 	} else {
 		let rex = new RegExp(/.*\*\*(.+)\*\*.*/);
 		let embeds = [] as EmbedBuilder[];
-		let botCrew = DCData.getBotCrew();
-
+		let botCrew = DCData.getBotCrew().filter(crew => crew.obtained === 'Voyage');
+		
+		results = JSON.parse(JSON.stringify(results));
+		
 		for (let dilemma of results) {			
 			let crewurl = undefined as string | undefined;
 
@@ -112,7 +114,7 @@ async function asyncHandler(message: Message, searchString: string) {
 				embed = embed.addFields({ name: 'Choice C', value: formatChoice(message, dilemma.choiceC) });
 			}
 			if (r === 5) {
-				let featured = botCrew.filter(crew => crew.obtained === "Voyage" && crew.max_rarity === 5).sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime());
+				let featured = botCrew.filter(crew => crew.max_rarity === 5).sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime());
 				if (featured?.length) {
 					embed = embed.addFields({ name: 'Chance of Legendary Behold', value: featured.map(f => `**[${f.name}](${CONFIG.DATACORE_URL}crew/${f.symbol})**`).join(", ") })
 					if (!crewurl) {
