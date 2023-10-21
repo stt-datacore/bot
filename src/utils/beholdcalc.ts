@@ -90,6 +90,7 @@ function recommendations(crew: CrewFromBehold[]) {
 	let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
 	let bestCab = [...crew].sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
 	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
+	let bestCrew: Definitions.BotCrew = best[0].crew;
 
 	if (starBest.length > 0) {
 		starBest = starBest.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
@@ -119,6 +120,7 @@ function recommendations(crew: CrewFromBehold[]) {
 	} else if (starBest.length > 0 && ff(best[0])) {
 		if (best[1].crew.bigbook_tier < 6 && !ff(best[1])) {
 			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
+			bestCrew = best[1].crew;
 		} else {
 			title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
@@ -139,7 +141,7 @@ CAB Ratings recommendation: ${bestCab[0].crew.name}`
 	}
 
 	return {
-		best: best[0].crew,
+		best: bestCrew,
 		description: title
 	};
 }
