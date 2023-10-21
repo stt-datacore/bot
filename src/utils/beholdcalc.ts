@@ -167,7 +167,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		return false;
 	}
 
-	if (crew1.max_rarity != crew2.max_rarity || crew2.max_rarity != crew3.max_rarity) {
+	if ([crew1, crew2, crew3].some(crew => !crew || crew.max_rarity < 4)) {
 		// Not a behold, or couldn't find the crew
 		if (fromCommand) {
 			sendAndCache(
@@ -202,9 +202,16 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 				let found = [1, 1, 1];
 				for (let entry of profile.crew) {
 					for (let i = 0; i < 3; i++) {
-						if (entry.id === bcrew[i].archetype_id && entry.rarity && entry.rarity < bcrew[i].max_rarity) {
-							entry.rarity++;
-							found[i] = entry.rarity;
+						if (entry.id === bcrew[i].archetype_id) {
+
+							if (entry.rarity && entry.rarity < bcrew[i].max_rarity) {
+								entry.rarity++;
+								found[i] = entry.rarity;
+							}
+							
+							if (!beholdResult["crew" + (i + 1).toString()].stars) {
+								beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
+							}							
 						}
 					}
 				}
