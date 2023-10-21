@@ -169,14 +169,14 @@ export async function createUserFromMessage(message: Message) {
 
 	if (!userDB) {
 		userDB = await User.create({
-			discordUserName: message.author.username,
-			discordUserDiscriminator: message.author.discriminator,
+			discordUserName: message.member?.user.username,
+			discordUserDiscriminator: message.member?.user.discriminator,
 			discordUserId: message.author.id,
 			userRole: UserRole.DISCORDONLY
 		});
-	} else {
-		userDB.discordUserName = message.author.username;
-		userDB.discordUserDiscriminator = message.author.discriminator;
+	} else if (message.member) {
+		userDB.discordUserName = message.member.user.username;
+		userDB.discordUserDiscriminator = message.member.user.discriminator;
 		await userDB.save();
 	}
 
