@@ -65,10 +65,6 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	}
 
 	reply += '\n' + formatStatLine(message, crew, stars + 1);
-	
-	if (collections?.length) {
-		reply += "\nCollections: " + collections.map(c => `[${c}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(c)})`).join(', ') + "";
-	}
 
 	if (custom) {
 		reply += `\n\n**${custom}**`;
@@ -144,6 +140,11 @@ CAB Ratings recommendation: ${bestCab[0].crew.name}`
 		best: bestCrew,
 		description: title
 	};
+}
+
+function formatCollections(collections: any[]) {
+	if (!collections?.length) return "None";
+	return collections.map(c => `[${c}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(c)})`).join(', ') + "";
 }
 
 function applyCrew(increw: Definitions.BotCrew, buffConfig: Definitions.BuffConfig): Definitions.BotCrew {
@@ -251,12 +252,16 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		{ crew: crew3, stars: beholdResult.crew3.stars }
 	]);
 
+
 	embed = embed
 		.setThumbnail(`${CONFIG.ASSETS_URL}${best.imageUrlPortrait}`)
 		.setDescription(description)		
 		.addFields({ name: crew1.name, value: formatCrewField(message, crew1, beholdResult.crew1.stars, customranks[0], crew1.collections)})
+		.addFields({ name: "Collections", value: formatCollections(crew1.collections)})
 		.addFields({ name: crew2.name, value: formatCrewField(message, crew2, beholdResult.crew2.stars, customranks[1], crew2.collections)})
+		.addFields({ name: "Collections", value: formatCollections(crew2.collections)})
 		.addFields({ name: crew3.name, value: formatCrewField(message, crew3, beholdResult.crew3.stars, customranks[2], crew3.collections)})
+		.addFields({ name: "Collections", value: formatCollections(crew3.collections)})
 		.setFooter({
 			text: customranks[0]
 				? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
