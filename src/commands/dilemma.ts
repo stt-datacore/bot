@@ -25,7 +25,7 @@ async function asyncHandler(message: Message, searchString: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 	
-	let test_search = searchString.trim().toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '');
+	let test_search = searchString.trim().toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '');
 	let dilemmas = DCData.getDilemmas();
 
 	// let results = dilemmas.filter(
@@ -36,7 +36,7 @@ async function asyncHandler(message: Message, searchString: string) {
 	let results = [] as any[];
 
 	results = dilemmas.filter(
-		(dilemma: any) => dilemma.title.toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').indexOf(test_search) >= 0
+		(dilemma: any) => dilemma.title.toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '').indexOf(test_search) >= 0
 	);
 
 	if (!results.length) {
