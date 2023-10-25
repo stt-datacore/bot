@@ -42,6 +42,8 @@ function getOfferList(offers: any) {
 async function asyncHandler(message: Message, offer_name?: String) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
+	
+	const maxOffer = 6;
 
 	let offers = await loadOffers();
 	console.log(offers);
@@ -72,7 +74,7 @@ async function asyncHandler(message: Message, offer_name?: String) {
 
 	relevantCrew = relevantCrew.sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime());
 	
-	pricrew = relevantCrew.splice(0, 5);
+	pricrew = relevantCrew.splice(0, maxOffer);
 	let andmore = relevantCrew.length;		
 	relevantCrew = relevantCrew.splice(0, 20);
 	andmore -= relevantCrew.length;
