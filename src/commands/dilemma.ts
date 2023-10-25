@@ -28,10 +28,6 @@ async function asyncHandler(message: Message, searchString: string) {
 	let test_search = searchString.trim().toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '');
 	let dilemmas = DCData.getDilemmas();
 
-	// let results = dilemmas.filter(
-	// 	(dilemma: any) => dilemma.title.toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').indexOf(test_search) >= 0
-	// );
-
 	let intermediate = [] as { distance: number, dilemma: any }[];
 	let results = [] as any[];
 
