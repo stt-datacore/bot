@@ -46,16 +46,16 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
                 pf = profiles.find(p => p.playerData.player.dbid.toString() === profileName.toString());
             }
 			if (pf) {
-				user.profiles = [pf.dbid];
-				user.profiles = user.profiles.concat(user.profiles.filter(dbid => dbid !== pf?.dbid));				
+				user.profiles = [pf.dbid].concat(user.profiles.filter(dbid => dbid !== pf?.dbid));
+
 				await mongoUpsertDiscordUser(user);				
 				sendAndCache(
 					message,
 					`Your default profile has been updated to '${pf.captainName}'.`
 				);		
-			}
-			else {
-			}
+
+                return;
+			}			
 		}
 
         sendAndCache(

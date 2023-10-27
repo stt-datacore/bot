@@ -128,6 +128,7 @@ export async function mongoGetUserByDiscordId(discordId: string) {
 }
 
 export async function mongoUpsertDiscordUser(user: IMongoUser) {
+
     if (collections.users) {
         
         if (!user.creationDate) user.creationDate = new Date();
@@ -135,18 +136,18 @@ export async function mongoUpsertDiscordUser(user: IMongoUser) {
         let test = await mongoGetUserByDiscordId(user.discordUserId);
         
         if (test) {
-            await collections.users.updateOne({ discordUserId: user.discordUserId }, { $set: user });
-            return mongoGetUserByDiscordId(user.discordUserId);
+            await deleteUser(user.discordUserId);
+            user = { ...test, ...user };
         }
-        else {
-            let result = await collections.users.insertOne(user);
-            if (result && result.insertedId) {
-                if (result.insertedId) {
-                    return { ...user, id: result.insertedId } as User;
-                }
-                else {
-                    return mongoGetUserByDiscordId(user.discordUserId);
-                }
+
+        let result = await collections.users.insertOne(user);
+
+        if (result && result.insertedId) {
+            if (result.insertedId) {
+                return { ...user, id: result.insertedId } as User;
+            }
+            else {
+                return mongoGetUserByDiscordId(user.discordUserId);
             }
         }
     }

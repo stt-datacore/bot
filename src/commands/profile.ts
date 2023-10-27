@@ -263,15 +263,15 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							});
 						}
 	
-						if (eventReply) {
-							await deleteOldReplies(message, captainName);
-						}
+						// if (eventReply) {
+						// 	await deleteOldReplies(message, captainName);
+						// }
 	
 						embeds.push(embed);
 					}
 				}
 
-				sendAndCache(message, '', {embeds: embeds });
+				sendAndCache(message, '', { embeds });
 			}
 			catch (err: any) {
 				console.log(err);
