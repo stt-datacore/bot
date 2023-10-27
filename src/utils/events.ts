@@ -85,22 +85,6 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 	return result;
 }
 
-// guessCurrentEvent to be deprecated; use getRecentEvents instead
-export async function guessCurrentEvent(allCrew: Definitions.BotCrew[], allEvents: Definitions.EventInstance[]): Promise<IEventData> {
-	const { start, end } = getCurrentStartEndTimes();
-	const eventId = guessCurrentEventId(start, allEvents);
-	return new Promise((resolve, reject) => {
-		fetch('/structured/events/'+eventId+'.json').then(response =>
-			response.json().then(json => {
-				const activeEvent = getEventData(json, allCrew) as IEventData;
-				activeEvent.seconds_to_start = start;
-				activeEvent.seconds_to_end = end;
-				resolve(activeEvent);
-			})
-		);
-	});
-}
-
 // Current event here refers to an ongoing event, or the next event if none is ongoing
 function guessCurrentEventId(start: number, allEvents: Definitions.EventInstance[]): number {
 	// Use penultimate event instance if current time is:
@@ -152,7 +136,7 @@ export function getRecentEvents(allCrew: Definitions.BotCrew[], allEvents: Defin
 	let index = 1;
 	while (recentEvents.length < 2) {
 		const eventId = allEvents[allEvents.length-index].instance_id;
-		const response = fs.readFileSync(process.env.DC_DATA_PATH! + 'events/'+eventId+'.json', 'utf8');
+		const response = fs.readFileSync(process.env.DC_DATA_PATH! + '/events/'+eventId+'.json', 'utf8');
 		const json = JSON.parse(response);
 		const eventData = getEventData(json, allCrew) as IEventData;
 		if (eventId === currentEventId) {
