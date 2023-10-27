@@ -183,7 +183,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						if (eventReply) {
 							embed = embed
 								.addFields(
-									{ name: 'Last update', value: profile.lastUpdate.toDateString(), inline: true },
+									{ name: 'Last update', value: profileData.lastModified?.toDateString() ?? profile.lastUpdate.toDateString(), inline: true },
 									{ name: 'Stats', value: `VIP${profileData.player.vip_level}; Level ${profileData.player.character.level}`, inline: true }
 								);
 						} else {
