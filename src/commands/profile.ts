@@ -50,7 +50,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 		);
 	} else {
 		let defaultReply = true;
-		if (verb && verb.toLowerCase() === 'setdefault') {
+		if (verb && verb.toLowerCase().replace(/ /g, '') === 'setdefault') {
 			let profiles = [] as PlayerProfile[];
 			for (let dbid of user.profiles) {
 				let profile = await getProfile(dbid);
@@ -67,6 +67,14 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 					`Your default profile has been updated to '${pf.captainName}'.`
 				);		
 			}
+			else {
+				sendAndCache(
+					message,
+					`Sorry, couldn't find what you were looking for.`
+				);		
+			}
+
+			defaultReply = false;
 		}
 		else if (verb && verb.toLowerCase() === 'refresh') {
 			let profile = await getProfile(user.profiles[0]);
