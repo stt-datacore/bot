@@ -203,17 +203,17 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						}
 	
 						if (eventReply) {
-							let event = DCData.getUpcomingEvents().slice(-1)[0];
-							if (event.endDate < new Date()) {
+							let event = DCData.getEvents()[0];
+							if (event.startDate && event.startDate < new Date()) {
 								// TODO: No data for upcoming event, error out
 							}
 	
 							let profile = await loadProfile(user.profiles[0].dbid);
 							let roster = loadProfileRoster(profile);
 	
-							let highbonus = roster.filter((entry) => event.highbonus.includes(entry.crew.symbol));
-							let smallbonus = roster.filter((entry) =>
-								event.smallbonus.traits.some((trait) => entry.crew.traits_named.includes(trait) || entry.crew.traits_hidden.includes(trait))
+							let highbonus = roster.filter((entry) => event.featured.includes(entry.crew.symbol));
+							let smallbonus = roster.filter((entry) => 							
+								event.bonus.includes(entry.crew.symbol)
 							);
 	
 							smallbonus.sort((a, b) => b.voyageScore - a.voyageScore);
@@ -221,7 +221,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							// Remove from smallbonus the highbonus crew
 							smallbonus = smallbonus.filter((entry) => !highbonus.includes(entry));
 	
-							let reply = `Event ending on *${event.endDate.toDateString()}*\n\nHigh bonus crew: ${
+							let reply = `Event ending on *${event.endDate?.toDateString()}*\n\nHigh bonus crew: ${
 								highbonus.length === 0 ? 'NONE' : highbonus.map((entry) => eventCrewFormat(entry, profileData)).join(', ')
 							}\n\n`;
 							reply += `Small bonus crew: ${
