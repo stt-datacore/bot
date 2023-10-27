@@ -89,7 +89,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				// Apply personalization
 
 				// TODO: multiple profiles
-				let profile = await loadProfile(user.profiles[0].dbid);
+				let profile = await loadProfile(user.profiles[0]);
 				if (profile) {
 					crew = JSON.parse(JSON.stringify(crew));
 					crew.base_skills = applyCrewBuffs(crew.base_skills, profile.buffConfig, false);
@@ -98,8 +98,8 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					});
 
 					embed = embed.addFields({
-						name: user.profiles[0].captainName,
-						value: `Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
+						name: profile.captainName,
+						value: `Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0]})'s buffs`
 					});
 				}
 			}

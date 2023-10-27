@@ -4,10 +4,11 @@ import { Client, Partials } from 'discord.js';
 import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp } from './utils';
 import { MessageCache, sendAndCache } from './utils/discord';
 import { DCData } from './data/DCData';
-import { sequelize } from './sequelize';
+//import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
 import { Commands } from './commands';
 import yargs from 'yargs';
+import { collections, connectToMongo } from './mongo';
 const Yargs = require('yargs/yargs');
 
 require('dotenv').config();
@@ -39,9 +40,30 @@ client.login(process.env.BOT_TOKEN);
 const config = JSON.parse(fs.readFileSync(process.env.CONFIG_PATH!, 'utf8'));
 const devGuilds = Object.keys(config.guilds).filter((id) => config.guilds[id].dev === true);
 
-sequelize.sync().then(() => {
-	Logger.info('Database connection established');
-});
+// sequelize.sync().then(() => {
+// 	Logger.info('Database connection established');
+// });
+
+const cycleInitMongo = async (force?: boolean) => {
+	if (collections.mongoAvailable && !force) return;
+
+	try {		
+		collections.mongoAvailable = await connectToMongo();		
+	}
+	catch {
+		collections.mongoAvailable = false;
+	}
+
+	if (!collections.mongoAvailable) {
+		console.log("MongoDB is not available. Disabling affected routes. Will try again in 60 seconds.");
+		setTimeout(() => {
+			console.log("Re-attempting MongoDB connection...")
+			cycleInitMongo();
+		}, 60000);
+	}
+};
+
+cycleInitMongo().then(() => console.log("MongoDB Connection Established"));
 
 client.on('ready', () => {
 	Logger.info('Bot logged in', { bot_tag: client.user?.tag });

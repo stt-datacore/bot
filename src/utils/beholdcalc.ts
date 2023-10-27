@@ -194,8 +194,9 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 			// Apply personalization
 
 			// TODO: multiple profiles
-			let profile = await loadProfile(user.profiles[0].dbid);
+			let profile = await loadProfile(user.profiles[0]);
 			if (profile) {
+				let captainName = profile.captainName;
 				crew1 = applyCrew(crew1, profile.buffConfig);
 				crew2 = applyCrew(crew2, profile.buffConfig);
 				crew3 = applyCrew(crew3, profile.buffConfig);
@@ -239,8 +240,8 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 				}
 
 				embed = embed.addFields({
-					name: user.profiles[0].captainName,
-					value: `Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
+					name: captainName,
+					value: `Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0]})'s buffs`
 				});
 			}
 		}

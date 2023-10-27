@@ -26,11 +26,15 @@ async function asyncHandler(
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await userFromMessage(message);
-	let profile = user?.profiles[0] ? loadFullProfile(user.profiles[0].dbid) : null;
-	if (!user || !profile) {
+
+	let profileStore = user?.profiles[0] ? await loadFullProfile(user.profiles[0]) : null;
+
+	if (!user || !profileStore) {
 		sendAndCache(message, "Sorry, I couldn't find an associated profile for your user.")
 		return;
 	}
+	
+	let profile = profileStore.playerData;
 
 	let crew = DCData.getBotCrew();
 	let profileCrew = profile.player.character.crew;
@@ -119,7 +123,9 @@ async function asyncHandler(
 		});
 		
 		if (!matched) {
-			return;
+			return  new EmbedBuilder()
+			.setTitle(`No Matching Crew`)
+			.setDescription(`Sorry, couldn't find anyone that fit the criteria`);
 		}
 
 		return new EmbedBuilder()
@@ -159,13 +165,13 @@ async function asyncHandler(
 
 	if (fuse) {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${profile.lastModified?.toDateString() ?? user.profiles[0].lastUpdate.toDateString()})`, 
+			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${profile.player.character.display_name}**'s roster (last updated ${profile.lastModified?.toDateString() ?? profileStore.timeStamp.toDateString()})`, 
 			{ embeds }
 		   );
 	}
 	else {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${profile.lastModified?.toDateString() ?? user.profiles[0].lastUpdate.toDateString()})`, 
+			`Cheapest candidates for immortalisation for **${profile.player.character.display_name}**'s roster (last updated ${profile.lastModified?.toDateString() ?? profileStore.timeStamp.toDateString()})`, 
 			{ embeds }
 		   );
 	}

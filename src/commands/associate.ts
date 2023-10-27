@@ -3,14 +3,22 @@ import { ApplicationCommandOptionType, Message } from 'discord.js';
 import yargs from 'yargs';
 import { loadProfile, createUserFromMessage, associateUser, getDbidFromDiscord, loadRemoteProfile } from '../utils/profile';
 import { discordUserFromMessage, sendAndCache } from '../utils/discord';
+import { User as MongoUser } from '../mongoModels/mongoUser';
 import CONFIG from '../utils/config';
-import { Profile } from '../models/Profile';
+import { getProfile, postOrPutProfile } from '../utils/mongoUser';
 
 async function asyncHandler(message: Message, dbid: string, devpull: boolean, access_token?: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await createUserFromMessage(message);
+	if (!user) {
+		sendAndCache(
+			message,
+			`Sorry, having trouble creating users, right now (database down?)`
+		);
+	}
+
 	if (devpull || process.env.DEV_PULL_ALWAYS?.toString() === '1'){
 		if (process.env.NODE_ENV === 'production') {
 			sendAndCache(message, `This is a dev-only command.`, {asReply: true, ephemeral: true});
@@ -21,7 +29,7 @@ async function asyncHandler(message: Message, dbid: string, devpull: boolean, ac
 			return;
 	}
 
-	let result = await associateUser(user, dbid, access_token);
+	let result = await associateUser(user as MongoUser, dbid, access_token);
 	if (result.error) {
 		sendAndCache(message, `Error: ${result.error}`);
 	} else {
@@ -60,15 +68,7 @@ async function downloadProfile(message: Message, dbid: string) {
 		stored_immortals: player_data.player.character.stored_immortals
 	};
 
-	let res = await Profile.findAll({ where: { dbid } });
-	if (res.length === 0) {
-		await Profile.create({ dbid, shortCrewList, captainName, lastUpdate: new Date() });
-	} else {
-		await res[0].update(
-			{ dbid, shortCrewList, captainName, lastUpdate: new Date() },
-			{ where: { dbid } }
-		);
-	}
+	await postOrPutProfile(Number.parseInt(dbid), player_data);
 
 	return dbid;
 }

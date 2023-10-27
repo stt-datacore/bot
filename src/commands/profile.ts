@@ -15,7 +15,8 @@ import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
-import { PlayerCrew, PlayerData } from 'src/datacore/player';
+import { PlayerCrew, PlayerData } from '../datacore/player';
+import { getProfile } from '../utils/mongoUser';
 
 require('dotenv').config();
 
@@ -49,8 +50,8 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 	} else {
 		let defaultReply = true;
 		if (verb && verb.toLowerCase() === 'refresh') {
-			let profile = user.profiles[0];
-			if (profile.sttAccessToken) {
+			let profile = await getProfile(user.profiles[0]);
+			if (profile?.sttAccessToken) {
 				let playerData = await refreshProfile(profile.sttAccessToken);
 				if (playerData && !playerData.error) {
 					let replicator_uses_left = playerData.player.replicator_limit - playerData.player.replicator_uses_today;
@@ -176,22 +177,26 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 
 		if (defaultReply) {
 			try {
-				for (let profile of user.profiles) {
-					let profileData = loadFullProfile(profile.dbid);
-					if (profileData) {
-						let embed = new EmbedBuilder().setTitle(profile.captainName).setColor('DarkGreen');
+				for (let profileID of user.profiles) {
+					let profileStore = await loadFullProfile(profileID);
+					if (profileStore) {
+						let profileData = profileStore.playerData;
+						let captainName = profileData.player.character.display_name;
+						let lastModified = profileStore.timeStamp;
+
+						let embed = new EmbedBuilder().setTitle(captainName).setColor('DarkGreen');
 	
 						if (eventReply) {
 							embed = embed
 								.addFields(
-									{ name: 'Last update', value: profileData.lastModified?.toDateString() ?? profile.lastUpdate.toDateString(), inline: true },
+									{ name: 'Last update', value: lastModified?.toDateString(), inline: true },
 									{ name: 'Stats', value: `VIP${profileData.player.vip_level}; Level ${profileData.player.character.level}`, inline: true }
 								);
 						} else {
 							embed = embed
-								.setURL(`${CONFIG.DATACORE_URL}profile?dbid=${profile.dbid}`)
+								.setURL(`${CONFIG.DATACORE_URL}profile?dbid=${profileID}`)
 								.addFields(
-									{ name: 'Last update', value: profileData.lastModified?.toDateString() ?? profile.lastUpdate.toDateString() },
+									{ name: 'Last update', value: lastModified?.toDateString() },
 									{ name: 'VIP', value: profileData.player.vip_level.toString(), inline: true },
 									{ name: 'Level', value: profileData.player.character.level.toString(), inline: true }
 								);
@@ -211,7 +216,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 								// TODO: No data for upcoming event, error out
 							}
 	
-							let profile = await loadProfile(user.profiles[0].dbid);
+							let profile = await loadProfile(user.profiles[0]);
 							let roster = loadProfileRoster(profile);
 	
 							let highbonus = (profileData as PlayerData).player.character.crew.filter((entry) => event.featured.includes(entry.symbol)).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
@@ -255,7 +260,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						}
 	
 						if (eventReply) {
-							await deleteOldReplies(message, profile.captainName);
+							await deleteOldReplies(message, captainName);
 						}
 	
 						sendAndCache(message, '', {embeds: [embed] });

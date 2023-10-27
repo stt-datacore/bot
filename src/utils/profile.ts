@@ -1,15 +1,16 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
 import { CommandInteraction, GuildMember, Message } from 'discord.js';
-
+import { User as MongoUser, UserRole } from '../mongoModels/mongoUser';
 import CONFIG from './config';
 import { DCData } from '../data/DCData';
-import { Profile } from '../models/Profile';
-import { UserRole, User } from '../models/User';
+
 import { executeGetRequest } from './sttapi';
 import { Logger } from '../utils';
 import { stripPlayerData } from './playerutils';
 import { discordUserFromMessage } from './discord';
+import { deleteProfile, deleteUser, getProfile, mongoGetUserByDiscordId, mongoUpsertDiscordUser } from './mongoUser';
+import { PlayerProfile } from '../mongoModels/playerProfile';
 
 export interface ProfileCrewEntry {
 	id: number;
@@ -32,14 +33,12 @@ export interface ProfileRosterEntry {
 	gauntletScore: number;
 }
 
-export async function loadProfile(dbid: string): Promise<ProfileEntry | undefined> {
-	let profileDB = await Profile.findOne({ where: { dbid: `${dbid}` } });
+export async function loadProfile(dbid: string | number): Promise<ProfileEntry | undefined> {
+	let profile = await getProfile(dbid);
 
-	if (!profileDB) {
+	if (!profile) {
 		return undefined;
 	}
-
-	let profile: any = profileDB.get({ plain: true });
 
 	let crew: ProfileCrewEntry[] = profile.shortCrewList.c_stored_immortals
 		.concat(profile.shortCrewList.stored_immortals.map((im: any) => im.id))
@@ -54,9 +53,9 @@ export async function loadProfile(dbid: string): Promise<ProfileEntry | undefine
 	return {
 		captainName: profile.captainName,
 		crew,
-		lastUpdate: profile.lastUpdate,
+		lastUpdate: profile.timeStamp,
 		buffConfig: profile.buffConfig,
-		userId: profile.userId
+		userId: profile.dbid
 	};
 }
 
@@ -161,29 +160,31 @@ export function loadProfileRoster(profile: ProfileEntry | undefined = undefined)
 
 export async function userFromMessage(message: Message | CommandInteraction) {
 	let id = discordUserFromMessage(message)!.id;
-	return await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
+	return await mongoGetUserByDiscordId(id);
+	//return await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
 }
 
 export async function createUserFromMessage(message: Message) {
 	let userDB = await userFromMessage(message);
 
 	if (!userDB) {
-		userDB = await User.create({
-			discordUserName: message.member?.user.username,
-			discordUserDiscriminator: message.member?.user.discriminator,
-			discordUserId: message.author.id,
+		userDB = await mongoUpsertDiscordUser({
+			discordUserName: message.member?.user.username ?? '',
+			discordUserDiscriminator: message.member?.user.discriminator ?? '',
+			discordUserId: message.member?.id ?? '',
+			profiles: [],
 			userRole: UserRole.DISCORDONLY
 		});
 	} else if (message.member) {
 		userDB.discordUserName = message.member.user.username;
 		userDB.discordUserDiscriminator = message.member.user.discriminator;
-		await userDB.save();
+		userDB = await mongoUpsertDiscordUser(userDB);
 	}
 
 	return userDB;
 }
 
-export async function associateUser(userDB: User, dbid: string, access_token?: string) {
+export async function associateUser(userDB: MongoUser, dbid: string, access_token?: string) {
 	if (access_token) {
 		let result = await refreshProfile(access_token);
 		if (!result) {
@@ -193,35 +194,35 @@ export async function associateUser(userDB: User, dbid: string, access_token?: s
 		}
 	}
 
-	let profileDB = await Profile.findOne({ where: { dbid: `${dbid}` }, include: [User] });
-	if (!profileDB) {
+	let profile = await getProfile(Number.parseInt(dbid));
+
+	if (!profile) {
 		return {
 			error: `DBID not found. Make sure you uploaded the profile for the correct account at ${CONFIG.DATACORE_URL}playertools `
 		};
 	}
 
-	if (profileDB.user && profileDB.user.id !== userDB.id) {
+	if (userDB.profiles?.includes(Number.parseInt(dbid))) {
 		return {
-			error: `DBID ${dbid} is already associated with ${profileDB.user.discordUserName}. If you believe this is incorrect, contact the bot administrator to resolve the issue.`
+			error: `DBID ${dbid} is already associated with ${userDB.discordUserName}. If you believe this is incorrect, contact the bot administrator to resolve the issue.`
 		};
 	}
 
-	profileDB.userId = userDB.id;
-	if (access_token) {
-		profileDB.sttAccessToken = access_token;
-	}
-	await profileDB.save();
+	userDB.profiles ??= [];
+	userDB.profiles.push(Number.parseInt(dbid));
 
-	return { profile: profileDB };
+	await mongoUpsertDiscordUser(userDB);
+	return { profile };
 }
 
-export async function clearUser(userDB: User) {
+export async function clearUser(userDB: MongoUser) {
 	let dbids = [];
 	for (let profileDB of userDB.profiles) {
-		dbids.push(profileDB.dbid);
+		dbids.push(profileDB);	
 	}
 
-	await userDB.$set('profiles', []);
+	userDB.profiles = [];
+	await mongoUpsertDiscordUser(userDB);
 
 	return dbids;
 }
@@ -310,15 +311,12 @@ export async function loadRemoteProfile(dbid: string): Promise<any> {
 	}
 }
 
-export function loadFullProfile(dbid: string): any {
-	let profileData = JSON.parse(fs.readFileSync(process.env.PROFILE_DATA_PATH + dbid, 'utf8'));
-	if (profileData && profileData.player.dbid.toString() === dbid) {
-		let stat = fs.statSync(process.env.PROFILE_DATA_PATH + dbid);
-		if (stat?.mtime) {
-			profileData.lastModified = stat.mtime;
-		}
-		return profileData;
+export async function loadFullProfile(dbid: string | number): Promise<PlayerProfile | null> {
+	if (typeof dbid === 'string') {
+		return await getProfile(Number.parseInt(dbid));
 	}
-
-	return undefined;
+	else {
+		return await getProfile(dbid);
+	}
+	
 }

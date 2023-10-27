@@ -10,6 +10,7 @@ import { sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { Logger } from '../utils';
 import { loadFullProfile, userFromMessage } from '../utils/profile';
+import { getProfile } from '../utils/mongoUser';
 
 interface WithMatchingTrait {
 	crew: Definitions.BotCrew;
@@ -84,21 +85,23 @@ async function asyncHandler(message: Message, base: Boolean) {
 	let allCrew = DCData.getBotCrew();
 
 	let user = await userFromMessage(message);
-	let profile = user && user.profiles.length > 0 ? user.profiles[0] : null;
+	let profile = user && user.profiles.length > 0 ? await getProfile(user.profiles[0]) : null;
 	let customized = undefined;
 	if (base || !profile) {
 		pool = allCrew;
 		customized = false;
 	} else {
 		customized = true;
-		let profileData = loadFullProfile(profile.dbid);
-		pool = profileData.player.character.crew.map((c: any) => {
-			const matched = allCrew.find((a) => a.symbol === c.symbol);
-			return {
-				...matched,
-				...c
-			}
-		})
+		let profileData = await loadFullProfile(profile.dbid);
+		if (profileData) {
+			pool = profileData.playerData.player.character.crew.map((c: any) => {
+				const matched = allCrew.find((a) => a.symbol === c.symbol);
+				return {
+					...matched,
+					...c
+				}
+			});
+		}
 	}
 
 	let results = pool

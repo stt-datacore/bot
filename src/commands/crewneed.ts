@@ -55,12 +55,12 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 				let user = await userFromMessage(message);
 				// TODO: multiple profiles
 				if (user && user.profiles.length > 0) {
-					let profileData = loadFullProfile(user.profiles[0].dbid);
+					let profileData = await loadFullProfile(user.profiles[0]);
 					if (profileData) {
-						pcrew = profileData.player.character.crew.find((c: any) => c.symbol === crew.symbol);
-
+						pcrew = profileData.playerData.player.character.crew.find((c: any) => c.symbol === crew.symbol);
+						const captainName = profileData.playerData.player.character.display_name;
 						// load items owned by player
-						items = profileData.player.character.items;
+						items = profileData.playerData.player.character.items;
 
 						if (pcrew) {
                             if (level === 0) {
@@ -68,18 +68,18 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
                             }
 
 							embed = embed.addFields({
-								name: user.profiles[0].captainName,
-								value: `Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you own a level ${level} ${crew.name}.`
+								name: captainName,
+								value: `Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0]}), you own a level ${level} ${crew.name}.`
 							});
                             
-                            plainTextHeader += `${user.profiles[0].captainName}, data is customized for your profile: you own a level ${level} ${crew.name}.\n`;
+                            plainTextHeader += `${captainName}, data is customized for your profile: you own a level ${level} ${crew.name}.\n`;
 						} else {
 							embed = embed.addFields({
-								name: user.profiles[0].captainName,
-								value: `According to [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.`
+								name: captainName,
+								value: `According to [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0]}), you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.`
 							});
                             
-                            plainTextHeader += `${user.profiles[0].captainName}, according to your profile, you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.\n`;
+                            plainTextHeader += `${captainName}, according to your profile, you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.\n`;
 						}
 					}
 				}
