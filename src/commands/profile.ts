@@ -15,21 +15,22 @@ import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
+import { PlayerCrew, PlayerData } from 'src/datacore/player';
 
 require('dotenv').config();
 
 const MAX_CREW = 10;
 
-function eventCrewFormat(entry: ProfileRosterEntry, profileData: any): string {
-	let pcrew = profileData.player.character.crew.find((crew: any) => crew.symbol === entry.crew.symbol);
+function eventCrewFormat(entry: Definitions.BotCrew, profileData: any): string {
+	let pcrew = profileData.player.character.crew.find((crew: PlayerCrew) => crew.symbol === entry.symbol);
 
-	if (!pcrew) {
-		return `**${entry.crew.name}** (🥶)`;
+	if (!pcrew || (pcrew.immortal && pcrew.immortal > 0)) {
+		return `**${entry.name}** (🥶)`;
 	} else {
-		if (entry.rarity === entry.crew.max_rarity && pcrew.level === 100 && pcrew.equipment.length === 4) {
-			return `**${entry.crew.name}** (FF/FE)`;
+		if (pcrew.rarity === entry.max_rarity && pcrew.level === 100 && pcrew.equipment.length === 4) {
+			return `**${entry.name}** (FF/FE)`;
 		} else {
-			return `**${entry.crew.name}** (L${pcrew.level} ${entry.rarity}/${entry.crew.max_rarity})`;
+			return `**${entry.name}** (L${pcrew.level} ${pcrew.rarity}/${entry.max_rarity})`;
 		}
 	}
 }
@@ -204,6 +205,8 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 	
 						if (eventReply) {
 							let event = DCData.getEvents()[0];
+							let allCrew = DCData.getBotCrew();
+
 							if (event.startDate && event.startDate < new Date()) {
 								// TODO: No data for upcoming event, error out
 							}
@@ -211,25 +214,25 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							let profile = await loadProfile(user.profiles[0].dbid);
 							let roster = loadProfileRoster(profile);
 	
-							let highbonus = roster.filter((entry) => event.featured.includes(entry.crew.symbol));
-							let smallbonus = roster.filter((entry) => 							
-								event.bonus.includes(entry.crew.symbol)
-							);
+							let highbonus = (profileData as PlayerData).player.character.crew.filter((entry) => event.featured.includes(entry.symbol)).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
+							let smallbonus = (profileData as PlayerData).player.character.crew.filter((entry) => 							
+								event.bonus.includes(entry.symbol)
+							).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
 	
-							smallbonus.sort((a, b) => b.voyageScore - a.voyageScore);
+							smallbonus.sort((a, b) => (a?.ranks.voyRank ?? 0) - (b?.ranks.voyRank ?? 0));
 	
 							// Remove from smallbonus the highbonus crew
 							smallbonus = smallbonus.filter((entry) => !highbonus.includes(entry));
 	
 							let reply = `Event ending on *${event.endDate?.toDateString()}*\n\nHigh bonus crew: ${
-								highbonus.length === 0 ? 'NONE' : highbonus.map((entry) => eventCrewFormat(entry, profileData)).join(', ')
+								highbonus.length === 0 ? 'NONE' : highbonus.map((entry) => entry ? eventCrewFormat(entry, profileData) : '').join(', ')
 							}\n\n`;
 							reply += `Small bonus crew: ${
 								smallbonus.length === 0
 									? 'NONE'
 									: smallbonus
 											.slice(0, MAX_CREW)
-											.map((entry) => eventCrewFormat(entry, profileData))
+											.map((entry) => entry ? eventCrewFormat(entry, profileData) : '') 
 											.join(', ')
 							}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
 	
