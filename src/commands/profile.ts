@@ -50,18 +50,20 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 		);
 	} else {
 		let defaultReply = true;
-		if (verb && verb.toLowerCase().replace(/ /g, '') === 'setdefault') {
+		if (text && verb && verb.toLowerCase().replace(/ /g, '') === 'setdefault') {
 			let profiles = [] as PlayerProfile[];
 			for (let dbid of user.profiles) {
 				let profile = await getProfile(dbid);
 				if (profile) profiles.push(profile);
 			}
-			let pf = profiles.find(p => p.captainName.toLowerCase() === text?.toLowerCase());
+			
+			text = text.toLowerCase().trim();			
+			let pf = profiles.find(p => p.playerData.player.character.display_name.toLowerCase().trim().includes(text as string));
+
 			if (pf) {
-				let nums = [pf.dbid];
-				nums = nums.concat(user.profiles.filter(dbid => dbid !== pf?.dbid));
-				user.profiles = nums;
-				await mongoUpsertDiscordUser(user);
+				user.profiles = [pf.dbid];
+				user.profiles = user.profiles.concat(user.profiles.filter(dbid => dbid !== pf?.dbid));				
+				await mongoUpsertDiscordUser(user);				
 				sendAndCache(
 					message,
 					`Your default profile has been updated to '${pf.captainName}'.`
