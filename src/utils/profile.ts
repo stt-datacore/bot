@@ -313,6 +313,10 @@ export async function loadRemoteProfile(dbid: string): Promise<any> {
 export function loadFullProfile(dbid: string): any {
 	let profileData = JSON.parse(fs.readFileSync(process.env.PROFILE_DATA_PATH + dbid, 'utf8'));
 	if (profileData && profileData.player.dbid.toString() === dbid) {
+		let stat = fs.statSync(process.env.PROFILE_DATA_PATH + dbid);
+		if (stat?.mtime) {
+			profileData.lastModified = stat.mtime;
+		}
 		return profileData;
 	}
 

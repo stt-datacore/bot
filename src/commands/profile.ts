@@ -190,7 +190,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							embed = embed
 								.setURL(`${CONFIG.DATACORE_URL}profile?dbid=${profile.dbid}`)
 								.addFields(
-									{ name: 'Last update', value: profile.lastUpdate.toDateString() },
+									{ name: 'Last update', value: profileData.lastModified?.toDateString() ?? profile.lastUpdate.toDateString() },
 									{ name: 'VIP', value: profileData.player.vip_level.toString(), inline: true },
 									{ name: 'Level', value: profileData.player.character.level.toString(), inline: true }
 								);

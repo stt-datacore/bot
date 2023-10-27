@@ -159,13 +159,13 @@ async function asyncHandler(
 
 	if (fuse) {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
+			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${profile.lastModified?.toDateString() ?? user.profiles[0].lastUpdate.toDateString()})`, 
 			{ embeds }
 		   );
 	}
 	else {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${user.profiles[0].lastUpdate.toDateString()})`, 
+			`Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${profile.lastModified?.toDateString() ?? user.profiles[0].lastUpdate.toDateString()})`, 
 			{ embeds }
 		   );
 	}
