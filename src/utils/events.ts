@@ -98,7 +98,7 @@ function guessCurrentEventId(start: number, allEvents: Definitions.EventInstance
 
 // Get seconds to event start, end from current time
 function getCurrentStartEndTimes(): { start: number, end: number, startTime: Date, endTime: Date } {
-	const currentTime = new Date("2023-10-31T14:23:30");
+	const currentTime = new Date();
 	const utcDay = currentTime.getUTCDay(), utcHour = currentTime.getUTCHours();
 
 	// Event "week" starts and ends on Monday at Noon ET
@@ -106,7 +106,7 @@ function getCurrentStartEndTimes(): { start: number, end: number, startTime: Dat
 	eventDay = utcHour < 16 ? (eventDay-1 < 0 ? 6 : eventDay-1) : eventDay;
 
 	// Event end time is Monday Noon ET (Event Day "7", 0:00:00)
-	let endTime = new Date("2023-10-31T14:23:30");
+	let endTime = new Date();
 	endTime.setDate(endTime.getDate()+(6-eventDay));
 	endTime.setUTCHours(16, 0, 0, 0);	// Noon ET is 16:00:00 UTC
 	if (endTime.getUTCDay() === 0) {
