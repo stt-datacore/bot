@@ -16,7 +16,8 @@ import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
 import { PlayerCrew, PlayerData } from '../datacore/player';
-import { getProfile } from '../utils/mongoUser';
+import { getProfile, mongoUpsertDiscordUser } from '../utils/mongoUser';
+import { PlayerProfile } from 'src/mongoModels/playerProfile';
 
 require('dotenv').config();
 
@@ -49,7 +50,25 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 		);
 	} else {
 		let defaultReply = true;
-		if (verb && verb.toLowerCase() === 'refresh') {
+		if (verb && verb.toLowerCase() === 'setdefault') {
+			let profiles = [] as PlayerProfile[];
+			for (let dbid of user.profiles) {
+				let profile = await getProfile(dbid);
+				if (profile) profiles.push(profile);
+			}
+			let pf = profiles.find(p => p.captainName.toLowerCase() === text?.toLowerCase());
+			if (pf) {
+				let nums = [pf.dbid];
+				nums = nums.concat(user.profiles.filter(dbid => dbid === pf?.dbid));
+				user.profiles = nums;
+				await mongoUpsertDiscordUser(user);
+				sendAndCache(
+					message,
+					`Your default profile has been updated to '${pf.captainName}'.`
+				);		
+			}
+		}
+		else if (verb && verb.toLowerCase() === 'refresh') {
 			let profile = await getProfile(user.profiles[0]);
 			if (profile?.sttAccessToken) {
 				let playerData = await refreshProfile(profile.sttAccessToken);
@@ -294,7 +313,8 @@ class Profile implements Definitions.Command {
 			choices: [
 				{ name: 'Fleet', value: 'fleet' },
 				{ name: 'Daily', value: 'daily' },
-				{ name: 'Event', value: 'event' }
+				{ name: 'Event', value: 'event' },
+				{ name: 'Set Default', value: 'setdefault' }
 			]
 		}
 	];
@@ -302,7 +322,7 @@ class Profile implements Definitions.Command {
 		return yp
 			.positional('verb', {
 				describe: 'additional profile actions',
-				choices: ['refresh', 'fleet', 'daily', 'event'],
+				choices: ['setdefault', 'refresh', 'fleet', 'daily', 'event'],
 				type: 'string',
 			})
 			.positional('text', {
