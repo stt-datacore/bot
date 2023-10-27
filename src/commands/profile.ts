@@ -50,35 +50,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 		);
 	} else {
 		let defaultReply = true;
-		if (text && verb && verb.toLowerCase().replace(/ /g, '') === 'setdefault') {
-			let profiles = [] as PlayerProfile[];
-			for (let dbid of user.profiles) {
-				let profile = await getProfile(dbid);
-				if (profile) profiles.push(profile);
-			}
-			
-			text = text.toLowerCase().trim();			
-			let pf = profiles.find(p => p.playerData.player.character.display_name.toLowerCase().trim().includes(text as string));
-
-			if (pf) {
-				user.profiles = [pf.dbid];
-				user.profiles = user.profiles.concat(user.profiles.filter(dbid => dbid !== pf?.dbid));				
-				await mongoUpsertDiscordUser(user);				
-				sendAndCache(
-					message,
-					`Your default profile has been updated to '${pf.captainName}'.`
-				);		
-			}
-			else {
-				sendAndCache(
-					message,
-					`Sorry, couldn't find what you were looking for.`
-				);		
-			}
-
-			defaultReply = false;
-		}
-		else if (verb && verb.toLowerCase() === 'refresh') {
+		if (verb && verb.toLowerCase() === 'refresh') {
 			let profile = await getProfile(user.profiles[0]);
 			if (profile?.sttAccessToken) {
 				let playerData = await refreshProfile(profile.sttAccessToken);
@@ -323,8 +295,7 @@ class Profile implements Definitions.Command {
 			choices: [
 				{ name: 'Fleet', value: 'fleet' },
 				{ name: 'Daily', value: 'daily' },
-				{ name: 'Event', value: 'event' },
-				{ name: 'Set Default', value: 'setdefault' }
+				{ name: 'Event', value: 'event' }
 			]
 		}
 	];
@@ -332,11 +303,11 @@ class Profile implements Definitions.Command {
 		return yp
 			.positional('verb', {
 				describe: 'additional profile actions',
-				choices: ['setdefault', 'refresh', 'fleet', 'daily', 'event'],
+				choices: ['refresh', 'fleet', 'daily', 'event'],
 				type: 'string',
 			})
 			.positional('text', {
-				describe: 'free text you want to include in your event posts',
+				describe: 'text or additional input'
 			});
 	}
 
