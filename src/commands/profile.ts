@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType, EmbedAssertions } from 'discord.js';
 import yargs from 'yargs';
 import {
 	userFromMessage,
@@ -177,6 +177,9 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 
 		if (defaultReply) {
 			try {
+				
+				let embeds = [] as EmbedBuilder[];
+				
 				for (let profileID of user.profiles) {
 					let profileStore = await loadFullProfile(profileID);
 					if (profileStore) {
@@ -263,9 +266,11 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							await deleteOldReplies(message, captainName);
 						}
 	
-						sendAndCache(message, '', {embeds: [embed] });
+						embeds.push(embed);
 					}
 				}
+
+				sendAndCache(message, '', {embeds: embeds });
 			}
 			catch (err: any) {
 				console.log(err);
