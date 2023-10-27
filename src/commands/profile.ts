@@ -59,7 +59,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 			let pf = profiles.find(p => p.captainName.toLowerCase() === text?.toLowerCase());
 			if (pf) {
 				let nums = [pf.dbid];
-				nums = nums.concat(user.profiles.filter(dbid => dbid === pf?.dbid));
+				nums = nums.concat(user.profiles.filter(dbid => dbid !== pf?.dbid));
 				user.profiles = nums;
 				await mongoUpsertDiscordUser(user);
 				sendAndCache(
