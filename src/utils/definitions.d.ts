@@ -158,6 +158,7 @@ declare namespace Definitions {
 		bigbook_tier: number;
 		cab_ov: string;
 		cab_ov_rank: string;
+		cab_ov_grade: string;
 		events: number;
 		ranks: BotCrewRanks;
 		base_skills: Skills;
