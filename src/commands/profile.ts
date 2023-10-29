@@ -176,6 +176,8 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 
 		if (defaultReply) {
 			try {
+				let embeds = [] as EmbedBuilder[];
+
 				for (let profile of user.profiles) {
 					let profileData = loadFullProfile(profile.dbid);
 					if (profileData) {
@@ -211,8 +213,8 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 								// TODO: No data for upcoming event, error out
 							}
 	
-							let profile = await loadProfile(user.profiles[0].dbid);
-							let roster = loadProfileRoster(profile);
+							// let profile = await loadProfile(user.profiles[0].dbid);
+							// let roster = loadProfileRoster(profile);
 	
 							let highbonus = (profileData as PlayerData).player.character.crew.filter((entry) => event.featured.includes(entry.symbol)).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
 							let smallbonus = (profileData as PlayerData).player.character.crew.filter((entry) => 							
@@ -235,16 +237,12 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 											.map((entry) => entry ? eventCrewFormat(entry, profileData) : '') 
 											.join(', ')
 							}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
-	
-							//embed = embed.addFields({ name: 'Total crew', value: roster.length, true });;
-							embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply }); // ending on *${event.endDate.toDateString()}*
+
+							embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply });
 						}
 	
 						if (text) {
-							embed = embed.addFields({ name: 'Other details', value: text });;
-	
-							// TODO: save this for the fleet admiral's report view
-							// userId, eventId, eventGoals, ? eventCrew
+							embed = embed.addFields({ name: 'Other details', value: text });
 						}
 	
 						if (!eventReply && profileData.player.fleet && profileData.player.fleet.id) {
@@ -254,13 +252,11 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							});
 						}
 	
-						if (eventReply) {
-							await deleteOldReplies(message, profile.captainName);
-						}
-	
-						sendAndCache(message, '', {embeds: [embed] });
+						embeds.push(embed);		
 					}
 				}
+
+				sendAndCache(message, '', { embeds });
 			}
 			catch (err: any) {
 				console.log(err);
