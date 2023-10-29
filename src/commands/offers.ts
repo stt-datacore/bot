@@ -45,8 +45,21 @@ async function asyncHandler(message: Message, offer_name?: String) {
 	
 	const maxOffer = 6;
 
-	let offers = await loadOffers();
-	console.log(offers);
+	let offers: any = undefined; 
+	
+	try {
+		offers = await loadOffers();
+	}
+	catch (err: any) {
+		console.log(err);
+	}
+	
+	if (!offers) {
+		sendAndCache(message, "We are having trouble retrieving offers, right now. Please wait at least 10 seconds, and try again.");
+		return;
+	}
+
+	//console.log(offers);
 
 	if (!offer_name) {
 		let offerList = getOfferList(offers);

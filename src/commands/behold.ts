@@ -2,13 +2,26 @@ import { ApplicationCommandOptionType, Message } from 'discord.js';
 import yargs from 'yargs';
 
 import { calculateBehold, isValidBehold } from '../utils/beholdcalc';
-import { analyzeImage } from '../utils/imageanalysis';
+import { AnalysisResult, analyzeImage } from '../utils/imageanalysis';
 import { sendAndCache } from '../utils/discord';
 
 import { Logger } from '../utils';
 
 async function asyncHandler(message: Message, url: string, threshold: number, base: boolean) {
-	let data = await analyzeImage(url);
+	let data: AnalysisResult | undefined = undefined;
+	
+	try {
+		data = await analyzeImage(url);
+	}
+	catch (err: any) {
+		console.log(err);
+		try {
+			sendAndCache(message, `Sorry, the behold engine did not understand this submission.`);
+		}
+		catch { }
+		return;
+	}
+	
 	if (data) {
 		Logger.info(`Behold command`, {
 			id: message.id,

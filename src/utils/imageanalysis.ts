@@ -67,10 +67,15 @@ export interface AnalysisResult {
 
 export async function analyzeImage(url: string): Promise<AnalysisResult | undefined> {
     // TODO: auto-deployments for the c# code
-	let response = await fetch(`${CONFIG.IMAGE_ANALYSIS_URL}/api/behold?url=${encodeURIComponent(url)}`);
-	if (response.ok) {
-		return await response.json();
-	} else {
-		return undefined;
-	}
+    try {
+        let response = await fetch(`${CONFIG.IMAGE_ANALYSIS_URL}/api/behold?url=${encodeURIComponent(url)}`);
+        if (response.ok) {
+            return await response.json();
+        }
+    }
+    catch (err: any) {
+        console.log(err);
+    }
+
+    return undefined;
 }
