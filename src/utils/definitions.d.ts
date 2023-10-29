@@ -158,6 +158,7 @@ declare namespace Definitions {
 		bigbook_tier: number;
 		cab_ov: string;
 		cab_ov_rank: string;
+		cab_ov_grade: string;
 		events: number;
 		ranks: BotCrewRanks;
 		base_skills: Skills;
@@ -170,9 +171,13 @@ declare namespace Definitions {
 			cleverThing: string;
 			creator?: string;
 		}[];
-
+		date_added: Date | string;
+		obtained: string;
 		// Added by the loading code
 		traits_pseudo: string[];
+		traits: string[];
+		traits_hidden: string[];
+		traits_named?: string[];
 	}
 
 	export interface RecipeItem {
@@ -223,4 +228,40 @@ declare namespace Definitions {
 			traits: string[];
 		};
 	}
+
+	export interface EventInstance {
+		instance_id: number
+		fixed_instance_id: number
+		event_id: number
+		event_name: string
+		image: string
+		event_details?: boolean
+	  }
+	  
+
+	export interface EventDetails {
+		id: number
+		symbol: string
+		name: string
+		description: string
+		rules: string
+		bonus_text: string
+		rewards_teaser: string
+		shop_layout: string
+		featured_crew: BotCrew[]
+		threshold_rewards: Item[]
+		ranked_brackets: any[]
+		squadron_ranked_brackets: any[]
+		content: any[]
+		instance_id: number
+		status: number
+		seconds_to_start: number
+		content_types: string[]
+		seconds_to_end: number
+		phases: any[]
+		quest: any[]
+		bonus?: string[];
+		featured?: string[];
+		image?: string;
+	  }
 }

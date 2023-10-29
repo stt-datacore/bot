@@ -1,5 +1,6 @@
-import { Message } from 'discord.js';
+import { ColorResolvable, Message } from 'discord.js';
 import { getEmoteOrString } from './discord';
+import CONFIG from './config';
 
 function formatSkill(skill: Definitions.Skill, useSpace: boolean, forGauntlet: boolean = false) {
 	if (forGauntlet) {
@@ -236,7 +237,7 @@ export function chargePhasesToString(action: Definitions.CrewAction): string[] {
 	}
 }
 
-export function colorFromRarity(rarity: number): 'LIGHT_GREY' | [number, number, number] {
+export function colorFromRarity(rarity: number): ColorResolvable {
 	switch (rarity) {
 		case 1: // Common
 			return [155, 155, 155];
@@ -254,7 +255,7 @@ export function colorFromRarity(rarity: number): 'LIGHT_GREY' | [number, number,
 			return [253, 210, 106];
 
 		default:
-			return 'LIGHT_GREY';
+			return 'LightGrey';
 	}
 }
 
@@ -272,4 +273,9 @@ export function formatStatLine(message: Message, crew: Definitions.BotCrew, rari
 		' ' +
 		formatCrewStatsWithEmotes(message, crew)
 	);
+}
+
+export function formatCollectionName(collection: string): string {
+
+	return `[${collection}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(collection)})`;
 }

@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { ApplicationCommandOptionType, Message } from 'discord.js';
 import yargs from 'yargs';
 import fetch from 'node-fetch';
 import NodeCache from 'node-cache';
@@ -133,7 +133,7 @@ class Gauntlet implements Definitions.Command {
 	options = [
 		{
 			name: 'base',
-			type: 'BOOLEAN',
+			type: ApplicationCommandOptionType.Boolean,
 			description: 'return all crew with base stats matching the gauntlet (not customized for your profile)',
 			required: false,
 		}
