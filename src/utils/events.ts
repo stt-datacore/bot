@@ -20,8 +20,10 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 	if (activeEvent.rules.includes("Supply")) types.push("Galaxy");
 	
 	if (types.length === 2) {
-		let a = activeEvent.rules.indexOf(types[0]);
-		let b = activeEvent.rules.indexOf(types[1]);
+		let atype = types[0] === 'Galaxy' ? 'Supply' : types[0];
+		let btype = types[1] === 'Galaxy' ? 'Supply' : types[1];
+		let a = activeEvent.rules.indexOf(atype);
+		let b = activeEvent.rules.indexOf(btype);
 		if (b < a) {
 			types = [ types[1], types[0] ];
 		}
