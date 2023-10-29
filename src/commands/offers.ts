@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 import fetch from 'node-fetch';
 import NodeCache from 'node-cache';
@@ -42,8 +42,6 @@ function getOfferList(offers: any) {
 async function asyncHandler(message: Message, offer_name?: String) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
-	
-	const maxOffer = 6;
 
 	let offers = await loadOffers();
 	console.log(offers);
@@ -66,60 +64,12 @@ async function asyncHandler(message: Message, offer_name?: String) {
 		sendAndCache(message, `Could not find any crew for offer ${selectedOffer.primary_content[0].title}`)
 		return;
 	}
-	
-	let embeds = [];
-	let remainder = [] as Definitions.BotCrew[];
-	let pricrew = [] as Definitions.BotCrew[];	
-	let part = 1;
-
-	relevantCrew = relevantCrew.sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime());
-	
-	pricrew = relevantCrew.splice(0, maxOffer);
-	let andmore = relevantCrew.length;		
-	relevantCrew = relevantCrew.splice(0, 20);
-	andmore -= relevantCrew.length;
-
-	while (!!pricrew?.length) {
-		let embed = new EmbedBuilder()
-			.setThumbnail(CONFIG.ASSETS_URL + pricrew[0].imageUrlPortrait)
-			.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title} (Part ${part++})`)
-			.setURL(`${CONFIG.DATACORE_URL}crew/${pricrew[0].symbol}`);
-		pricrew.splice(0, 1).forEach((crew) => {
-			embed.addFields({ name: crew.name, value: formatCrewField(message, crew, crew.max_rarity, '', crew?.collections ?? []) });
-		});		
-		
-		embeds.push(embed);
-	}
-	while (relevantCrew.length) {
-		let embed = new EmbedBuilder()
-			.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title} (Part ${part++})`);
-		let s = "";
-		let i = 0;
-		
-		while (i < relevantCrew.length) {
-			let crew = relevantCrew[i];
-			let str = `[${crew.name}](${CONFIG.DATACORE_URL}crew/${crew.symbol})`;
-			if (s.length + str.length + 2 > 900) {
-				break;
-			}
-			if (s != "") s += ", ";
-			s += str;
-			i++;				
-		}
-
-		relevantCrew.splice(0, i);
-		embed.addFields({ name: 'Crew', value: s });			
-		embeds.push(embed);
-	}
-
-	if (andmore > 0 && embeds[embeds.length - 1].data.fields?.length) {
-		let datafield = embeds[embeds.length - 1].data.fields ?? []
-		datafield[datafield.length - 1].value += ", and " + andmore.toString() +" more ...";
-	}
-
-	let content = '';
-	sendAndCache(message, content, { embeds });
-
+	let embed = new MessageEmbed()
+		.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title}`);
+	relevantCrew.forEach((crew) => {
+		embed.addField(crew.name, formatCrewField(message, crew, crew.max_rarity, ''));
+	});
+	sendAndCache(message, '', {embeds: [embed]});
 	return;
 }
 
@@ -131,7 +81,7 @@ class Offers implements Definitions.Command {
 	options = [
 		{
 			name: 'offer_name',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: "name of the offer to show details of",
 			required: false,
 		}

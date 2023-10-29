@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Client, Partials } from 'discord.js';
+import { Client, Intents } from 'discord.js';
 
 import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp } from './utils';
 import { MessageCache, sendAndCache } from './utils/discord';
@@ -13,15 +13,8 @@ const Yargs = require('yargs/yargs');
 require('dotenv').config();
 
 const client = new Client({
-	intents: ['Guilds', 
-		'GuildMessages', 
-		'MessageContent', 
-		'GuildEmojisAndStickers', 
-		'GuildMessageTyping', 
-		'GuildIntegrations', 
-		'GuildMessageReactions',		
-		],
-	partials: [Partials.Channel, Partials.Message, Partials.GuildMember],
+	intents: [Intents.NON_PRIVILEGED],
+	partials: ['CHANNEL'],
 });
 
 /*
@@ -56,13 +49,6 @@ client.on('ready', () => {
 		Logger.info(`Registering commands globally`);
 		client?.application?.commands.set(slashCommands);
 	} else {
-		
-		if (!!process.env.DEFAULT_GUILD) {
-			const gid = process.env.DEFAULT_GUILD;
-			Logger.info(`Registering commands for guild ${gid}`);
-			client.guilds.cache.get(gid)?.commands.set(slashCommands);	
-		}
-		
 		for (const gid of devGuilds) {
 			Logger.info(`Registering commands for guild ${gid}`);
 			client.guilds.cache.get(gid)?.commands.set(slashCommands);
@@ -70,7 +56,7 @@ client.on('ready', () => {
 	}
 });
 
-client.on('interactionCreate', (interaction) => {
+client.on('interaction', (interaction) => {
 	  // If the interaction isn't a slash command, return
 		if (!interaction.isCommand()) return;
 
@@ -79,7 +65,7 @@ client.on('interactionCreate', (interaction) => {
 				let args = <any>{
 					message: interaction,
 				};
-				interaction.options.data.forEach((op: any) => {
+				interaction.options.forEach((op) => {
 					args[op.name] = op.value;
 				})
 				cmd.handler(args);
@@ -107,7 +93,7 @@ client.on('messageDelete', (message) => {
 	}
 });
 
-client.on('messageCreate', (message) => {
+client.on('message', (message) => {
 	if (message.author.id === client.user?.id) {
 		return;
 	}
@@ -149,7 +135,6 @@ client.on('messageCreate', (message) => {
 
 	const prefix = message.content.match(prefixRegex);
 	let usedPrefix = '';
-	
 	if (prefix === null) {
 		// special case for attached images (for behold / voyage)
 		let cmdConfig = guildConfig && guildConfig.commands ? guildConfig.commands.find((c: any) => c.command === 'imageAnalysis') : undefined;

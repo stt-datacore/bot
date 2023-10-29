@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { ApplicationCommandOptionType, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import yargs from 'yargs';
 import { loadProfile, createUserFromMessage, associateUser, getDbidFromDiscord, loadRemoteProfile } from '../utils/profile';
 import { discordUserFromMessage, sendAndCache } from '../utils/discord';
@@ -11,7 +11,7 @@ async function asyncHandler(message: Message, dbid: string, devpull: boolean, ac
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await createUserFromMessage(message);
-	if (devpull || process.env.DEV_PULL_ALWAYS?.toString() === '1'){
+	if (devpull){
 		if (process.env.NODE_ENV === 'production') {
 			sendAndCache(message, `This is a dev-only command.`, {asReply: true, ephemeral: true});
 			return;
@@ -81,7 +81,7 @@ class Associate implements Definitions.Command {
 	options = [
 		{
 			name: 'dbid',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: 'your DBID',
 			required: true
 		}

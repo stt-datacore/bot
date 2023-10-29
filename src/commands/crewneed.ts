@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -41,7 +41,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 		} else {
 			let crew = results[0];
 
-			let embed = new EmbedBuilder()
+			let embed = new MessageEmbed()
 				.setTitle(`${crew.name} equipment breakdown`)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${crew.imageUrlPortrait}`)
 				.setColor(colorFromRarity(crew.max_rarity))
@@ -67,17 +67,17 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
                                 level = pcrew.level;
                             }
 
-							embed = embed.addFields({
-								name: user.profiles[0].captainName,
-								value: `Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you own a level ${level} ${crew.name}.`
-							});
+							embed = embed.addField(
+								user.profiles[0].captainName,
+								`Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you own a level ${level} ${crew.name}.`
+                            );
                             
                             plainTextHeader += `${user.profiles[0].captainName}, data is customized for your profile: you own a level ${level} ${crew.name}.\n`;
 						} else {
-							embed = embed.addFields({
-								name: user.profiles[0].captainName,
-								value: `According to [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.`
-							});
+							embed = embed.addField(
+								user.profiles[0].captainName,
+								`According to [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.`
+                            );
                             
                             plainTextHeader += `${user.profiles[0].captainName}, according to your profile, you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.\n`;
 						}
@@ -146,27 +146,27 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 			let MessageEmbedFits = true;
 			// TODO: there must be a smarter way to break these down
 			if (breakdown.length < 2) {
-                embed = embed.addFields({ name: 'Breakdown', value: `Failed to load data, please see [the website](${CONFIG.DATACORE_URL}crew/${crew.symbol}/).` });
+                embed = embed.addField('Breakdown', `Failed to load data, please see [the website](${CONFIG.DATACORE_URL}crew/${crew.symbol}/).`);
             } else if (breakdown.length < 1024) {
-                embed = embed.addFields({ name: 'Breakdown', value: breakdown });
+                embed = embed.addField('Breakdown', breakdown);
             } else if (breakdown.length < 2000) {
-				embed = embed.addFields({ name: 'Breakdown (1 / 2)', value: formatItemList(data.slice(0, data.length / 2)) });
-				embed = embed.addFields({ name: 'Breakdown (2 / 2)', value: formatItemList(data.slice(data.length / 2, data.length)) });
+				embed = embed.addField('Breakdown (1 / 2)', formatItemList(data.slice(0, data.length / 2)));
+				embed = embed.addField('Breakdown (2 / 2)', formatItemList(data.slice(data.length / 2, data.length)));
 			} else if (breakdown.length < 3000) {
-				embed = embed.addFields({ name: 'Breakdown (1 / 3)', value: formatItemList(data.slice(0, data.length / 3)) });
-				embed = embed.addFields({ name: 'Breakdown (2 / 3)', value: formatItemList(data.slice((1 * data.length) / 3, (2 * data.length) / 3)) });
-				embed = embed.addFields({ name: 'Breakdown (3 / 3)', value: formatItemList(data.slice((2 * data.length) / 3, data.length)) });
+				embed = embed.addField('Breakdown (1 / 3)', formatItemList(data.slice(0, data.length / 3)));
+				embed = embed.addField('Breakdown (2 / 3)', formatItemList(data.slice((1 * data.length) / 3, (2 * data.length) / 3)));
+				embed = embed.addField('Breakdown (3 / 3)', formatItemList(data.slice((2 * data.length) / 3, data.length)));
 			} else if (breakdown.length < 4000) {
-				embed = embed.addFields({ name: 'Breakdown (1 / 4)', value: formatItemList(data.slice(0, data.length / 4)) });
-				embed = embed.addFields({ name: 'Breakdown (2 / 4)', value: formatItemList(data.slice((1 * data.length) / 4, (2 * data.length) / 4)) });
-				embed = embed.addFields({ name: 'Breakdown (3 / 4)', value: formatItemList(data.slice((2 * data.length) / 4, (3 * data.length) / 4)) });
-				embed = embed.addFields({ name: 'Breakdown (4 / 4)', value: formatItemList(data.slice((3 * data.length) / 4, data.length)) });
+				embed = embed.addField('Breakdown (1 / 4)', formatItemList(data.slice(0, data.length / 4)));
+				embed = embed.addField('Breakdown (2 / 4)', formatItemList(data.slice((1 * data.length) / 4, (2 * data.length) / 4)));
+				embed = embed.addField('Breakdown (3 / 4)', formatItemList(data.slice((2 * data.length) / 4, (3 * data.length) / 4)));
+				embed = embed.addField('Breakdown (4 / 4)', formatItemList(data.slice((3 * data.length) / 4, data.length)));
 			} else if (breakdown.length < 5000) {
-				embed = embed.addFields({ name: 'Breakdown (1 / 5)', value: formatItemList(data.slice(0, data.length / 5)) });
-				embed = embed.addFields({ name: 'Breakdown (2 / 5)', value: formatItemList(data.slice((1 * data.length) / 5, (2 * data.length) / 5)) });
-				embed = embed.addFields({ name: 'Breakdown (3 / 5)', value: formatItemList(data.slice((2 * data.length) / 5, (3 * data.length) / 5)) });
-                embed = embed.addFields({ name: 'Breakdown (4 / 5)', value: formatItemList(data.slice((3 * data.length) / 5, (4 * data.length) / 5)) });
-                embed = embed.addFields({ name: 'Breakdown (5 / 5)', value: formatItemList(data.slice((4 * data.length) / 5, data.length)) });
+				embed = embed.addField('Breakdown (1 / 5)', formatItemList(data.slice(0, data.length / 5)));
+				embed = embed.addField('Breakdown (2 / 5)', formatItemList(data.slice((1 * data.length) / 5, (2 * data.length) / 5)));
+				embed = embed.addField('Breakdown (3 / 5)', formatItemList(data.slice((2 * data.length) / 5, (3 * data.length) / 5)));
+                embed = embed.addField('Breakdown (4 / 5)', formatItemList(data.slice((3 * data.length) / 5, (4 * data.length) / 5)));
+                embed = embed.addField('Breakdown (5 / 5)', formatItemList(data.slice((4 * data.length) / 5, data.length)));
 			} else {
 				// Nothing fits, fallback to a plain text output
 				MessageEmbedFits = false;
@@ -196,11 +196,11 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 			}
 
 			if (MessageEmbedFits) {
-				embed = embed.addFields({
-					name: 'Estimated Cost',
-					value:`${neededItems ? neededItems.craftCost : 'N/A'} credits, ${requiredChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${requiredFactionItems} faction items`,
-					inline: true
-				});
+				embed = embed.addField(
+					'Estimated Cost',
+					`${neededItems ? neededItems.craftCost : 'N/A'} credits, ${requiredChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${requiredFactionItems} faction items`,
+					true
+				);
 
 				sendAndCache(message, '', {embeds: [embed]});
 			}
@@ -216,31 +216,31 @@ class CrewNeed implements Definitions.Command {
 	options = [
 		{
 			name: 'crew',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: 'name of crew or part of the name',
 			required: true,
 		},
 		{
 			name: 'level',
-			type: ApplicationCommandOptionType.Integer,
+			type: 'INTEGER',
 			description: 'starting level',
 			required: false,
 		},
 		{
 			name: 'item',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: 'filter to specific items',
 			required: false,
 		},
 		{
 			name: 'all',
-			type: ApplicationCommandOptionType.Boolean,
+			type: 'BOOLEAN',
 			description: 'expand the entire recipe (including owned items)',
 			required: false,
 		},
 		{
 			name: 'base',
-			type: ApplicationCommandOptionType.Boolean,
+			type: 'BOOLEAN',
 			description: 'return common stats (not adjusted for your profile)',
 			required: false,
 		}

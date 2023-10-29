@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -33,7 +33,7 @@ async function asyncHandler(
 	} else if (results.length > 1) {
 		let embeds = results.map((item) => {
 			let shortSymbol = item.symbol.replace(/_quality.*/, '');
-			return new EmbedBuilder()
+			return new MessageEmbed()
 				.setTitle(item.name)
 				.setDescription(`\`${shortSymbol}\``)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
@@ -46,7 +46,7 @@ async function asyncHandler(
 
 		if (extended) {
 			// TODO: crew that equips it, recipes it's part of, etc.
-			let embed = new EmbedBuilder()
+			let embed = new MessageEmbed()
 				.setTitle(item.name)
 				.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 				.setColor(colorFromRarity(item.rarity))
@@ -54,7 +54,7 @@ async function asyncHandler(
 
 			if (item.bonuses) {
 				let bonuses = Object.keys(item.bonuses).map(bonus => `${bonusName(bonus)} +${item.bonuses[bonus]}`);
-				embed = embed.addFields({ name: 'Bonuses', value: bonuses.join(', ') });
+				embed = embed.addField('Bonuses', bonuses.join(', '));
 			}
 
 			let laterRecipe = '';
@@ -63,13 +63,13 @@ async function asyncHandler(
 			if (!item.item_sources || item.item_sources.length === 0) {
 				laterRecipe = formatRecipe(message, item, true);
 				if (laterRecipe.length < 1000) {
-					embed = embed.addFields({ name: 'Recipe', value: laterRecipe });
+					embed = embed.addField('Recipe', laterRecipe);
 					laterRecipe = '';
 				}
 			} else {
 				laterSources = formatSources(message, item, adjustForKit, true);
 				if (laterSources.length < 1000) {
-					embed = embed.addFields({ name: 'Sources', value: laterSources });
+					embed = embed.addField('Sources', laterSources);
 					laterSources = '';
 				}
 			}
@@ -96,16 +96,16 @@ async function asyncHandler(
 					equip += `\nand ${crew_levels.length - 10} more (see site for details)`;
 				}
 
-				embed = embed.addFields({ name: 'Equippable by this crew', value: equip });
+				embed = embed.addField('Equippable by this crew', equip);
 			}
-			
-			if (embed.data.fields && embed.data.fields.length > 0) {
+
+			if (embed.fields && embed.fields.length > 0) {
 				sendAndCache(message, '', {embeds: [embed]});
 			}
 
 			if (laterSources.length > 0) {
 				if (laterSources.length < 1024) {
-					let embed = new EmbedBuilder()
+					let embed = new MessageEmbed()
 						.setTitle(`Item sources for ${item.name}`)
 						.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 						.setColor(colorFromRarity(item.rarity))
@@ -121,7 +121,7 @@ async function asyncHandler(
 
 			if (laterRecipe.length > 0) {
 				if (laterRecipe.length < 2048) {
-					let embed = new EmbedBuilder()
+					let embed = new MessageEmbed()
 						.setTitle(`Recipe for ${item.name}`)
 						.setThumbnail(`${CONFIG.ASSETS_URL}${item.imageUrl}`)
 						.setColor(colorFromRarity(item.rarity))
@@ -154,7 +154,7 @@ class Farm implements Definitions.Command {
 	options = [
 		{
 			name: 'rarity',
-			type: ApplicationCommandOptionType.Integer,
+			type: 'INTEGER',
 			description: 'rarity',
 			required: true,
 			choices: [
@@ -168,13 +168,13 @@ class Farm implements Definitions.Command {
 		},
 		{
 			name: 'name',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: "(part of the) item's name",
 			required: true,
 		},
 		{
 			name: 'kit',
-			type: ApplicationCommandOptionType.Boolean,
+			type: 'BOOLEAN',
 			description: 'adjust the chroniton cost for a supply kit',
 			required: false,
 		}

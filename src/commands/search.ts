@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -13,13 +13,13 @@ class Search implements Definitions.Command {
 	options = [
 		{
 			name: 'term',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: 'name of crew, trait or skill or part of the name',
 			required: true,
 		},
 		{
 			name: 'stars',
-			type: ApplicationCommandOptionType.Integer,
+			type: 'INTEGER',
 			description: 'limit the search to crew with this number of stars (fuse level)',
 			required: false,
 		}

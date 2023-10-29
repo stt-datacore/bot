@@ -1,37 +1,16 @@
-
-import { CommandInteraction, GuildMember, Message, EmbedBuilder, MessageReplyOptions, User, GuildChannel, NonThreadGuildBasedChannel, Embed, MessageFlags, APIUser } from 'discord.js';
+import { APIUser } from 'discord-api-types';
+import { CommandInteraction, GuildMember, Message, MessageEmbed, ReplyMessageOptions, User } from 'discord.js';
 import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message | CommandInteraction, emojiName: string, defaultString: string): string {
-	//
-	// Old Code
-	//		
-	//if (message instanceof CommandInteraction) {		
-		// if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis')) {
-		// 	let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
-		// 	if (emoji) {
-		// 		return emoji.toString();
-		// 	}
-		// }
-	//}
-
-	// New code addresses github issues:
-	
-	// https://github.com/discord/discord-api-docs/issues/5524
-	// https://github.com/discord/discord-api-docs/issues/5279
-
-	// Cannot seem to sync external emoji on bots, right now.
-	// This bug has been opened for over a year (with no current resolutions)
-	
-	// Instead of checking if there are any guild permissions for external emoji
-	// Just use this server's emoji by default, if available.
-	if (message.guild) {
-		let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
-		if (emoji) {
-			return emoji.toString();
+	if (message instanceof CommandInteraction) {
+		if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel!).has('USE_EXTERNAL_EMOJIS')) {
+			let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
+			if (emoji) {
+				return emoji.toString();
+			}
 		}
 	}
-
 	
 	switch (emojiName) {
 		case 'credits':
@@ -66,7 +45,12 @@ export function getEmoteOrString(message: Message | CommandInteraction, emojiNam
 export let MessageCache = new NodeCache({ stdTTL: 600 });
 
 export async function sendSplitText(message: Message, content: any) {
-	let myReply = await message.channel.send('```\n' + content + '```\n');
+	let myReply = await message.channel.send(content, {
+		split: {
+			prepend: '```\n',
+			append: '```\n'
+		}
+	});
 
 	if (myReply instanceof Message) {
 		let entries = MessageCache.get<string[]>(message.id);
@@ -80,7 +64,7 @@ export async function sendSplitText(message: Message, content: any) {
 }
 
 export function discordUserFromMessage(message: Message | CommandInteraction): APIUser | User | null | undefined {
-	let user: User | APIUser | null | undefined = null;
+	let user = null;
 	if (message instanceof Message)
 		user = message.author;
 	else if (message instanceof CommandInteraction) {
@@ -89,7 +73,7 @@ export function discordUserFromMessage(message: Message | CommandInteraction): A
 		else if (message.member instanceof GuildMember)
 			user = message.member.user;
 		else
-			user = message.member?.user as APIUser;
+			user = message.member?.user;
 	}
 	return user;
 }
@@ -98,48 +82,46 @@ type SendOptions = {
 	asReply?: boolean
 	ephemeral?: boolean
 	isFollowUp?: boolean
-	embeds?: EmbedBuilder[]
-	maxEmbeds?: number;
+	embeds?: MessageEmbed[]
 }
 
 export async function sendAndCache(message: Message | CommandInteraction, content: string, options?: SendOptions) {
 
 	// Slash Commands have their own flow.
 	if (message instanceof CommandInteraction) {
-		let max = options?.maxEmbeds ?? 10;
-		let flags = options?.ephemeral ? MessageFlags.Ephemeral : 0; // { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
+		let flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
 		if (options?.isFollowUp)
-			await message.followUp({ content, flags, embeds: options?.embeds?.splice(0,max)?.map((e) => e.toJSON()) })
+			message.followUp(content, flags)
 		else
-			await message.reply({ content, flags, embeds: options?.embeds?.splice(0,max)?.map((e) => e.toJSON()) })
+			message.reply(content, flags)
 		while ((options?.embeds?.length ?? 0) > 0){
-			let msg = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,max)?.map((e) => e.toJSON()) };
-			await message.followUp(msg);
+			flags = { ephemeral: options?.ephemeral, embeds: options?.embeds?.splice(0,10) };
+			message.followUp(flags);
 		}
 		return;
 	}
 	
-	let flags: MessageReplyOptions = {};
+	const flags: ReplyMessageOptions = { split: true };
 	
-	flags.content = content;
+	// if (content instanceof MessageEmbed){
+	// 	options?.embeds
+	// }
 
 	let nEmbeds = options?.embeds?.length ?? 0;
-
 	if (nEmbeds > 0) {
-		flags.embeds = options?.embeds!.slice(0, 1)?.map((e) => e.toJSON());
+		flags.embed = options?.embeds![0];
 	}
+
 	
 	if (options?.asReply || message.channel == null) {
-		flags.content = content;
-		cache(await message.reply(flags));
+		cache(await message.reply(content, flags as ReplyMessageOptions));
 	} else {
-		cache(await (message.channel as any).send(flags));
+		cache(await (message.channel as any).send(content, flags));
 	}
 
 	if (nEmbeds > 1) {
 		for (let additionalEmbed of options!.embeds!.slice(1)){
-			flags = { embeds: [additionalEmbed] };
-			cache(await (message.channel as any).send(flags));
+			cache(await (message.channel as any).send(additionalEmbed));
 		}
 	}
 

@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import yargs from 'yargs';
 import {
 	userFromMessage,
@@ -8,7 +8,6 @@ import {
 	ProfileRosterEntry,
 	loadFleet,
 	loadFullProfile,
-	toTimestamp,
 } from '../utils/profile';
 import CONFIG from '../utils/config';
 import { sendAndCache, sendSplitText, deleteOldReplies } from '../utils/discord';
@@ -16,22 +15,21 @@ import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
-import { PlayerCrew, PlayerData } from 'src/datacore/player';
 
 require('dotenv').config();
 
 const MAX_CREW = 10;
 
-function eventCrewFormat(entry: Definitions.BotCrew, profileData: any): string {
-	let pcrew = profileData.player.character.crew.find((crew: PlayerCrew) => crew.symbol === entry.symbol);
+function eventCrewFormat(entry: ProfileRosterEntry, profileData: any): string {
+	let pcrew = profileData.player.character.crew.find((crew: any) => crew.symbol === entry.crew.symbol);
 
-	if (!pcrew || (pcrew.immortal && pcrew.immortal > 0)) {
-		return `**${entry.name}** (🥶)`;
+	if (!pcrew) {
+		return `**${entry.crew.name}** (🥶)`;
 	} else {
-		if (pcrew.rarity === entry.max_rarity && pcrew.level === 100 && pcrew.equipment.length === 4) {
-			return `**${entry.name}** (FF/FE)`;
+		if (entry.rarity === entry.crew.max_rarity && pcrew.level === 100 && pcrew.equipment.length === 4) {
+			return `**${entry.crew.name}** (FF/FE)`;
 		} else {
-			return `**${entry.name}** (L${pcrew.level} ${pcrew.rarity}/${entry.max_rarity})`;
+			return `**${entry.crew.name}** (L${pcrew.level} ${entry.rarity}/${entry.crew.max_rarity})`;
 		}
 	}
 }
@@ -140,27 +138,27 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							}
 						});
 
-						let embed = new EmbedBuilder()
+						let embed = new MessageEmbed()
 							.setTitle(fleet.name)
 							.setURL(`${CONFIG.DATACORE_URL}fleet_info/?fleetid=${fleetId}`)
 							.setThumbnail(`${CONFIG.ASSETS_URL}${imageUrl}`)
-							.setColor('DarkGreen')
-							.addFields({ name: 'Starbase level', value: fleet.nstarbase_level.toString(), inline: true })
-							.addFields({ name: 'Created', value: new Date(fleet.created).toLocaleDateString(), inline: true })
-							.addFields({ name: 'Size', value: `${fleet.cursize} / ${fleet.maxsize}`, inline: true });
+							.setColor('DARK_GREEN')
+							.addField('Starbase level', fleet.nstarbase_level, true)
+							.addField('Created', new Date(fleet.created).toLocaleDateString(), true)
+							.addField('Size', `${fleet.cursize} / ${fleet.maxsize}`, true);
 
 						if (fleet.motd) {
-							embed = embed.addFields({ name: 'MOTD', value: fleet.motd });;
+							embed = embed.addField('MOTD', fleet.motd);
 						}
 
 						embed = embed
-							.addFields({ name: fleet.leaderboard[0].event_name, value: `Rank ${fleet.leaderboard[0].fleet_rank}`, inline: true })
-							.addFields({ name: fleet.leaderboard[1].event_name, value: `Rank ${fleet.leaderboard[1].fleet_rank}`, inline: true })
-							.addFields({ name: fleet.leaderboard[2].event_name, value: `Rank ${fleet.leaderboard[2].fleet_rank}`, inline: true })
-							.addFields({ name: 'Member list', value: memberFields[0] });
+							.addField(fleet.leaderboard[0].event_name, `Rank ${fleet.leaderboard[0].fleet_rank}`, true)
+							.addField(fleet.leaderboard[1].event_name, `Rank ${fleet.leaderboard[1].fleet_rank}`, true)
+							.addField(fleet.leaderboard[2].event_name, `Rank ${fleet.leaderboard[2].fleet_rank}`, true)
+							.addField('Member list', memberFields[0]);
 
 						if (memberFields.length > 0) {
-							embed = embed.addFields({ name: 'Member list (continued)', value: memberFields[1] });;
+							embed = embed.addField('Member list (continued)', memberFields[1]);
 						}
 
 						sendAndCache(message, '', {embeds: [embed]});
@@ -176,92 +174,84 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 		let eventReply = verb && verb.toLowerCase().trim() === 'event';
 
 		if (defaultReply) {
-			try {
-				let embeds = [] as EmbedBuilder[];
+			for (let profile of user.profiles) {
+				let profileData = loadFullProfile(profile.dbid);
+				if (profileData) {
+					let embed = new MessageEmbed().setTitle(profile.captainName).setColor('DARK_GREEN');
 
-				for (let profile of user.profiles) {
-					let profileData = loadFullProfile(profile.dbid);
-					if (profileData) {
-						let embed = new EmbedBuilder().setTitle(profile.captainName).setColor('DarkGreen');
-	
-						if (eventReply) {
-							embed = embed
-								.addFields(
-									{ name: 'Last update', value: toTimestamp(profileData.lastModified ?? profile.lastUpdate), inline: true },
-									{ name: 'Stats', value: `VIP${profileData.player.vip_level}; Level ${profileData.player.character.level}`, inline: true }
-								);
-						} else {
-							embed = embed
-								.setURL(`${CONFIG.DATACORE_URL}profile?dbid=${profile.dbid}`)
-								.addFields(
-									{ name: 'Last update', value: toTimestamp(profileData.lastModified ?? profile.lastUpdate) },
-									{ name: 'VIP', value: profileData.player.vip_level.toString(), inline: true },
-									{ name: 'Level', value: profileData.player.character.level.toString(), inline: true }
-								);
-							}
-	
-						embed = embed.addFields({ name: 'Shuttles', value: profileData.player.character.shuttle_bays.toString(), inline: true });
-	
-						if (profileData.player.character.crew_avatar && profileData.player.character.crew_avatar?.portrait?.file) {
-							embed = embed.setThumbnail(`${CONFIG.ASSETS_URL}${profileData.player.character.crew_avatar.portrait.file}`);
-						}
-	
-						if (eventReply) {
-							let event = DCData.getEvents()[0];
-							let allCrew = DCData.getBotCrew();
-
-							if (event.startDate && event.startDate < new Date()) {
-								// TODO: No data for upcoming event, error out
-							}
-	
-							// let profile = await loadProfile(user.profiles[0].dbid);
-							// let roster = loadProfileRoster(profile);
-	
-							let highbonus = (profileData as PlayerData).player.character.crew.filter((entry) => event.featured.includes(entry.symbol)).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
-							let smallbonus = (profileData as PlayerData).player.character.crew.filter((entry) => 							
-								event.bonus.includes(entry.symbol)
-							).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
-	
-							smallbonus.sort((a, b) => (a?.ranks.voyRank ?? 0) - (b?.ranks.voyRank ?? 0));
-	
-							// Remove from smallbonus the highbonus crew
-							smallbonus = smallbonus.filter((entry) => !highbonus.includes(entry));
-							event.endDate ??= new Date();
-							let reply = `Event ending on *${toTimestamp(event.endDate)}*\n\nHigh bonus crew: ${
-								highbonus.length === 0 ? 'NONE' : highbonus.map((entry) => entry ? eventCrewFormat(entry, profileData) : '').join(', ')
-							}\n\n`;
-							reply += `Small bonus crew: ${
-								smallbonus.length === 0
-									? 'NONE'
-									: smallbonus
-											.slice(0, MAX_CREW)
-											.map((entry) => entry ? eventCrewFormat(entry, profileData) : '') 
-											.join(', ')
-							}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
-
-							embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply });
-						}
-	
-						if (text) {
-							embed = embed.addFields({ name: 'Other details', value: text });
-						}
-	
-						if (!eventReply && profileData.player.fleet && profileData.player.fleet.id) {
-							embed = embed.addFields({
-								name: 'Fleet',
-								value: `[${profileData.player.fleet.slabel}](${CONFIG.DATACORE_URL}fleet_info?fleetid=${profileData.player.fleet.id})`
-							});
-						}
-	
-						embeds.push(embed);		
+					if (eventReply) {
+						embed = embed
+							.addField('Last update', profile.lastUpdate.toDateString(), true)
+							.addField('Stats', `VIP${profileData.player.vip_level}; Level ${profileData.player.character.level}`, true);
+					} else {
+						embed = embed
+							.setURL(`${CONFIG.DATACORE_URL}profile/?dbid=${profile.dbid}`)
+							.addField('Last update', profile.lastUpdate.toDateString())
+							.addField('VIP', profileData.player.vip_level, true)
+							.addField('Level', profileData.player.character.level, true);
 					}
-				}
 
-				sendAndCache(message, '', { embeds });
-			}
-			catch (err: any) {
-				console.log(err);
-				message.reply("Sorry, we ran into an error and couldn't process your request. Try again later.");
+					embed = embed.addField('Shuttles', profileData.player.character.shuttle_bays, true);
+
+					if (profileData.player.character.crew_avatar && profileData.player.character.crew_avatar.portrait) {
+						embed = embed.setThumbnail(`${CONFIG.ASSETS_URL}${profileData.player.character.crew_avatar.portrait}`);
+					}
+
+					if (eventReply) {
+						let event = DCData.getUpcomingEvents().slice(-1)[0];
+						if (event.endDate < new Date()) {
+							// TODO: No data for upcoming event, error out
+						}
+
+						let profile = await loadProfile(user.profiles[0].dbid);
+						let roster = loadProfileRoster(profile);
+
+						let highbonus = roster.filter((entry) => event.highbonus.includes(entry.crew.symbol));
+						let smallbonus = roster.filter((entry) =>
+							event.smallbonus.traits.some((trait) => entry.crew.traits_named.includes(trait) || entry.crew.traits_hidden.includes(trait))
+						);
+
+						smallbonus.sort((a, b) => b.voyageScore - a.voyageScore);
+
+						// Remove from smallbonus the highbonus crew
+						smallbonus = smallbonus.filter((entry) => !highbonus.includes(entry));
+
+						let reply = `Event ending on *${event.endDate.toDateString()}*\n\nHigh bonus crew: ${
+							highbonus.length === 0 ? 'NONE' : highbonus.map((entry) => eventCrewFormat(entry, profileData)).join(', ')
+						}\n\n`;
+						reply += `Small bonus crew: ${
+							smallbonus.length === 0
+								? 'NONE'
+								: smallbonus
+										.slice(0, MAX_CREW)
+										.map((entry) => eventCrewFormat(entry, profileData))
+										.join(', ')
+						}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
+
+						//embed = embed.addField('Total crew', roster.length, true);
+						embed = embed.addField(`**${event.name}** (${event.type})`, reply); // ending on *${event.endDate.toDateString()}*
+					}
+
+					if (text) {
+						embed = embed.addField('Other details', text);
+
+						// TODO: save this for the fleet admiral's report view
+						// userId, eventId, eventGoals, ? eventCrew
+					}
+
+					if (!eventReply && profileData.player.fleet && profileData.player.fleet.id) {
+						embed = embed.addField(
+							'Fleet',
+							`[${profileData.player.fleet.slabel}](${CONFIG.DATACORE_URL}fleet_info?fleetid=${profileData.player.fleet.id})`
+						);
+					}
+
+					if (eventReply) {
+						await deleteOldReplies(message, profile.captainName);
+					}
+
+					sendAndCache(message, '', {embeds: [embed] });
+				}
 			}
 		}
 	}
@@ -275,7 +265,7 @@ class Profile implements Definitions.Command {
 	options = [
 		{
 			name: 'verb',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: 'additional profile actions',
 			required: false,
 			choices: [

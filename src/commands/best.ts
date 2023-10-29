@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
@@ -59,7 +59,7 @@ class Best implements Definitions.Command {
 	options = [
 		{
 			name: 'type',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: 'type of search to do',
 			required: true,
 			choices: [
@@ -70,7 +70,7 @@ class Best implements Definitions.Command {
 		},
 		{
 			name: 'skill',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: 'skill to search',
 			required: true,
 			choices: [
@@ -84,7 +84,7 @@ class Best implements Definitions.Command {
 		},
 		{
 			name: 'secondskill',
-			type: ApplicationCommandOptionType.String,
+			type: 'STRING',
 			description: '(optional) second skill to search',
 			required: false,
 			choices: [
@@ -98,7 +98,7 @@ class Best implements Definitions.Command {
 		},
 		{
 			name: 'stars',
-			type: ApplicationCommandOptionType.Integer,
+			type: 'INTEGER',
 			description: 'limit the search to given number of stars or below',
 			required: false,
 			choices: [
