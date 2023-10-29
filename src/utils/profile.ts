@@ -318,5 +318,14 @@ export async function loadFullProfile(dbid: string | number): Promise<PlayerProf
 	else {
 		return await getProfile(dbid);
 	}
-	
+}
+
+export function toTimestamp(date: Date, format: 'd' | 'D' | 'f' | 'F' | 't' | 'T' | 'R' | undefined = 'D') {
+	let n = Math.round(date.getTime() / 1000);
+	if (format) {
+		return `<t:${n}:${format}>`;
+	}
+	else {
+		return `<t:${n}>`;
+	}
 }
