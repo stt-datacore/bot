@@ -19,6 +19,13 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
     if (activeEvent.rules.includes("Skirmish")) types.push("Skirmish");
 	if (activeEvent.rules.includes("Supply")) types.push("Galaxy");
 	
+	if (types.length === 2) {
+		let a = activeEvent.rules.indexOf(types[0]);
+		let b = activeEvent.rules.indexOf(types[1]);
+		if (b < a) {
+			types = [ types[1], types[0] ];
+		}
+	}
 	result.type = types.join("/");
 
 	// We can get event image more definitively by fetching from events/instance_id.json rather than player data
