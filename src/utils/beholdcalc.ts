@@ -213,7 +213,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 							}
 							
 							if (!beholdResult["crew" + (i + 1).toString()].stars) {
-								beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
+								beholdResult["crew" + (i + 1).toString()].stars = (entry.rarity ?? 1) - 1;
 							}							
 						}
 					}
