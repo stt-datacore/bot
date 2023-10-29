@@ -8,6 +8,7 @@ import {
 	ProfileRosterEntry,
 	loadFleet,
 	loadFullProfile,
+	toTimestamp,
 } from '../utils/profile';
 import CONFIG from '../utils/config';
 import { sendAndCache, sendSplitText, deleteOldReplies } from '../utils/discord';
@@ -186,14 +187,14 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						if (eventReply) {
 							embed = embed
 								.addFields(
-									{ name: 'Last update', value: profileData.lastModified?.toDateString() ?? profile.lastUpdate.toDateString(), inline: true },
+									{ name: 'Last update', value: toTimestamp(profileData.lastModified ?? profile.lastUpdate), inline: true },
 									{ name: 'Stats', value: `VIP${profileData.player.vip_level}; Level ${profileData.player.character.level}`, inline: true }
 								);
 						} else {
 							embed = embed
 								.setURL(`${CONFIG.DATACORE_URL}profile?dbid=${profile.dbid}`)
 								.addFields(
-									{ name: 'Last update', value: profileData.lastModified?.toDateString() ?? profile.lastUpdate.toDateString() },
+									{ name: 'Last update', value: toTimestamp(profileData.lastModified ?? profile.lastUpdate) },
 									{ name: 'VIP', value: profileData.player.vip_level.toString(), inline: true },
 									{ name: 'Level', value: profileData.player.character.level.toString(), inline: true }
 								);
@@ -225,8 +226,8 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 	
 							// Remove from smallbonus the highbonus crew
 							smallbonus = smallbonus.filter((entry) => !highbonus.includes(entry));
-	
-							let reply = `Event ending on *${event.endDate?.toDateString()}*\n\nHigh bonus crew: ${
+							event.endDate ??= new Date();
+							let reply = `Event ending on *${toTimestamp(event.endDate)}*\n\nHigh bonus crew: ${
 								highbonus.length === 0 ? 'NONE' : highbonus.map((entry) => entry ? eventCrewFormat(entry, profileData) : '').join(', ')
 							}\n\n`;
 							reply += `Small bonus crew: ${

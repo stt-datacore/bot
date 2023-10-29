@@ -6,7 +6,7 @@ import { formatSources, formatRecipe } from '../utils/items';
 import { colorFromRarity, formatCollectionName } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
-import { loadFullProfile, userFromMessage } from '../utils/profile';
+import { loadFullProfile, toTimestamp, userFromMessage } from '../utils/profile';
 import { getNeededItems } from '../utils/equipment';
 
 function bonusName(bonus: string) {
@@ -159,13 +159,13 @@ async function asyncHandler(
 
 	if (fuse) {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${profile.lastModified?.toDateString() ?? user.profiles[0].lastUpdate.toDateString()})`, 
+			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
 			{ embeds }
 		   );
 	}
 	else {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${profile.lastModified?.toDateString() ?? user.profiles[0].lastUpdate.toDateString()})`, 
+			`Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
 			{ embeds }
 		   );
 	}
