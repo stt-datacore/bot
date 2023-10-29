@@ -52,7 +52,7 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 		reply += `Big Book **tier ${crew.bigbook_tier}** ([link](https://www.bigbook.app/crew/${crew.symbol})), `;
 	}
 	if (crew.cab_ov) {
-		reply += `CAB **grade ${crew.cab_ov_grade} (rank #${crew.cab_ov_rank})**, `;
+		reply += `CAB **grade ${crew.cab_ov_grade} (rank #${crew.cab_ov_rank}, rating: ${crew.cab_ov})**, `;
 	}
 
 	reply += `Voyage #${crew.ranks.voyRank}, Gauntlet #${crew.ranks.gauntletRank}, ${crew.events || 0} event${
