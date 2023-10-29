@@ -244,16 +244,12 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 											.map((entry) => entry ? eventCrewFormat(entry, profileData) : '') 
 											.join(', ')
 							}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
-	
-							//embed = embed.addFields({ name: 'Total crew', value: roster.length, true });;
-							embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply }); // ending on *${event.endDate.toDateString()}*
+
+							embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply });
 						}
 	
 						if (text) {
-							embed = embed.addFields({ name: 'Other details', value: text });;
-	
-							// TODO: save this for the fleet admiral's report view
-							// userId, eventId, eventGoals, ? eventCrew
+							embed = embed.addFields({ name: 'Other details', value: text });
 						}
 	
 						if (!eventReply && profileData.player.fleet && profileData.player.fleet.id) {
