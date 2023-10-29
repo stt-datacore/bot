@@ -169,14 +169,14 @@ export async function createUserFromMessage(message: Message) {
 
 	if (!userDB) {
 		userDB = await User.create({
-			discordUserName: message.author.username,
-			discordUserDiscriminator: message.author.discriminator,
+			discordUserName: message.member?.user.username,
+			discordUserDiscriminator: message.member?.user.discriminator,
 			discordUserId: message.author.id,
 			userRole: UserRole.DISCORDONLY
 		});
-	} else {
-		userDB.discordUserName = message.author.username;
-		userDB.discordUserDiscriminator = message.author.discriminator;
+	} else if (message.member) {
+		userDB.discordUserName = message.member.user.username;
+		userDB.discordUserDiscriminator = message.member.user.discriminator;
 		await userDB.save();
 	}
 
@@ -313,8 +313,22 @@ export async function loadRemoteProfile(dbid: string): Promise<any> {
 export function loadFullProfile(dbid: string): any {
 	let profileData = JSON.parse(fs.readFileSync(process.env.PROFILE_DATA_PATH + dbid, 'utf8'));
 	if (profileData && profileData.player.dbid.toString() === dbid) {
+		let stat = fs.statSync(process.env.PROFILE_DATA_PATH + dbid);
+		if (stat?.mtime) {
+			profileData.lastModified = stat.mtime;
+		}
 		return profileData;
 	}
 
 	return undefined;
+}
+
+export function toTimestamp(date: Date, format: 'd' | 'D' | 'f' | 'F' | 't' | 'T' | 'R' | undefined = 'D') {
+	let n = Math.round(date.getTime() / 1000);
+	if (format) {
+		return `<t:${n}:${format}>`;
+	}
+	else {
+		return `<t:${n}>`;
+	}
 }

@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { ApplicationCommandOptionType, Message } from 'discord.js';
 import yargs from 'yargs';
 
 import { calculateBehold, isValidBehold } from '../utils/beholdcalc';
@@ -35,19 +35,19 @@ class Behold implements Definitions.Command {
 	options = [
 		{
 			name: 'url',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'address of a png or jpg image',
 			required: true,
 		},
 		{
 			name: 'threshold',
-			type: 'INTEGER',
+			type: ApplicationCommandOptionType.Integer,
 			description: 'lower the threshold for crew detection; the lower it is, the higher the chance for false positives',
 			required: false,
 		},
 		{
 			name: 'base',
-			type: 'BOOLEAN',
+			type: ApplicationCommandOptionType.Boolean,
 			description: 'ignore user profile if available',
 			required: false,
 		},

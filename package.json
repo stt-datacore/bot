@@ -13,16 +13,17 @@
   "dependencies": {
     "as-table": "^1.0.55",
     "chokidar": "^3.4.0",
-    "discord-api-types": "^0.18.1",
-    "discord.js": "git+https://github.com/discordjs/discord.js.git#f8703e3e59839d7380795ecf719d5bac691860a4",
+    "discord-api-types": "^0.37.60",
+    "discord.js": "^14.13.0",
     "dotenv": "^8.2.0",
     "fuse.js": "^6.2.0",
+    "js-levenshtein": "^1.1.6",
     "node-cache": "^5.1.1",
     "node-fetch": "^2.6.1",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
-    "sequelize": "^6.3.3",
-    "sequelize-typescript": "^2.0.0-beta.0",
+    "sequelize": "^6.5.0",
+    "sequelize-typescript": "^2.0.0",
     "sqlite3": "^5.0.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.5.0",
@@ -30,11 +31,12 @@
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.32",
-    "@types/node": "^14.14.10",
+    "@types/js-levenshtein": "^1.1.1",
+    "@types/node": "^14.18.63",
     "@types/node-fetch": "^2.5.7",
     "@types/validator": "^13.1.0",
     "@types/ws": "^7.4.4",
     "@types/yargs": "^15.0.5",
-    "typescript": "^4.1.2"
+    "typescript": "^5.2.2"
   }
 }

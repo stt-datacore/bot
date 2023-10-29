@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { watch, FSWatcher } from 'chokidar';
 import Fuse from 'fuse.js';
+import { IEventData } from '../datacore/events';
+import { getRecentEvents } from '../utils/events';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;
@@ -9,19 +11,18 @@ class DCDataClass {
 	private _quests: any[] = [];
 	private _dilemmas: any[] = [];
 	private _rawCrew: Definitions.BotCrew[] = [];
-	private _upcomingEvents: Definitions.UpcomingEvent[] = [];
+	private _recentEvents: IEventData[] = [];
 
 	public setup(datacore_path: string): void {
 		// Set up a watcher to reload data on changes
 		this._watcher = watch(datacore_path, { persistent: true, awaitWriteFinish: true });
 		this._watcher.on('change', filePath => this._reloadData(filePath));
-
 		// Initial read
 		this._reloadData(path.join(datacore_path, 'items.json'));
 		this._reloadData(path.join(datacore_path, 'quests.json'));
 		this._reloadData(path.join(datacore_path, 'dilemmas.json'));
 		this._reloadData(path.join(datacore_path, 'crew.json'));
-		this._reloadData(path.join(datacore_path, 'upcomingevents.json'));
+		this._reloadData(path.join(datacore_path, 'event_instances.json'));
 	}
 
 	private _reloadData(filePath: string) {
@@ -54,16 +55,14 @@ class DCDataClass {
 					if (crew.base_skills.diplomacy_skill) crew.traits_pseudo.push('dip');
 					if (crew.base_skills.medicine_skill) crew.traits_pseudo.push('med');
 				});
-			} else if (filePath.endsWith('upcomingevents.json')) {
-				// Fix up the dates
-				parsedData.forEach((entry: any) => {
-					entry.startDate = new Date(entry.startDate);
-					entry.endDate = new Date(entry.endDate);
-				});
-
-				this._upcomingEvents = parsedData;
+			} else if (filePath.endsWith('event_instances.json')) {											
+				this._recentEvents = getRecentEvents(this._rawCrew, parsedData);				
 			}
 		}
+	}
+
+	public getEvents() {
+		return this._recentEvents;
 	}
 
 	public shutdown() {
@@ -73,7 +72,12 @@ class DCDataClass {
 	}
 
 	public getBotCrew(): Definitions.BotCrew[] {
-		return this._rawCrew;
+		return this._rawCrew.map((rc) => {
+			if (typeof rc.date_added === 'string') {
+				rc.date_added = new Date(rc.date_added);
+			}
+			return rc;
+		});
 	}
 
 	public getItems(): Definitions.Item[] {
@@ -82,10 +86,6 @@ class DCDataClass {
 
 	public getDilemmas(): any[] {
 		return this._dilemmas;
-	}
-
-	public getUpcomingEvents(): Definitions.UpcomingEvent[] {
-		return this._upcomingEvents;
 	}
 
 	public totalCrew(): number {
