@@ -79,7 +79,7 @@ async function asyncHandler(message: Message, searchString: string) {
 						if (s.includes('4') && s.includes(':star:')) {
 							legend.push(dil === 0 ? 'A' : (dil === 1 ? 'B' : 'C'));
 						}
-						else if (rex.test(s)) {
+						if (rex.test(s)) {
 							let result = rex.exec(s);
 							if (result && result.length) {
 								let crewname = result[1];
