@@ -20,9 +20,11 @@ const client = new Client({
 		'GuildEmojisAndStickers', 
 		'GuildMessageTyping', 
 		'GuildIntegrations', 
-		'GuildMessageReactions',		
+		'GuildMessageReactions',	
+		'DirectMessages',
+		'DirectMessageReactions'	
 		],
-	partials: [Partials.Channel, Partials.Message, Partials.GuildMember],
+	partials: [Partials.Channel, Partials.Message, Partials.GuildMember, Partials.ThreadMember, Partials.User],
 });
 
 /*

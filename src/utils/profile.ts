@@ -166,12 +166,16 @@ export async function userFromMessage(message: Message | CommandInteraction) {
 
 export async function createUserFromMessage(message: Message) {
 	let userDB = await userFromMessage(message);
-
+	
 	if (!userDB) {
+		let id = discordUserFromMessage(message)?.id;
+		if (!id) {
+			return null;
+		}
 		userDB = await mongoUpsertDiscordUser({
 			discordUserName: message.member?.user.username ?? '',
 			discordUserDiscriminator: message.member?.user.discriminator ?? '',
-			discordUserId: message.member?.id ?? '',
+			discordUserId: id,
 			profiles: [],
 			userRole: UserRole.DISCORDONLY
 		});

@@ -12,8 +12,19 @@ async function asyncHandler(message: Message) {
 	if (!user || user.profiles.length === 0) {
 		sendAndCache(message, ` Your user was never associated with a profile (DBID) so you're all good`, {asReply: true});
 	} else {
-		let dbids = await clearUser(user);
-		sendAndCache(message, ` Profiles (DBIDs ${dbids.join(', ')}) were dis-associated from your user, all good.`, {asReply: true});
+		try {
+			let dbids = await clearUser(user);
+			sendAndCache(message, ` Profiles (DBIDs ${dbids.join(', ')}) were dis-associated from your user, all good.`, {asReply: true});
+		}
+		catch (err: any) {
+			console.log(err);
+			try {
+				sendAndCache(message, `Something went wrong. Please contact a Datacore administrator.`, {asReply: true});
+			}
+			catch (err: any) {
+				console.log(err);
+			}
+		}
 	}
 }
 
