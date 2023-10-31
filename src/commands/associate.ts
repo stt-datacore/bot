@@ -21,6 +21,15 @@ async function asyncHandler(message: Message, dbid: string, devpull: boolean, ac
 			return;
 	}
 
+	if (!user) {
+		sendAndCache(
+			message,
+			`Sorry, Datacore can't associate your profile, right now, as we are having trouble acquiring your Discord Id. This cound be a transient issue, try again in a few moments. Alternatively, try signing out, and back in. If the problem persists, contact Discord customer service.`,
+			{asReply: true}
+		);
+		return;
+	}
+
 	let result = await associateUser(user, dbid, access_token);
 	if (result.error) {
 		sendAndCache(message, `Error: ${result.error}`);

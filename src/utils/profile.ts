@@ -160,18 +160,23 @@ export function loadProfileRoster(profile: ProfileEntry | undefined = undefined)
 }
 
 export async function userFromMessage(message: Message | CommandInteraction) {
-	let id = discordUserFromMessage(message)!.id;
+	let id = discordUserFromMessage(message)!.id;	
+	console.log(`Discord Id: ${id}`);
 	return await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
 }
 
 export async function createUserFromMessage(message: Message) {
 	let userDB = await userFromMessage(message);
-
+	
 	if (!userDB) {
+		let id = discordUserFromMessage(message)?.id;
+		if (!id) {
+			return null;
+		}
 		userDB = await User.create({
 			discordUserName: message.member?.user.username,
 			discordUserDiscriminator: message.member?.user.discriminator,
-			discordUserId: message.author.id,
+			discordUserId: id,
 			userRole: UserRole.DISCORDONLY
 		});
 	} else if (message.member) {
