@@ -226,10 +226,20 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 	
 							// Remove from smallbonus the highbonus crew
 							smallbonus = smallbonus.filter((entry) => !highbonus.includes(entry));
+							
 							event.endDate ??= new Date();
-							let reply = `Event ending on *${toTimestamp(event.endDate)}*\n\nHigh bonus crew: ${
+							
+							let reply = "";
+							if (event.startDate && event.startDate.getTime() > (new Date()).getTime()) {
+								reply = `Event starting on *${toTimestamp(event.startDate)}*`;
+							}
+							else {
+								reply = `Event ending on *${toTimestamp(event.endDate)}*`;
+							}
+							reply += `\n\nHigh bonus crew: ${
 								highbonus.length === 0 ? 'NONE' : highbonus.map((entry) => entry ? eventCrewFormat(entry, profileData) : '').join(', ')
 							}\n\n`;
+
 							reply += `Small bonus crew: ${
 								smallbonus.length === 0
 									? 'NONE'
