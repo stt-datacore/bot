@@ -173,7 +173,7 @@ async function asyncHandler(
 
 class CheapestFFFE implements Definitions.Command {
 	name = 'cheapestfffe';
-	command = 'cheapestfffe';
+	command = 'cheapestfffe [fuseneed]';
 	aliases = [];
 	describe = 'Shows FF crew on your roster who are cheapest to FE';
 	options = [{

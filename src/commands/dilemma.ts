@@ -7,7 +7,20 @@ import levenshtein from 'js-levenshtein';
 import { colorFromRarity } from '../utils/crew';
 import CONFIG from '../utils/config';
 
-function formatChoice(message: Message, choice: any): string {
+
+interface IDilemmaChoice {
+	text: string;
+	reward: string[];
+}
+interface IDilemma {
+	title: string,
+	choiceA: IDilemmaChoice;
+	choiceB: IDilemmaChoice;
+	choiceC?: IDilemmaChoice;
+}
+
+
+function formatChoice(message: Message, choice: IDilemmaChoice): string {
 	let result = choice.text + '\n' + choice.reward.join(', ');
 	result = result.split(':honor:').join(getEmoteOrString(message, 'honor', 'honor'));
 	result = result.split(':chrons:').join(getEmoteOrString(message, 'chrons', 'chrons'));
@@ -15,24 +28,29 @@ function formatChoice(message: Message, choice: any): string {
 	return result;
 }
 
-function getChoiceRarity(choice: any) {
+function getChoiceRarity(choice: IDilemmaChoice) {
 	if (choice.reward.some((r: string) => r.includes("100 :honor:"))) return 5;
 	else if (choice.reward.some((r: string) => r.includes("60 :honor:"))) return 4;
 	else return 3;
 }
-
 async function asyncHandler(message: Message, searchString: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 	
-	let test_search = searchString.trim().toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '');
-	let dilemmas = DCData.getDilemmas();
+	let test_search = searchString.trim().toLowerCase().replace(/\"/g, '').replace(/\'/g, '').replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '');
+	let dilemmas = DCData.getDilemmas() as IDilemma[];
+
+	if (test_search === 'list') {
+		dilemmas.sort((a, b) => a.title.localeCompare(b.title));
+		sendAndCache(message, `${dilemmas.map(d => d.title).reduce((a, b) => a ? `${a}\n${b}`: b, null as string | null)}`);
+		return;
+	}
 
 	let intermediate = [] as { distance: number, dilemma: any }[];
 	let results = [] as any[];
 
 	results = dilemmas.filter(
-		(dilemma: any) => dilemma.title.toLowerCase().replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '').indexOf(test_search) >= 0
+		(dilemma: any) => dilemma.title.toLowerCase().replace(/\"/g, '').replace(/\'/g, '').replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '').indexOf(test_search) >= 0
 	);
 
 	if (!results.length) {
@@ -131,9 +149,9 @@ async function asyncHandler(message: Message, searchString: string) {
 
 class Dilemma implements Definitions.Command {
 	name = 'dilemma';
-	command = 'dilemma <title...>';
+	command = 'dilemma <title | list...>';
 	aliases = ['dd'];
-	describe = 'Searches dilemmas with the given title';
+	describe = 'Searches for dilemma titles that contain the given text (\'list\' to list all dilemmas)';
 	options = [
 		{
 			name: 'title',
