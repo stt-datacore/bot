@@ -29,8 +29,10 @@ async function asyncHandler(
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let user = await userFromMessage(message);
-    let settings = user?.profiles[0] ? await loadProfile(user.profiles[0].dbid) : null;
-	let profile = user?.profiles[0] ? loadFullProfile(user.profiles[0].dbid) : null;
+    let settings = user?.profiles[0] ? await loadProfile(user.profiles[0]) : null;
+	let profile = user?.profiles[0] ? await loadFullProfile(user.profiles[0]) : null;
+    let captainName = profile?.captainName;
+
 	if (!user || !profile) {
 		sendAndCache(message, "Sorry, I couldn't find an associated profile for your user.")
 		return;
@@ -42,8 +44,8 @@ async function asyncHandler(
 	let botCrew = DCData.getBotCrew();
     let quipment = DCData.getItems().filter((item: Definitions.Item) => item.type === 15 || item.type === 14);
 
-	let profileCrew = profile.player.character.crew;
-	let profileItems = profile.player.character.items;
+	let profileCrew = profile.playerData.player.character.crew;
+	let profileItems = profile.playerData.player.character.items;
 	let quippedCrew = profileCrew.filter((c: PlayerCrew) => {
         if (!!c.kwipment?.length) {
             if (crewman?.length) {
@@ -182,7 +184,7 @@ async function asyncHandler(
 	});
 	
     sendAndCache(message, 
-        `Currently quipped crew in **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
+        `Currently quipped crew in **${captainName}**'s roster (last updated ${toTimestamp(profile.timeStamp)})`, 
         { embeds }
         );
 
