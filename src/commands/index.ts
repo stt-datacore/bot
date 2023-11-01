@@ -15,6 +15,7 @@ import { CrewNeedCommand } from './crewneed';
 import { OffersCommand } from './offers';
 import { CheapestFFFECommand } from './cheapestfffe';
 import { SetDefaultCommand } from './setdefault';
+import { QuipmentCommand } from './quip';
 
 export let Commands: Definitions.Command[] = [
 	AssociateCommand,
@@ -33,5 +34,6 @@ export let Commands: Definitions.Command[] = [
 	SearchCommand,
 	StatsCommand,
 	VoyTimeCommand,
-	SetDefaultCommand
+	SetDefaultCommand,
+	QuipmentCommand
 ];

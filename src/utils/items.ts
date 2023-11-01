@@ -2,6 +2,8 @@ import { Message } from 'discord.js';
 import { DCData } from '../data/DCData';
 import { getEmoteOrString } from './discord';
 import CONFIG from '../utils/config';
+import { Skill } from '../datacore/crew';
+import { EquipmentItem } from '../datacore/equipment';
 
 export function formatRecipe(message: Message, item: Definitions.Item, rich: boolean = false) {
 	if (!item.recipe || !item.recipe.list || item.recipe.list.length === 0) {
@@ -105,4 +107,65 @@ function formatQuestName(quest: any, long: boolean): string {
 	} else {
 		return `${quest.name} (${quest.mission.episode_title})`;
 	}
+}
+
+
+/**
+ * Creates a formatted title (appelation) from the given text.
+ * @param text The text to convert into a title
+ * @returns 
+ */
+export function appelate(text: string) {
+	let curr: string = "";
+	let cpos = 0;
+
+	const match = new RegExp(/[A-Za-z0-9]/);
+
+	for (let ch of text) {
+		if (match.test(ch)) {
+			if (cpos++ === 0) {
+				curr += ch.toUpperCase();
+			}
+			else {
+				curr += ch.toLowerCase();
+			}
+		}
+		else {
+			cpos = 0;
+			curr += ch == '_' ? " " : ch;
+		}
+	}
+
+	return curr;
+}
+
+
+export interface ItemBonusInfo {
+    bonusText: string[];
+    bonuses: { [key: string]: Skill };
+}
+
+export function getItemBonuses(item: EquipmentItem): ItemBonusInfo {
+    let bonusText = [] as string[];
+    let bonuses = {} as { [key: string]: Skill };
+    
+    if (item.bonuses) {
+        for (let [key, value] of Object.entries(item.bonuses)) {
+            let bonus = CONFIG.STATS_CONFIG[Number.parseInt(key)];
+            if (bonus) {
+                bonusText.push(`+${value} ${bonus.symbol}`);	
+                bonuses[bonus.skill] ??= {} as Skill;
+				let stat = bonus.symbol.replace(`${bonus.skill}_`, '');
+                (bonuses[bonus.skill] as any)[stat] = value;
+                bonuses[bonus.skill].skill = bonus.skill;
+            } else {
+                // TODO: what kind of bonus is this?
+            }
+        }
+    }
+
+    return {
+        bonusText,
+        bonuses
+    };
 }

@@ -110,7 +110,7 @@ async function asyncHandler(
 		}
 	}).sort((a: any, b: any) => {
 		let r = 0;		
-		// if (!r) r = (a.rarity/a.max_rarity) - (b.rarity/b.max_rarity);
+		//if (!r) r = (b.rarity/b.max_rarity) - (a.rarity/a.max_rarity);
 		if (!r) r = a.requiredChronCost - b.requiredChronCost;
 		return r;
 	});
