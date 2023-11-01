@@ -215,6 +215,14 @@ declare namespace Definitions {
 		bonuses: { [key: string]: number };
 		imageUrl: string;
 		factionOnly: boolean;
+
+		
+		duration?: number;
+		max_rarity_requirement?: number;
+		traits_requirement_operator?: string; // "and" | "or" | "not" | "xor";
+		traits_requirement?: string[];  
+		kwipment?: boolean;
+		kwipment_id?: number | string;
 	}
 
 	export interface UpcomingEvent {

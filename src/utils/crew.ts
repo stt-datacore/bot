@@ -1,12 +1,13 @@
 import { ColorResolvable, Message } from 'discord.js';
 import { getEmoteOrString } from './discord';
 import CONFIG from './config';
+import { PlayerCrew } from '../datacore/player';
 
 function formatSkill(skill: Definitions.Skill, useSpace: boolean, forGauntlet: boolean = false) {
 	if (forGauntlet) {
-		return `${useSpace ? ' ' : '^'}(${skill.range_min}-${skill.range_max})`;
+		return `${useSpace ? ' ' : '^'}(${skill.range_min ?? 0}-${skill.range_max ?? 0})`;
 	} else {
-		return `${skill.core}${useSpace ? ' ' : '^'}(${skill.range_min}-${skill.range_max})`;
+		return `${skill.core ?? 0}${useSpace ? ' ' : '^'}(${skill.range_min ?? 0}-${skill.range_max ?? 0})`;
 	}
 }
 
@@ -14,42 +15,42 @@ function formatCrewStatsInternal(skills: Definitions.Skills, useSpace: boolean, 
 	// TODO: apply buff config before sort
 
 	let result: any[] = [];
-	if (skills.command_skill) {
+	if (!!skills.command_skill && Object.values(skills.command_skill).some(v => !!v)) {
 		result.push({
 			val: skills.command_skill.core,
 			text: `CMD ${formatSkill(skills.command_skill, useSpace, forGauntlet)}`
 		});
 	}
 
-	if (skills.science_skill) {
+	if (!!skills.science_skill && Object.values(skills.science_skill).some(v => !!v)) {
 		result.push({
 			val: skills.science_skill.core,
 			text: `SCI ${formatSkill(skills.science_skill, useSpace, forGauntlet)}`
 		});
 	}
 
-	if (skills.security_skill) {
+	if (!!skills.security_skill && Object.values(skills.security_skill).some(v => !!v)) {
 		result.push({
 			val: skills.security_skill.core,
 			text: `SEC ${formatSkill(skills.security_skill, useSpace, forGauntlet)}`
 		});
 	}
 
-	if (skills.engineering_skill) {
+	if (!!skills.engineering_skill && Object.values(skills.engineering_skill).some(v => !!v)) {
 		result.push({
 			val: skills.engineering_skill.core,
 			text: `ENG ${formatSkill(skills.engineering_skill, useSpace, forGauntlet)}`
 		});
 	}
 
-	if (skills.diplomacy_skill) {
+	if (!!skills.diplomacy_skill && Object.values(skills.diplomacy_skill).some(v => !!v)) {
 		result.push({
 			val: skills.diplomacy_skill.core,
 			text: `DIP ${formatSkill(skills.diplomacy_skill, useSpace, forGauntlet)}`
 		});
 	}
 
-	if (skills.medicine_skill) {
+	if (!!skills.medicine_skill && Object.values(skills.medicine_skill).some(v => !!v)) {
 		result.push({
 			val: skills.medicine_skill.core,
 			text: `MED ${formatSkill(skills.medicine_skill, useSpace, forGauntlet)}`
@@ -59,12 +60,17 @@ function formatCrewStatsInternal(skills: Definitions.Skills, useSpace: boolean, 
 	return result.sort((a, b) => b.val - a.val).map(a => a.text);
 }
 
-function formatCrewStats(crew: Definitions.BotCrew, useSpace: boolean, raritySearch: number = 0, forGauntlet: boolean = false) {
-	let data = crew.skill_data.find(c => c.rarity === raritySearch);
-	if (data) {
-		return formatCrewStatsInternal(data.base_skills, useSpace, forGauntlet);
+function formatCrewStats(crew: Definitions.BotCrew | PlayerCrew | Definitions.Skills, useSpace: boolean, raritySearch: number = 0, forGauntlet: boolean = false) {
+	if ("skill_data" in crew) {
+		let data = crew.skill_data.find(c => c.rarity === raritySearch);
+		if (data) {
+			return formatCrewStatsInternal(data.base_skills, useSpace, forGauntlet);
+		}
+		return formatCrewStatsInternal(crew.base_skills, useSpace, forGauntlet);
 	}
-	return formatCrewStatsInternal(crew.base_skills, useSpace, forGauntlet);
+	else {
+		return formatCrewStatsInternal(crew, useSpace, forGauntlet);
+	}
 }
 
 export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean = false, separator: string = ', ') {
@@ -105,9 +111,28 @@ export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean 
 	}
 }
 
+export function formatSkillsStatsWithEmotes(
+	message: Message,
+	skills: Definitions.Skills,
+	raritySearch: number = 0,
+	forGauntlet: boolean = false
+) {
+	let formattedStats = formatCrewStats(skills, true, raritySearch, forGauntlet)
+		.map(stat => stat.replace('^', ' '))
+		.join(' ')
+		.replace('SCI', getEmoteOrString(message, 'sci', 'SCI'))
+		.replace('SEC', getEmoteOrString(message, 'sec', 'SEC'))
+		.replace('ENG', getEmoteOrString(message, 'eng', 'ENG'))
+		.replace('DIP', getEmoteOrString(message, 'dip', 'DIP'))
+		.replace('CMD', getEmoteOrString(message, 'cmd', 'CMD'))
+		.replace('MED', getEmoteOrString(message, 'med', 'MED'));
+
+	return formattedStats;
+}
+
 export function formatCrewStatsWithEmotes(
 	message: Message,
-	crew: Definitions.BotCrew,
+	crew: Definitions.BotCrew | PlayerCrew,
 	raritySearch: number = 0,
 	forGauntlet: boolean = false
 ) {
@@ -259,7 +284,7 @@ export function colorFromRarity(rarity: number): ColorResolvable {
 	}
 }
 
-export function formatStatLine(message: Message, crew: Definitions.BotCrew, raritySearch: number) {
+export function formatStatLine(message: Message, crew: Definitions.BotCrew | PlayerCrew, raritySearch: number) {
 	if (raritySearch >= crew.max_rarity) {
 		raritySearch = 1;
 	}
@@ -274,6 +299,15 @@ export function formatStatLine(message: Message, crew: Definitions.BotCrew, rari
 		formatCrewStatsWithEmotes(message, crew)
 	);
 }
+
+export function formatCurrentStatLine(message: Message, crew: Definitions.BotCrew | PlayerCrew) {
+	return (
+		'⭐'.repeat(crew.max_rarity) +
+		'\n' +
+		formatCrewStatsWithEmotes(message, crew)
+	);
+}
+
 
 export function formatCollectionName(collection: string): string {
 

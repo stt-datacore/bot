@@ -14,7 +14,7 @@ export default class CONFIG {
 		medicine_skill: 'Medicine'
 	};
 
-	static readonly STATS_CONFIG: { [index: number]: any } = {
+	static readonly STATS_CONFIG: { [index: number]: { symbol: string, skill: string, stat: string } } = {
 		2: { symbol: 'engineering_skill_core', skill: 'engineering_skill', stat: 'Core Skill' },
 		3: { symbol: 'engineering_skill_range_min', skill: 'engineering_skill', stat: 'Skill Proficiency Min' },
 		4: { symbol: 'engineering_skill_range_max', skill: 'engineering_skill', stat: 'Skill Proficiency Max' },

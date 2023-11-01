@@ -14,6 +14,7 @@ import { ProfileCommand } from './profile';
 import { CrewNeedCommand } from './crewneed';
 import { OffersCommand } from './offers';
 import { CheapestFFFECommand } from './cheapestfffe';
+import { QuipmentCommand } from './quip';
 
 export let Commands: Definitions.Command[] = [
 	AssociateCommand,
@@ -32,4 +33,5 @@ export let Commands: Definitions.Command[] = [
 	SearchCommand,
 	StatsCommand,
 	VoyTimeCommand,
+	QuipmentCommand
 ];
