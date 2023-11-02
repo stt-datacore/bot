@@ -132,6 +132,7 @@ function getCurrentStartEndTimes(): { start: number, end: number, startTime: Dat
 
 	// Event hasn't started yet
 	if (eventDay < 3) {
+		diff = startTime.getTime() - currentTime.getTime();
 		start = Math.floor((diff)/1000);
 	}
 
