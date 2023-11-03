@@ -31,10 +31,14 @@ async function asyncHandler(
 	let user = await userFromMessage(message);
     let settings = user?.profiles[0] ? await loadProfile(user.profiles[0].dbid) : null;
 	let profile = user?.profiles[0] ? loadFullProfile(user.profiles[0].dbid) : null;
+    let dnum = 0;
 	if (!user || !profile) {
 		sendAndCache(message, "Sorry, I couldn't find an associated profile for your user.")
 		return;
 	}
+    else {
+        dnum = (user.profiles[0].updatedAt as Date).getTime() / 1000;
+    }
     if (crewman?.length) {
         crewman = crewman.toLowerCase().trim();
     }
@@ -63,6 +67,9 @@ async function asyncHandler(
 			return crew.symbol === crew.symbol
 		}) as Definitions.BotCrew;        
         crew = JSON.parse(JSON.stringify(crew));
+        if (dnum)
+            crew.kwipment_expirations = (crew.kwipment_expiration.map(kw => new Date((dnum+kw[1]) * 1000))?.filter(chk => !!chk) ?? []) as Date[];
+
         crew.name = matched?.name ?? crew.name;
         crew.bigbook_tier = matched?.bigbook_tier;        
         crew.date_added = new Date(crew.date_added);
@@ -123,9 +130,12 @@ async function asyncHandler(
         if (can.kwipment_items?.length) {
             if (!!crewman) {
                 embeds.push(embed);
+                let e = 0;
                 for (let quip of can.kwipment_items) {
                     let b = getItemBonuses(quip as EquipmentItem).bonuses as Definitions.Skills;
-
+                    let exp = (can.kwipment_expirations && can.kwipment_expiration.length > e) ? toTimestamp(can.kwipment_expirations[e]) : "N/A";
+                    e++;
+                    
                     embed = new EmbedBuilder()
                         .setTitle(`${quip.name}`)
                         .setDescription(quip.flavor)
@@ -148,6 +158,11 @@ async function asyncHandler(
                             inline: true
                         },
                         {
+                            name: "Expires On",
+                            value: `${exp}`,
+                            inline: true
+                        },
+                        {
                             name: "Equippable By",
                             value: `${rarityLabels[(quip.max_rarity_requirement ?? 1) - 1]} crew`,
                             inline: true
@@ -163,12 +178,16 @@ async function asyncHandler(
                 }                
             }
             else {
+                let e = 0;
                 for (let quip of can.kwipment_items) {
+                    let exp = (can.kwipment_expirations && can.kwipment_expiration.length > e) ? toTimestamp(can.kwipment_expirations[e]) : "N/A";
+                    e++;
+
                     let b = getItemBonuses(quip as EquipmentItem).bonuses as Definitions.Skills;
 
                     embed = embed.addFields({
                         name: quip.name,
-                        value: ((quip.rarity ? '⭐'.repeat(quip.rarity ?? 0) : '')) + formatSkillsStatsWithEmotes(message, b) + `\nDuration: ${quip.duration} h` + 
+                        value: ((quip.rarity ? '⭐'.repeat(quip.rarity ?? 0) : '')) + formatSkillsStatsWithEmotes(message, b) + `\nDuration: ${quip.duration} h (Expires on ${exp})` + 
                             ((!!quip.traits_requirement?.length) ? `\nTraits: ${quip.traits_requirement?.map(t => appelate(t)).join(` ${quip.traits_requirement_operator} `)}` : '') +
                             `\nEquippable by ${rarityLabels[(quip.max_rarity_requirement ?? 1) - 1]} crew`
                             
