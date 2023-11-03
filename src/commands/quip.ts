@@ -38,8 +38,8 @@ async function asyncHandler(
 		sendAndCache(message, "Sorry, I couldn't find an associated profile for your user.")
 		return;
 	}
-    else {
-        dnum = (profile.timeStamp as Date).getTime() / 1000;
+    else if (profile.playerData?.calc?.lastImported) {
+        dnum = new Date(new Date(profile.playerData.calc.lastImported).toUTCString()).getTime() / 1000;
     }
     if (crewman?.length) {
         crewman = crewman.toLowerCase().trim();
