@@ -452,8 +452,9 @@ export interface Player {
     equipment: number[][] | number[]
 
     kwipment: number[][];
-    kwipment_expiration: number[];
+    kwipment_expiration: number[][];
     kwipment_items?: Definitions.Item[];
+    kwipment_expirations?: Date[];
     q_bits: number
 
     icon: Icon
