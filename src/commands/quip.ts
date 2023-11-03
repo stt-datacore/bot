@@ -37,7 +37,7 @@ async function asyncHandler(
 		return;
 	}
     else {
-        dnum = (user.profiles[0].updatedAt as Date).getTime() / 1000;
+        dnum = new Date(new Date(profile.calc.lastImported).toUTCString()).getTime() / 1000;
     }
     if (crewman?.length) {
         crewman = crewman.toLowerCase().trim();
