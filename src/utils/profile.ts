@@ -162,7 +162,23 @@ export function loadProfileRoster(profile: ProfileEntry | undefined = undefined)
 export async function userFromMessage(message: Message | CommandInteraction) {
 	let id = discordUserFromMessage(message)!.id;	
 	console.log(`Discord Id: ${id}`);
-	return await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
+	let result = await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
+	if (result?.profiles?.length) {
+		let newProfs = [] as Profile[];
+		for (let profile of result.profiles) {
+			if (profile.sttAccessToken === 'default') {
+				newProfs.push(profile);
+			}
+		}
+		for (let profile of result.profiles) {
+			if (profile.sttAccessToken !== 'default') {
+				newProfs.push(profile);
+			}
+		}
+		result.profiles = newProfs;
+	}
+
+	return result;
 }
 
 export async function createUserFromMessage(message: Message) {
@@ -212,9 +228,9 @@ export async function associateUser(userDB: User, dbid: string, access_token?: s
 	}
 
 	profileDB.userId = userDB.id;
-	if (access_token) {
-		profileDB.sttAccessToken = access_token;
-	}
+	// if (access_token) {
+	// 	profileDB.sttAccessToken = access_token;
+	// }
 	await profileDB.save();
 
 	return { profile: profileDB };
