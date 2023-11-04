@@ -1,24 +1,21 @@
-import { Message, EmbedBuilder, ApplicationCommandOptionType, EmbedAssertions } from 'discord.js';
+import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 import {
 	userFromMessage,
 	refreshProfile,
 	loadProfileRoster,
-	loadProfile,
-	ProfileRosterEntry,
-	loadFleet,
+	loadProfile, loadFleet,
 	loadFullProfile,
-	toTimestamp,
+	toTimestamp
 } from '../utils/profile';
 import CONFIG from '../utils/config';
-import { sendAndCache, sendSplitText, deleteOldReplies } from '../utils/discord';
+import { sendAndCache, sendSplitText } from '../utils/discord';
 import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
 import { PlayerCrew, PlayerData } from '../datacore/player';
-import { getProfile, mongoUpsertDiscordUser } from '../utils/mongoUser';
-import { PlayerProfile } from 'src/mongoModels/playerProfile';
+import { getProfile } from '../utils/mongoUser';
 
 require('dotenv').config();
 

@@ -2,7 +2,6 @@ import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js'
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
-import { formatSources, formatRecipe } from '../utils/items';
 import { colorFromRarity, formatCollectionName } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';

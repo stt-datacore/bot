@@ -2,12 +2,11 @@ import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js'
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
-import { formatSources, formatRecipe, appelate, getItemBonuses } from '../utils/items';
-import { colorFromRarity, formatCollectionName, formatCurrentStatLine, formatSkillsStatsWithEmotes, formatStatLine } from '../utils/crew';
-import { getEmoteOrString, sendAndCache } from '../utils/discord';
+import { appelate, getItemBonuses } from '../utils/items';
+import { colorFromRarity, formatCurrentStatLine, formatSkillsStatsWithEmotes } from '../utils/crew';
+import { sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { applyCrewBuffs, loadFullProfile, loadProfile, toTimestamp, userFromMessage } from '../utils/profile';
-import { getNeededItems } from '../utils/equipment';
 import { PlayerCrew } from '../datacore/player';
 import { EquipmentItem } from '../datacore/equipment';
 import { rarityLabels } from '../datacore/game-elements';
