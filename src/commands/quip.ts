@@ -10,6 +10,7 @@ import { applyCrewBuffs, loadFullProfile, loadProfile, toTimestamp, userFromMess
 import { PlayerCrew } from '../datacore/player';
 import { EquipmentItem } from '../datacore/equipment';
 import { rarityLabels } from '../datacore/game-elements';
+import { getOnlyAlpha } from '../utils';
 
 function bonusName(bonus: string) {
 	let cfg = CONFIG.STATS_CONFIG[Number.parseInt(bonus)];
@@ -32,7 +33,8 @@ async function asyncHandler(
 	let profile = user?.profiles[0] ? await loadFullProfile(user.profiles[0]) : null;
     let captainName = profile?.captainName;
     let dnum = 0;
-    
+    let origStr = "";
+
 	if (!user || !profile) {
 		sendAndCache(message, "Sorry, I couldn't find an associated profile for your user.")
 		return;
@@ -41,7 +43,8 @@ async function asyncHandler(
         dnum = new Date(new Date(profile.playerData.calc.lastImported).toUTCString()).getTime() / 1000;
     }
     if (crewman?.length) {
-        crewman = crewman.toLowerCase().trim();
+        origStr = crewman.trim();
+        crewman = getOnlyAlpha(crewman).toLowerCase();
     }
     
 	let botCrew = DCData.getBotCrew();
@@ -54,7 +57,7 @@ async function asyncHandler(
             if (crewman?.length) {
                 let bcrew = botCrew.find(f => f.symbol===c.symbol);
                 if (!bcrew) return false;
-                if (!bcrew?.name.toLowerCase().trim().includes(crewman)) return false;
+                if (!getOnlyAlpha(bcrew.name).toLowerCase().includes(crewman)) return false;
             }
             c.kwipment_items = (c.kwipment.map(kw => quipment.find(q => q.kwipment_id?.toString() === kw[1].toString()))?.filter(chk => !!chk) ?? []) as Definitions.Item[];
             return true;
@@ -87,7 +90,7 @@ async function asyncHandler(
 	});
     if (!quippedCrew?.length) {
         if (crewman){
-            sendAndCache(message, `Couldn't find any quipped crew in your profile that matches '${crewman}'. If you think this is a mistake, please update your profile, and try again.`)
+            sendAndCache(message, `Couldn't find any quipped crew in your profile that matches '${origStr}'. If you think this is a mistake, please update your profile, and try again.`)
 		    return;
         }
         else {

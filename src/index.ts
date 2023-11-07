@@ -7,6 +7,7 @@ import { DCData } from './data/DCData';
 //import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
 import { Commands } from './commands';
+import levenshtein from 'js-levenshtein';
 import yargs from 'yargs';
 import { collections, connectToMongo } from './mongo';
 const Yargs = require('yargs/yargs');
@@ -211,10 +212,20 @@ client.on('messageCreate', (message) => {
 		if (guildConfig.ignoreUnknownCommandForPrefix === usedPrefix && lastError.startsWith('Unknown argument')) {
 			// Do nothing
 		} else {
-			sendAndCache(
-				message,
-				`Sorry, I couldn't do that! Try '${usedPrefix} help' for a list of commands or '${usedPrefix} --help <command>' for command-specific help ('${lastError}')`
-			);
+			let scores = !!parsedInput?.length ? Commands.map(c => { return { score: levenshtein(c.name, parsedInput[0]), name: c.name }}).sort((a, b) => a.score - b.score) : [];
+			if (scores?.length && scores[0].score <= 2) {
+				sendAndCache(
+					message,
+					`Sorry, I couldn't do that! Did you mean '${scores[0].name}'?\n` +
+					`Try '${usedPrefix} help' for a list of commands or '${usedPrefix} --help <command>' for command-specific help ('${lastError}')`
+				);
+			}
+			else {
+				sendAndCache(
+					message,
+					`Sorry, I couldn't do that! Try '${usedPrefix} help' for a list of commands or '${usedPrefix} --help <command>' for command-specific help ('${lastError}')`
+				);	
+			}
 		}
 	}
 });

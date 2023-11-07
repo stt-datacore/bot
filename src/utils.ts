@@ -159,3 +159,12 @@ export function getUrl(message: Message): string | undefined {
 export function escapeRegExp(strings: string[]) {
 	return strings.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')); // $& means the whole matched string
 }
+
+export function getOnlyAlpha(value: string) {
+	let re = new RegExp(/[A-Za-z]/);
+	let str = [] as string[];
+	for (let ch of value) {
+		if (re.test(ch)) str.push(ch);
+	}
+	return str.join("");
+}

@@ -167,7 +167,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		await sendAndCache(message, '', {embeds: [embed]});
 
 		if (extended && crew.markdownContent && crew.markdownContent.length >= 980) {
-			if (crew.markdownContent.length < 2048) {
+			if (crew.markdownContent.length < 2000) {
 				let embed = new EmbedBuilder()
 					.setTitle(`Big Book note for ${crew.name}`)
 					.setColor(colorFromRarity(crew.max_rarity))
@@ -177,7 +177,53 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
 			} else {
 				// The Big Book text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
-				await sendAndCache(message, crew.markdownContent, { isFollowUp: true });
+				let markdownChunks = crew.markdownContent.split('\n');
+				let space = false;
+				if (markdownChunks.length === 1) {
+					markdownChunks = crew.markdownContent.split(" ");
+					space = true;
+				}
+
+				let markdown = "";
+				let n = 0;
+				let p = 1;
+				let embeds = [] as EmbedBuilder[];
+
+				while (markdownChunks.length) {
+					let c = markdownChunks.length;
+					let i = 0;
+					for (i = 0; i < c; i++) {
+						if ((n + markdownChunks[i].length + 4) >= 1998) break;
+						n += markdownChunks[i].length;
+						if (markdown.length) {
+							if (space) markdown += " ";
+							else markdown += "\n";
+							n++;
+						}
+						markdown += markdownChunks[i];
+					}					
+
+					if (!markdown?.length) break;
+				
+					let embed = new EmbedBuilder()
+						.setTitle(`Big Book note for ${crew.name}, Part ${p++}`)
+						.setColor(colorFromRarity(crew.max_rarity))
+						.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
+						.setDescription(markdown);
+					embeds.push(embed);
+					
+					markdownChunks.splice(0, i);
+					markdown = "";
+					n = 0;
+				}
+				
+				if (embeds.length === 1) {
+					embeds[0] = embeds[0].setTitle(`Big Book note for ${crew.name}`);
+				}
+
+				for (let embed of embeds) {
+					await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
+				}
 			}
 		}
 	}

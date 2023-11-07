@@ -85,6 +85,7 @@ export interface MissionReward {
   full_name?: string
   flavor?: string
   item_type?: number
+  bonuses?: { [key: number]: number};
 }
 
 export interface Bonuses {    
