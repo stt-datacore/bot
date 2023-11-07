@@ -99,7 +99,6 @@ async function asyncHandler(
         }
     }
     const embeds = [] as EmbedBuilder[];
-
     if (!crewman) {
         let p = 1;
         while (quippedCrew.length) {
