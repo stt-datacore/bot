@@ -11,6 +11,7 @@ import { getNeededItems } from '../utils/equipment';
 import { PlayerCrew } from '../datacore/player';
 import { EquipmentItem } from '../datacore/equipment';
 import { rarityLabels } from '../datacore/game-elements';
+import { getOnlyAlpha } from '../utils';
 
 function bonusName(bonus: string) {
 	let cfg = CONFIG.STATS_CONFIG[Number.parseInt(bonus)];
@@ -32,6 +33,8 @@ async function asyncHandler(
     let settings = user?.profiles[0] ? await loadProfile(user.profiles[0].dbid) : null;
 	let profile = user?.profiles[0] ? loadFullProfile(user.profiles[0].dbid) : null;
     let dnum = 0;
+    let origStr = "";
+
 	if (!user || !profile) {
 		sendAndCache(message, "Sorry, I couldn't find an associated profile for your user.")
 		return;
@@ -40,20 +43,21 @@ async function asyncHandler(
         dnum = new Date(new Date(profile.calc.lastImported).toUTCString()).getTime() / 1000;
     }
     if (crewman?.length) {
-        crewman = crewman.toLowerCase().trim();
+        origStr = crewman.trim();
+        crewman = getOnlyAlpha(crewman).toLowerCase();
     }
     
 	let botCrew = DCData.getBotCrew();
     let quipment = DCData.getItems().filter((item: Definitions.Item) => item.type === 15 || item.type === 14);
 
 	let profileCrew = profile.player.character.crew;
-	let profileItems = profile.player.character.items;
+	
 	let quippedCrew = profileCrew.filter((c: PlayerCrew) => {
         if (!!c.kwipment?.length) {
             if (crewman?.length) {
                 let bcrew = botCrew.find(f => f.symbol===c.symbol);
                 if (!bcrew) return false;
-                if (!bcrew?.name.toLowerCase().trim().includes(crewman)) return false;
+                if (!getOnlyAlpha(bcrew.name).toLowerCase().includes(crewman)) return false;
             }
             c.kwipment_items = (c.kwipment.map(kw => quipment.find(q => q.kwipment_id?.toString() === kw[1].toString()))?.filter(chk => !!chk) ?? []) as Definitions.Item[];
             return true;
@@ -86,7 +90,7 @@ async function asyncHandler(
 	});
     if (!quippedCrew?.length) {
         if (crewman){
-            sendAndCache(message, `Couldn't find any quipped crew in your profile that matches '${crewman}'. If you think this is a mistake, please update your profile, and try again.`)
+            sendAndCache(message, `Couldn't find any quipped crew in your profile that matches '${origStr}'. If you think this is a mistake, please update your profile, and try again.`)
 		    return;
         }
         else {
