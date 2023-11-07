@@ -99,110 +99,140 @@ async function asyncHandler(
         }
     }
     const embeds = [] as EmbedBuilder[];
-	quippedCrew.slice(0, 5).forEach((can: PlayerCrew) => {
-		const matched = botCrew.find((crew) => {
-			return crew.symbol === can.symbol
-		}) as Definitions.BotCrew;
-		
-		if (!matched) {
-			return;
-		}
 
-		let embed = new EmbedBuilder()
-			.setTitle(`${matched.name}`)
-			.setDescription(`Current Quipment`)
-			.setThumbnail(`${CONFIG.ASSETS_URL}${matched.imageUrlPortrait}`)
-			.setColor(colorFromRarity(matched.max_rarity))
-			.addFields(
-				// {
-				// 	name: 'Rarity',
-				// 	value: '⭐'.repeat(can.rarity) + '🌑'.repeat(matched.max_rarity - can.rarity),
-				// 	inline: false
-				// },
-				{
-					name: `Immortalized Stats`,
-					value: formatCurrentStatLine(message, { ... matched, ...can }),
-					inline: false
-				},
-                {
-					name: `Quipped Stats`,
-					value: formatSkillsStatsWithEmotes(message, can.skills),
-					inline: false
-				}
-			)
-
-        if (can.kwipment_items?.length) {
-            if (!!crewman) {
-                embeds.push(embed);
-                let e = 0;
-                for (let quip of can.kwipment_items) {
-                    let b = getItemBonuses(quip as EquipmentItem).bonuses as Definitions.Skills;
-                    let exp = (can.kwipment_expirations && can.kwipment_expiration.length > e) ? toTimestamp(can.kwipment_expirations[e]) : "N/A";
-                    e++;
+    if (!crewman) {
+        let p = 1;
+        while (quippedCrew.length) {
                     
-                    embed = new EmbedBuilder()
-                        .setTitle(`${quip.name}`)
-                        .setDescription(quip.flavor)
-                        .setThumbnail(`${CONFIG.ASSETS_URL}${quip.imageUrl}`)
-                        .setColor(colorFromRarity(quip.rarity))
+            let embed = new EmbedBuilder()
+            .setTitle(`Quipped Crew, Part ${p++}`)
+            .setDescription(`Quipped Crew for **${captainName}'s** Roster (Updated ${toTimestamp(new Date(profile?.playerData?.calc?.lastImported ?? new Date()), 'D')})`)
+            .setColor('DarkGreen')
 
-                    embed = embed.addFields(                        {
-                            name: `Buffs`,
-                            value: formatSkillsStatsWithEmotes(message, b),
-                            inline: false
-                        },
-                        {
-                            name: "Rarity",
-                            value: ((quip.rarity ? '⭐'.repeat(quip.rarity ?? 0) : '')),
-                            inline: true
-                        },
-                        {
-                            name: "Duration",
-                            value: `${quip.duration} h`,
-                            inline: true
-                        },
-                        {
-                            name: "Expires On",
-                            value: `${exp}`,
-                            inline: true
-                        },
-                        {
-                            name: "Equippable By",
-                            value: `${rarityLabels[(quip.max_rarity_requirement ?? 1) - 1]} crew`,
-                            inline: true
-                        });
-                    if (quip.traits_requirement?.length) {
-                        embed = embed.addFields({
-                            name: 'Required Traits',
-                            value: `${quip.traits_requirement?.map(t => appelate(t)).join(` ${quip.traits_requirement_operator} `)}`,
-                            inline: false
-                        });
-                    }
-                    embeds.push(embed);    
-                }                
-            }
-            else {
-                let e = 0;
-                for (let quip of can.kwipment_items) {
-                    let exp = (can.kwipment_expirations && can.kwipment_expiration.length > e) ? toTimestamp(can.kwipment_expirations[e]) : "N/A";
-                    e++;
-
-                    let b = getItemBonuses(quip as EquipmentItem).bonuses as Definitions.Skills;
-
-                    embed = embed.addFields({
-                        name: quip.name,
-                        value: ((quip.rarity ? '⭐'.repeat(quip.rarity ?? 0) : '')) + formatSkillsStatsWithEmotes(message, b) + `\nDuration: ${quip.duration} h (Expires on ${exp})` + 
-                            ((!!quip.traits_requirement?.length) ? `\nTraits: ${quip.traits_requirement?.map(t => appelate(t)).join(` ${quip.traits_requirement_operator} `)}` : '') +
-                            `\nEquippable by ${rarityLabels[(quip.max_rarity_requirement ?? 1) - 1]} crew`
-                            
-                    })
+            quippedCrew.splice(0, 10).forEach((can: PlayerCrew) => {
+                const matched = botCrew.find((crew) => {
+                    return crew.symbol === can.symbol
+                }) as Definitions.BotCrew;
+                
+                if (!matched) {
+                    return;
                 }
-                embeds.push(embed);    
-            }
+                embed=embed.addFields({
+                    name: `${matched.name}`,
+                    value: ((can.rarity ? '⭐'.repeat(can.rarity ?? 0) : '')) + '\n' + formatSkillsStatsWithEmotes(message, can.skills)
+                });
+            });
+
+            embeds.push(embed);
         }
 
-        
-	});
+        if (embeds.length === 1) {
+            embeds[0] = embeds[0].setTitle('Quipped Crew');
+        }
+        embeds[embeds.length - 1] = embeds[embeds.length - 1].setFooter({text: 'Use -d quip or /quip <crew name> to get detailed stats'});
+
+    }
+    else {
+        quippedCrew.forEach((can: PlayerCrew) => {
+            const matched = botCrew.find((crew) => {
+                return crew.symbol === can.symbol
+            }) as Definitions.BotCrew;
+            
+            if (!matched) {
+                return;
+            }
+    
+            let embed = new EmbedBuilder()
+                .setTitle(`${matched.name}`)
+                .setDescription(`Current Quipment`)
+                .setThumbnail(`${CONFIG.ASSETS_URL}${matched.imageUrlPortrait}`)
+                .setColor(colorFromRarity(matched.max_rarity))
+                .addFields(
+                    {
+                        name: `Immortalized Stats`,
+                        value: formatCurrentStatLine(message, { ... matched, ...can }),
+                        inline: false
+                    },
+                    {
+                        name: `Quipped Stats`,
+                        value: formatSkillsStatsWithEmotes(message, can.skills),
+                        inline: false
+                    }
+                )
+    
+            if (can.kwipment_items?.length) {
+                if (!!crewman) {
+                    embeds.push(embed);
+                    let e = 0;
+                    for (let quip of can.kwipment_items) {
+                        let b = getItemBonuses(quip as EquipmentItem).bonuses as Definitions.Skills;
+                        let exp = (can.kwipment_expirations && can.kwipment_expiration.length > e) ? toTimestamp(can.kwipment_expirations[e]) : "N/A";
+                        e++;
+                        
+                        embed = new EmbedBuilder()
+                            .setTitle(`${quip.name}`)
+                            .setDescription(quip.flavor)
+                            .setThumbnail(`${CONFIG.ASSETS_URL}${quip.imageUrl}`)
+                            .setColor(colorFromRarity(quip.rarity))
+    
+                        embed = embed.addFields(                        {
+                                name: `Buffs`,
+                                value: formatSkillsStatsWithEmotes(message, b),
+                                inline: false
+                            },
+                            {
+                                name: "Rarity",
+                                value: ((quip.rarity ? '⭐'.repeat(quip.rarity ?? 0) : '')),
+                                inline: true
+                            },
+                            {
+                                name: "Duration",
+                                value: `${quip.duration} h`,
+                                inline: true
+                            },
+                            {
+                                name: "Expires On",
+                                value: `${exp}`,
+                                inline: true
+                            },
+                            {
+                                name: "Equippable By",
+                                value: `${rarityLabels[(quip.max_rarity_requirement ?? 1) - 1]} crew`,
+                                inline: true
+                            });
+                        if (quip.traits_requirement?.length) {
+                            embed = embed.addFields({
+                                name: 'Required Traits',
+                                value: `${quip.traits_requirement?.map(t => appelate(t)).join(` ${quip.traits_requirement_operator} `)}`,
+                                inline: false
+                            });
+                        }
+                        embeds.push(embed);    
+                    }                
+                }
+                // else {
+                //     let e = 0;
+                //     for (let quip of can.kwipment_items) {
+                //         let exp = (can.kwipment_expirations && can.kwipment_expiration.length > e) ? toTimestamp(can.kwipment_expirations[e]) : "N/A";
+                //         e++;
+    
+                //         let b = getItemBonuses(quip as EquipmentItem).bonuses as Definitions.Skills;
+    
+                //         embed = embed.addFields({
+                //             name: quip.name,
+                //             value: ((quip.rarity ? '⭐'.repeat(quip.rarity ?? 0) : '')) + formatSkillsStatsWithEmotes(message, b) + `\nDuration: ${quip.duration} h (Expires on ${exp})` + 
+                //                 ((!!quip.traits_requirement?.length) ? `\nTraits: ${quip.traits_requirement?.map(t => appelate(t)).join(` ${quip.traits_requirement_operator} `)}` : '') +
+                //                 `\nEquippable by ${rarityLabels[(quip.max_rarity_requirement ?? 1) - 1]} crew`
+                                
+                //         })
+                //     }
+                //     embeds.push(embed);    
+                // }
+            }
+    
+            
+        });    
+    }
 	
     sendAndCache(message, 
         `Currently quipped crew in **${captainName}**'s roster (last updated ${toTimestamp(profile.timeStamp)})`, 
