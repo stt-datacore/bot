@@ -3,7 +3,8 @@ import { DCData } from '../data/DCData';
 import { getEmoteOrString } from './discord';
 import CONFIG from '../utils/config';
 import { Skill } from '../datacore/crew';
-import { EquipmentItem } from '../datacore/equipment';
+import { EquipmentItem, EquipmentItemSource } from '../datacore/equipment';
+import { Mission } from '../datacore/missions';
 
 export function formatRecipe(message: Message, item: Definitions.Item, rich: boolean = false) {
 	if (!item.recipe || !item.recipe.list || item.recipe.list.length === 0) {
@@ -168,4 +169,50 @@ export function getItemBonuses(item: EquipmentItem): ItemBonusInfo {
         bonusText,
         bonuses
     };
+}
+
+
+
+export function postProcessCadetItems(missions: Mission[], items: (Definitions.Item | EquipmentItem)[]): void {
+	const cadetforitem = missions.filter(f => f.cadet);
+	console.log("Finding cadet mission farm sources for items ...");
+
+	if (cadetforitem?.length) {
+		for(const item of items) {
+			for (let ep of cadetforitem) {
+				let quests = ep.quests.filter(q => q.quest_type === 'ConflictQuest' && q.mastery_levels?.some(ml => ml.rewards?.some(r => r.potential_rewards?.some(px => px.symbol === item.symbol))));
+				if (quests?.length) {
+					for (let quest of quests) {
+						if (quest.mastery_levels?.length) {
+							let x = 0;
+							for (let ml of quest.mastery_levels) {
+								if (ml.rewards?.some(r => r.potential_rewards?.some(pr => pr.symbol === item.symbol))) {
+									let mx = ml.rewards.map(r => r.potential_rewards?.length).reduce((prev, curr) => Math.max(prev ?? 0, curr ?? 0)) ?? 0;
+									mx = (1/mx) * 1.80;
+									let qitem = {
+										type: 4,
+										mastery: x,
+										name: quest.name,
+										energy_quotient: 1,
+										chance_grade: 5 * mx,
+										mission_symbol: quest.symbol,
+										cost: 1,
+										avg_cost: 1/mx,
+										cadet_mission: ep.episode_title,
+										cadet_symbol: ep.symbol
+									} as EquipmentItemSource;
+									if (!item.item_sources.find(f => f.mission_symbol === quest.symbol)) {
+										item.item_sources.push(qitem);
+									}
+								}
+								x++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	console.log("Done with cadet missions.");
 }
