@@ -118,6 +118,14 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			.addFields({ name: 'Difficulty', value: getDifficulty(crew.ranks.chronCostRank), inline: true })
 			.setFooter({ text: formatCrewCoolRanks(crew) });
 
+		if (extended && crew.obtained && crew.date_added) {
+			if (typeof crew.date_added === 'string') crew.date_added = new Date(crew.date_added);
+			embed = embed
+				.addFields({ name: 'Date Added', value: crew.date_added.toDateString(), inline: true })
+				.addFields({ name: 'Obtained', value: crew.obtained, inline: true })
+				.addFields({ name: 'In Portal', value: crew.in_portal ? "Yes" : "No", inline: true })
+		}
+
 		if (crew.bigbook_tier && crew.events) {
 			embed = embed
 				.addFields({ name: 'Events', value: crew.events.toString(), inline: true })
