@@ -149,19 +149,19 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
                 embed = embed.addFields({ name: 'Breakdown', value: `Failed to load data, please see [the website](${CONFIG.DATACORE_URL}crew/${crew.symbol}/).` });
             } else if (breakdown.length < 1024) {
                 embed = embed.addFields({ name: 'Breakdown', value: breakdown });
-            } else if (breakdown.length < 2000) {
+            } else if (breakdown.length < 1800) {
 				embed = embed.addFields({ name: 'Breakdown (1 / 2)', value: formatItemList(data.slice(0, data.length / 2)) });
 				embed = embed.addFields({ name: 'Breakdown (2 / 2)', value: formatItemList(data.slice(data.length / 2, data.length)) });
-			} else if (breakdown.length < 3000) {
+			} else if (breakdown.length < 2700) {
 				embed = embed.addFields({ name: 'Breakdown (1 / 3)', value: formatItemList(data.slice(0, data.length / 3)) });
 				embed = embed.addFields({ name: 'Breakdown (2 / 3)', value: formatItemList(data.slice((1 * data.length) / 3, (2 * data.length) / 3)) });
 				embed = embed.addFields({ name: 'Breakdown (3 / 3)', value: formatItemList(data.slice((2 * data.length) / 3, data.length)) });
-			} else if (breakdown.length < 4000) {
+			} else if (breakdown.length < 3600) {
 				embed = embed.addFields({ name: 'Breakdown (1 / 4)', value: formatItemList(data.slice(0, data.length / 4)) });
 				embed = embed.addFields({ name: 'Breakdown (2 / 4)', value: formatItemList(data.slice((1 * data.length) / 4, (2 * data.length) / 4)) });
 				embed = embed.addFields({ name: 'Breakdown (3 / 4)', value: formatItemList(data.slice((2 * data.length) / 4, (3 * data.length) / 4)) });
 				embed = embed.addFields({ name: 'Breakdown (4 / 4)', value: formatItemList(data.slice((3 * data.length) / 4, data.length)) });
-			} else if (breakdown.length < 5000) {
+			} else if (breakdown.length < 4500) {
 				embed = embed.addFields({ name: 'Breakdown (1 / 5)', value: formatItemList(data.slice(0, data.length / 5)) });
 				embed = embed.addFields({ name: 'Breakdown (2 / 5)', value: formatItemList(data.slice((1 * data.length) / 5, (2 * data.length) / 5)) });
 				embed = embed.addFields({ name: 'Breakdown (3 / 5)', value: formatItemList(data.slice((2 * data.length) / 5, (3 * data.length) / 5)) });
