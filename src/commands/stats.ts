@@ -168,8 +168,17 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			embed = embed.addFields({ name: 'Ship Abilities', value: shipAbilities });
 		}
 
+		let authorLine = "";
+		
+		if (crew?.markdownInfo?.author && crew?.markdownInfo?.modified) {
+			authorLine = `- ${crew.markdownInfo.author} (${(new Date(crew.markdownInfo.modified)).toLocaleDateString()})`;
+		}
+
 		if (extended && crew.markdownContent && crew.markdownContent.length < 980) {
 			embed = embed.addFields({ name: 'Big Book note', value: crew.markdownContent });
+			embed = embed.setFooter({
+				text: authorLine
+			});
 		}
 
 		await sendAndCache(message, '', {embeds: [embed]});
@@ -180,7 +189,10 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					.setTitle(`Big Book note for ${crew.name}`)
 					.setColor(colorFromRarity(crew.max_rarity))
 					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
-					.setDescription(crew.markdownContent);
+					.setDescription(crew.markdownContent)
+					.setFooter({
+						text: authorLine
+					});
 
 				await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
 			} else {
@@ -228,7 +240,11 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				if (embeds.length === 1) {
 					embeds[0] = embeds[0].setTitle(`Big Book note for ${crew.name}`);
 				}
-
+				if (embeds.length > 0) {
+					embeds[embeds.length - 1] = embeds[embeds.length - 1].setFooter({
+						text: authorLine
+					})
+				}
 				for (let embed of embeds) {
 					await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
 				}

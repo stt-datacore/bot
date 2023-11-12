@@ -165,6 +165,10 @@ declare namespace Definitions {
 		skill_data: { rarity: number; base_skills: Skills }[];
 		in_portal: boolean;
 		markdownContent: string;
+		markdownInfo: {
+			author: string;
+			modified: Date;
+		}
 		action: CrewAction;
 		equipment_slots: EquipmentSlot[];
 		nicknames?: {
