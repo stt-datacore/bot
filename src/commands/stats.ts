@@ -11,7 +11,7 @@ import {
 	formatStatLine
 } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
-import { loadProfile, userFromMessage, applyCrewBuffs } from '../utils/profile';
+import { loadProfile, userFromMessage, applyCrewBuffs, toTimestamp } from '../utils/profile';
 import CONFIG from '../utils/config';
 
 function getDifficulty(chronCostRank: number): string {
@@ -50,6 +50,22 @@ function getDifficulty(chronCostRank: number): string {
 	}
 
 	return `Insane (${percentage}%)`;
+}
+
+function addAuthorNotes(crew: Definitions.BotCrew, embed: EmbedBuilder) {
+	if (crew?.markdownInfo?.author && crew?.markdownInfo?.modified) {
+		embed = embed.addFields({
+			name: "Note Author",
+			value: crew.markdownInfo.author,
+			inline: true
+		},
+		{
+			name: "Note Date",
+			value: toTimestamp(new Date(crew.markdownInfo.modified), 'd'),
+			inline: true
+		});
+	}	
+	return embed;
 }
 
 async function asyncHandler(message: Message, searchString: string, raritySearch: number, extended: boolean, base: boolean) {
@@ -167,40 +183,32 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 			embed = embed.addFields({ name: 'Ship Abilities', value: shipAbilities });
 		}
-
-		let authorLine = "";
 		
-		if (crew?.markdownInfo?.author && crew?.markdownInfo?.modified) {
-			authorLine = `- ${crew.markdownInfo.author} (${(new Date(crew.markdownInfo.modified)).toLocaleDateString()})`;
-		}
-
-		if (extended && crew.markdownContent && crew.markdownContent.length < 980) {
-			embed = embed.addFields({ name: 'Big Book note', value: crew.markdownContent });
-			embed = embed.setFooter({
-				text: authorLine
-			});
+		let mdContent = crew.markdownContent;
+		mdContent += `\n\n[More at Bigbook.app](https://www.bigbook.app/crew/${crew.symbol})`;
+		
+		if (extended && mdContent && mdContent.length < 980) {
+			embed = embed.addFields({ name: 'Big Book note', value: mdContent });			
+			embed = addAuthorNotes(crew, embed);
 		}
 
 		await sendAndCache(message, '', {embeds: [embed]});
 
-		if (extended && crew.markdownContent && crew.markdownContent.length >= 980) {
-			if (crew.markdownContent.length < 2000) {
+		if (extended && mdContent && mdContent.length >= 980) {
+			if (mdContent.length < 2000) {
 				let embed = new EmbedBuilder()
 					.setTitle(`Big Book note for ${crew.name}`)
 					.setColor(colorFromRarity(crew.max_rarity))
-					.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
-					.setDescription(crew.markdownContent)
-					.setFooter({
-						text: authorLine
-					});
-
+					.setURL(`https://www.bigbook.app/crew/${crew.symbol}/`)
+					.setDescription(mdContent)
+				embed = addAuthorNotes(crew, embed);
 				await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
 			} else {
 				// The Big Book text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
-				let markdownChunks = crew.markdownContent.split('\n');
+				let markdownChunks = mdContent.split('\n');
 				let space = false;
 				if (markdownChunks.length === 1) {
-					markdownChunks = crew.markdownContent.split(" ");
+					markdownChunks = mdContent.split(" ");
 					space = true;
 				}
 
@@ -228,7 +236,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					let embed = new EmbedBuilder()
 						.setTitle(`Big Book note for ${crew.name}, Part ${p++}`)
 						.setColor(colorFromRarity(crew.max_rarity))
-						.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`)
+						.setURL(`https://www.bigbook.app/crew/${crew.symbol}/`)
 						.setDescription(markdown);
 					embeds.push(embed);
 					
@@ -241,9 +249,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					embeds[0] = embeds[0].setTitle(`Big Book note for ${crew.name}`);
 				}
 				if (embeds.length > 0) {
-					embeds[embeds.length - 1] = embeds[embeds.length - 1].setFooter({
-						text: authorLine
-					})
+					embeds[embeds.length - 1] = addAuthorNotes(crew, embeds[embeds.length - 1])
 				}
 				for (let embed of embeds) {
 					await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
