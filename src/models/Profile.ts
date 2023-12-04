@@ -14,6 +14,12 @@ export class Profile extends Model {
     sttAccessToken!: string;
 
 	@Column
+    hash!: string;
+
+	@Column
+    metadata!: string;
+
+	@Column
 	lastUpdate!: Date;
 
     @Column(DataType.JSON)
