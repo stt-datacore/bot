@@ -9,6 +9,7 @@ import { runImageAnalysis } from './commands/imageanalysis';
 import { Commands } from './commands';
 import levenshtein from 'js-levenshtein';
 import yargs from 'yargs';
+import { Profile } from './models/Profile';
 const Yargs = require('yargs/yargs');
 
 require('dotenv').config();
@@ -42,7 +43,8 @@ client.login(process.env.BOT_TOKEN);
 const config = JSON.parse(fs.readFileSync(process.env.CONFIG_PATH!, 'utf8'));
 const devGuilds = Object.keys(config.guilds).filter((id) => config.guilds[id].dev === true);
 
-sequelize.sync().then(() => {
+sequelize.sync().then(async () => {
+	await Profile.sync({ alter: true });
 	Logger.info('Database connection established');
 });
 
