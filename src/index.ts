@@ -43,8 +43,7 @@ client.login(process.env.BOT_TOKEN);
 const config = JSON.parse(fs.readFileSync(process.env.CONFIG_PATH!, 'utf8'));
 const devGuilds = Object.keys(config.guilds).filter((id) => config.guilds[id].dev === true);
 
-sequelize.sync().then(async () => {
-	await Profile.sync({ alter: true });
+sequelize.sync().then(() => {
 	Logger.info('Database connection established');
 });
 
