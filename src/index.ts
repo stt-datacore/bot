@@ -8,8 +8,7 @@ import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
 import { Commands } from './commands';
 import levenshtein from 'js-levenshtein';
-import yargs from 'yargs';
-import { Profile } from './models/Profile';
+
 const Yargs = require('yargs/yargs');
 
 require('dotenv').config();
