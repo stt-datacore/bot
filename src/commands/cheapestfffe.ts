@@ -36,13 +36,12 @@ async function asyncHandler(
 	let profileCrew = profile.player.character.crew;
 	let profileItems = profile.player.character.items;
 	let candidatesForImmortalisation = profileCrew.filter((c: any) => {
-		if (c.level === 100) {
-			// let needed = getNeededItems(c.symbol, c.level);
-			// if (!needed) {
-			// 	return false;
-			// }
-			// return true;
-			return false;
+		if (c.level >= 90) {
+			if (c.equipment.length === 4) return false;
+			let needed = getNeededItems(c.symbol, 90, c.level);
+			if (!needed) {
+				return false;
+			}
 		}
 		let findcrew = crew.find((d) => d.symbol === c.symbol);
 
@@ -72,7 +71,7 @@ async function asyncHandler(
 	});
 
 	candidatesForImmortalisation = candidatesForImmortalisation.map((c: any) => {
-		let needed = getNeededItems(c.symbol, c.level);
+		let needed = c.level >= 90 ? getNeededItems(c.symbol, 90, c.level) : getNeededItems(c.symbol, c.level);
 		if (!needed) {
 			return c;
 		}
