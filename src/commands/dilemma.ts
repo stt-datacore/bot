@@ -83,7 +83,10 @@ async function asyncHandler(message: Message, searchString: string) {
 	} else {
 		let rex = new RegExp(/.*\*\*(.+)\*\*.*/);
 		let embeds = [] as EmbedBuilder[];
-		let botCrew = DCData.getBotCrew().filter(crew => crew.obtained === 'Voyage');
+		let botCrew = DCData.getBotCrew().filter(crew => ["grady_crew",
+				"chapel_one_way_ticket_crew",
+				"chakotay_vori_defender_crew",
+				"black_admiral_crew"].includes(crew.symbol));
 		let legend = [] as string[];
 		results = JSON.parse(JSON.stringify(results));
 		

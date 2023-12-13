@@ -52,7 +52,7 @@ export interface CrewMember {
   events: number
   in_portal: boolean
   date_added: Date
-  obtained: string
+  obtained?: string
   markdownContent: string
   markdownInfo: MarkdownInfo;
   unique_polestar_combos?: string[][]

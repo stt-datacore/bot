@@ -138,7 +138,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			if (typeof crew.date_added === 'string') crew.date_added = new Date(crew.date_added);
 			embed = embed
 				.addFields({ name: 'Date Added', value: crew.date_added.toDateString(), inline: true })
-				.addFields({ name: 'Obtained', value: crew.obtained, inline: true })
+				//.addFields({ name: 'Obtained', value: crew.obtained, inline: true })
 				.addFields({ name: 'In Portal', value: crew.in_portal ? "Yes" : "No", inline: true })
 		}
 
