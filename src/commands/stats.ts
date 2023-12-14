@@ -138,13 +138,12 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			if (typeof crew.date_added === 'string') crew.date_added = new Date(crew.date_added);
 			embed = embed
 				.addFields({ name: 'Date Added', value: crew.date_added.toDateString(), inline: true })
-				//.addFields({ name: 'Obtained', value: crew.obtained, inline: true })
+				.addFields({ name: 'Obtained', value: crew.obtained, inline: true })
 				.addFields({ name: 'In Portal', value: crew.in_portal ? "Yes" : "No", inline: true })
 		}
 
-		if (crew.bigbook_tier && crew.events) {
+		if (crew.bigbook_tier) {
 			embed = embed
-				.addFields({ name: 'Events', value: crew.events.toString(), inline: true })
 				.addFields({ name: 'Big Book Tier ', value: crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `[${crew.bigbook_tier}](https://www.bigbook.app/crew/${crew.symbol})`, inline: true });
 		}
 
