@@ -150,6 +150,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		if (crew.cab_ov) {
 			embed = embed.addFields({ name: 'CAB Grade', value: `[${crew.cab_ov_grade}](https://sttpowerratings.com/)`, inline: true });
 			embed = embed.addFields({ name: 'CAB Rating', value: `[${crew.cab_ov}](https://sttpowerratings.com/)`, inline: true });
+			embed = embed.addFields({ name: 'CAB Rank', value: `[${crew.cab_ov_rank}](https://sttpowerratings.com/)`, inline: true });
 		}
 
 		if (crew.collections && crew.collections.length > 0) {
