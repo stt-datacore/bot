@@ -7,24 +7,24 @@ import { sendAndCache } from './discord';
 import CONFIG from './config';
 
 export function isValidBehold(data: any, threshold: number = 10) {
-	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {
-		return false;
+	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
+
+	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {		
+		if (!scores.every(e => e >= threshold)) return false;
 	}
 
-	if (!data.crew1 || data.crew1.score < threshold) {
-		return false;
-	}
-
-	if (!data.crew2 || data.crew2.score < threshold) {
-		return false;
-	}
-
-	if (!data.crew3 || data.crew3.score < threshold) {
-		return false;
-	}
+	if (!scores.every(e => e >= threshold)) return false;
 
 	if (data.error) {
-		return false;
+		if (data.error === "Top row doesn't look like a behold title") {
+			if (!scores.every(e => e >= threshold)) return false;
+			else {
+				delete data.error;
+			}
+		}
+		else {
+			return false;
+		}		
 	}
 
 	if (data.closebuttons > 0) {
@@ -38,9 +38,12 @@ export function isValidBehold(data: any, threshold: number = 10) {
 }
 
 export function isPossibleBehold(data: any, threshold: number = 10) {
-	//If the image analysis found the correct top, but maybe the crew detection failed.
+	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
+
+	// If the image analysis found the correct top, but maybe the crew detection failed.
+	// Conversely, crew analysis can succeed while the top can fail.
 	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {
-		return false;
+		return scores.every(e => e >= threshold);
 	}
 
 	return true;
