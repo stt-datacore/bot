@@ -141,7 +141,19 @@ async function asyncHandler(
 			} else {
 				reply = formatSources(message, item, adjustForKit);
 			}
-			sendAndCache(message, reply);
+			if (reply.length > 1024) {
+				let lines = reply.split("\n");
+				let n = 0;
+				while (lines.length) {
+					let sendlines = lines.splice(0, 10);
+					await sendAndCache(message, sendlines.join("\n"), { isFollowUp: !!n++ });
+
+				}				
+			}
+			else {
+				sendAndCache(message, reply);
+			}
+			
 		}
 	}
 }
