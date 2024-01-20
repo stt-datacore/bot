@@ -7,7 +7,7 @@ import { colorFromRarity, formatCollectionName } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { loadFullProfile, toTimestamp, userFromMessage } from '../utils/profile';
-import { getNeededItems } from '../utils/equipment';
+import { BAD_COST, IDemand, getNeededItems } from '../utils/equipment';
 
 function bonusName(bonus: string) {
 	let cfg = CONFIG.STATS_CONFIG[Number.parseInt(bonus)];
@@ -36,14 +36,26 @@ async function asyncHandler(
 	let crew = DCData.getBotCrew();
 	let profileCrew = profile.player.character.crew;
 	let profileItems = profile.player.character.items;
+	const needs = {} as { [key: string]: { demands: IDemand[], craftCost: number } };
+	const sources = {} as { [key: string]: Definitions.ItemSource[] };
+
 	let candidatesForImmortalisation = profileCrew.filter((c: any) => {
-		if (c.level >= 90) {
+		if (c.level >= 90) {			
 			if (c.equipment.length === 4) return false;
 			let needed = getNeededItems(c.symbol, 90, c.level, skirmish);
-			if (!needed) {
+			if (!needed || needed.demands.every(d => d.avgChronCost <= BAD_COST) || needed.craftCost <= BAD_COST) {
 				return false;
 			}
+			needs[c.symbol] = needed;
 		}
+		else {
+			let needed = getNeededItems(c.symbol, c.level, undefined, skirmish);
+			if (!needed || needed.demands.every(d => d.avgChronCost <= BAD_COST) || needed.craftCost <= BAD_COST) {
+				return false;
+			}
+			needs[c.symbol] = needed;
+		}
+		
 		let findcrew = crew.find((d) => d.symbol === c.symbol);
 
 		if (!fuse) {		
@@ -72,7 +84,8 @@ async function asyncHandler(
 	});
 
 	candidatesForImmortalisation = candidatesForImmortalisation.map((c: any) => {
-		let needed = c.level >= 90 ? getNeededItems(c.symbol, 90, c.level, skirmish) : getNeededItems(c.symbol, c.level, undefined, skirmish);
+		//let needed = c.level >= 90 ? getNeededItems(c.symbol, 90, c.level, skirmish) : getNeededItems(c.symbol, c.level, undefined, skirmish);
+		let needed = needs[c.symbol];
 		if (!needed) {
 			return c;
 		}
@@ -106,6 +119,32 @@ async function asyncHandler(
 		}
 	}).sort((a: any, b: any) => {
 		let r = 0;		
+		if (skirmish) {
+			sources[a.symbol] ??= needs[a.symbol].demands.map(d => d.equipment.item_sources ?? []).flat();
+			sources[b.symbol] ??= needs[b.symbol].demands.map(d => d.equipment.item_sources ?? []).flat();
+
+			let needa = sources[a.symbol];
+			let ac = needa.length;
+			let as = needa.filter(f => f.type === 2).length;
+
+			let needb = sources[b.symbol];
+			let bc = needb.length;
+			let bs = needb.filter(f => f.type === 2).length;
+
+			if (ac && bc) {
+				if (as && bs) {
+					ac = as / ac;
+					bc = bs / bc;
+					r = bc - ac;
+				}			
+				else if (as) {
+					r = -1;
+				}
+				else if (bs) {
+					r = 1;
+				}
+			}
+		}
 		//if (!r) r = (b.rarity/b.max_rarity) - (a.rarity/a.max_rarity);
 		if (!r) r = a.requiredChronCost - b.requiredChronCost;
 		return r;

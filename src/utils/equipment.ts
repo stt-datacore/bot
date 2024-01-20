@@ -1,7 +1,7 @@
 // TODO: share this file with \datacore\src\utils\equipment.ts
 import { DCData } from '../data/DCData';
 
-const BAD_COST = 999999999;
+export const BAD_COST = -1;
 
 export interface IDemand {
 	count: number;
@@ -17,7 +17,9 @@ function bestChronCost(item: Definitions.Item, skirmish?: boolean) {
 	if (!item.factionOnly) {
 		let bestMissions = item.item_sources.filter((s) => (!skirmish || s.type !== 0) && s.avg_cost && s.avg_cost >= 1).sort((a, b) => (a.avg_cost || 9999) - (b.avg_cost || 9999));
 		if (bestMissions.length > 0) {
-			bestCost = bestMissions[0].avg_cost || 0;
+			if (!skirmish || bestMissions.some(m => m.type === 2)) {
+				bestCost = bestMissions[0].avg_cost || 0;
+			}
 		}
 	}
 
@@ -31,20 +33,13 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 	if (!equipment) {
 		return 0;
 	}
-	
-	let unskirm = false;
 
 	if (!equipment.recipe) {
-		
-		if (equipment.item_sources.every(f => f.type === 0 || f.type === 1) && skirmish) {
-			unskirm = true;			
-		}
 
 		if (dupeChecker.has(equipment.symbol)) {
 			demands.find((d) => d.symbol === equipment!.symbol)!.count += 1;
 		} else {
 			dupeChecker.add(equipment.symbol);
-
 			demands.push({
 				count: 1,
 				symbol: equipment.symbol,
@@ -53,8 +48,7 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 				avgChronCost: bestChronCost(equipment, skirmish),
 			});
 		}
-		
-		if (unskirm) return BAD_COST;
+				
 		return 0;
 	}
 
@@ -62,10 +56,6 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 		let recipeEquipment = items.find((item) => item.symbol === iter.symbol);
 		if (!recipeEquipment) {
 			continue;
-		}
-
-		if (recipeEquipment.item_sources.every(f => f.type === 0 || f.type === 2) && skirmish) {
-			unskirm = true;
 		}
 
 		if (dupeChecker.has(iter.symbol)) {
@@ -87,8 +77,7 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 			avgChronCost: bestChronCost(recipeEquipment, skirmish),
 		});
 	}
-	
-	if (unskirm) return BAD_COST;
+
 	return equipment.recipe.craftCost;
 }
 
