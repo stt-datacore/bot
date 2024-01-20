@@ -9,11 +9,11 @@ export interface IDemand {
 	avgChronCost: number;
 }
 
-function bestChronCost(item: Definitions.Item) {
+function bestChronCost(item: Definitions.Item, skirmish?: boolean) {
 	let bestCost = 0;
 
 	if (!item.factionOnly) {
-		let bestMissions = item.item_sources.filter((s) => s.avg_cost && s.avg_cost >= 1).sort((a, b) => (a.avg_cost || 9999) - (b.avg_cost || 9999));
+		let bestMissions = item.item_sources.filter((s) => (!skirmish || s.type !== 0) && s.avg_cost && s.avg_cost >= 1).sort((a, b) => (a.avg_cost || 9999) - (b.avg_cost || 9999));
 		if (bestMissions.length > 0) {
 			bestCost = bestMissions[0].avg_cost || 0;
 		}
@@ -23,7 +23,7 @@ function bestChronCost(item: Definitions.Item) {
 }
 
 
-export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: Set<string>, demands: IDemand[]): number {
+export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: Set<string>, demands: IDemand[], skirmish?: boolean): number {
 	let equipment = items.find((item) => item.symbol === es.symbol);
 	if (!equipment) {
 		return 0;
@@ -40,7 +40,7 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 				symbol: equipment.symbol,
 				equipment: equipment,
 				factionOnly: equipment.factionOnly,
-				avgChronCost: bestChronCost(equipment),
+				avgChronCost: bestChronCost(equipment, skirmish),
 			});
 		}
 
@@ -69,14 +69,14 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 			symbol: iter.symbol,
 			equipment: recipeEquipment,
 			factionOnly: iter.factionOnly,
-			avgChronCost: bestChronCost(recipeEquipment),
+			avgChronCost: bestChronCost(recipeEquipment, skirmish),
 		});
 	}
 
 	return equipment.recipe.craftCost;
 }
 
-export function getNeededItems(crew_symbol: string, min_level: number, max_level: number = 100) {
+export function getNeededItems(crew_symbol: string, min_level: number, max_level: number = 100, skirmish?: boolean) {
 	let crew = DCData.getBotCrew().find((c) => c.symbol === crew_symbol);
 
 	if (!crew) {
@@ -92,7 +92,7 @@ export function getNeededItems(crew_symbol: string, min_level: number, max_level
 	crew.equipment_slots
 		.filter((es: any) => es.level >= min_level && es.level <= max_level)
 		.forEach((es: any) => {
-			craftCost += demandsPerSlot(es, DCData.getItems(), dupeChecker, demands);
+			craftCost += demandsPerSlot(es, DCData.getItems(), dupeChecker, demands, skirmish);
 		});
 
 	demands = demands.sort((a, b) => b.count - a.count);

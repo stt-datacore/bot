@@ -20,7 +20,8 @@ function bonusName(bonus: string) {
 
 async function asyncHandler(
 	message: Message,
-	fuse?: number
+	fuse?: number,
+	skirmish?: boolean
 ) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
@@ -38,7 +39,7 @@ async function asyncHandler(
 	let candidatesForImmortalisation = profileCrew.filter((c: any) => {
 		if (c.level >= 90) {
 			if (c.equipment.length === 4) return false;
-			let needed = getNeededItems(c.symbol, 90, c.level);
+			let needed = getNeededItems(c.symbol, 90, c.level, skirmish);
 			if (!needed) {
 				return false;
 			}
@@ -71,7 +72,7 @@ async function asyncHandler(
 	});
 
 	candidatesForImmortalisation = candidatesForImmortalisation.map((c: any) => {
-		let needed = c.level >= 90 ? getNeededItems(c.symbol, 90, c.level) : getNeededItems(c.symbol, c.level);
+		let needed = c.level >= 90 ? getNeededItems(c.symbol, 90, c.level, skirmish) : getNeededItems(c.symbol, c.level, undefined, skirmish);
 		if (!needed) {
 			return c;
 		}
@@ -172,7 +173,7 @@ async function asyncHandler(
 
 class CheapestFFFE implements Definitions.Command {
 	name = 'cheapestfffe';
-	command = 'cheapestfffe [fuseneed]';
+	command = 'cheapestfffe [fuseneed] [skirmish]';
 	aliases = [];
 	describe = 'Shows FF crew on your roster who are cheapest to FE';
 	options = [{
@@ -188,18 +189,38 @@ class CheapestFFFE implements Definitions.Command {
 				{ name: '4', value: 4 },
 				{ name: '5', value: 5 },
 			]
+		},
+		{
+			name: 'skirmish',
+			type: ApplicationCommandOptionType.Boolean,
+			description: 'optimize for skirmish (ship battles and faction missions, only)',
+			required: false,
+			default: false
 		}]
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp.option('fuseneed', {
 			alias: 'f',
-			desc: 'show crew with the specified needed fuses'			
+			desc: 'show crew with the specified needed fuses',
+			type: 'number'
+		}).option('skirmish', {
+			alias: 's',
+			desc: 'optimize for skirmish (ship battles and faction missions, only)',
+			type: 'boolean'
 		});
 	}
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
 		let fuse = args.fuseneed as number;
-		args.promisedResult = asyncHandler(message, fuse);
+		let skirmish = false;
+		if (typeof args.skirmish === 'string') {
+			skirmish = args.skirmish.trim().toLowerCase() === 'true';
+		}
+		else if (typeof args.skirmish === 'boolean') {
+			skirmish = args.skirmish;
+		}
+		
+		args.promisedResult = asyncHandler(message, fuse, skirmish);
 	}
 }
 
