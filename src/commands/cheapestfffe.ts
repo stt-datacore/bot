@@ -157,10 +157,7 @@ async function asyncHandler(
 			//.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}` });
 	});
 
-	let skirmtext = '';
-	if (skirmish) {
-		skirmtext = '[Skirmish Mode] ';
-	}
+	let skirmtext =  skirmish ? '[Skirmish Mode] ' : '';
 
 	if (fuse) {
 		sendAndCache(message, 
