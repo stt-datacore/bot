@@ -157,15 +157,20 @@ async function asyncHandler(
 			//.setFooter({ text: `${matched.name} is in ${matched.collections.length === 0 ? 'no collections' : `the following collections: ${matched.collections.join(', ')}`}` });
 	});
 
+	let skirmtext = '';
+	if (skirmish) {
+		skirmtext = '[Skirmish Mode] ';
+	}
+
 	if (fuse) {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
+			`${skirmtext}Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
 			{ embeds }
 		   );
 	}
 	else {
 		sendAndCache(message, 
-			`Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
+			`${skirmtext}Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
 			{ embeds }
 		   );
 	}
