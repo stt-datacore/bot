@@ -88,7 +88,7 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 		});
 	}
 	
-	if (unskirm) return 9999999;
+	if (unskirm) return BAD_COST;
 	return equipment.recipe.craftCost;
 }
 
