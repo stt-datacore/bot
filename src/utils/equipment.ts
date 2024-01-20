@@ -1,6 +1,8 @@
 // TODO: share this file with \datacore\src\utils\equipment.ts
 import { DCData } from '../data/DCData';
 
+const BAD_COST = 99999999;
+
 export interface IDemand {
 	count: number;
 	symbol: string;
@@ -19,6 +21,7 @@ function bestChronCost(item: Definitions.Item, skirmish?: boolean) {
 		}
 	}
 
+	if (!bestCost && skirmish) return BAD_COST;
 	return bestCost;
 }
 
@@ -28,8 +31,15 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 	if (!equipment) {
 		return 0;
 	}
+	
+	let unskirm = false;
 
 	if (!equipment.recipe) {
+		
+		if (equipment.item_sources.every(f => f.type === 0 || f.type === 1) && skirmish) {
+			unskirm = true;			
+		}
+
 		if (dupeChecker.has(equipment.symbol)) {
 			demands.find((d) => d.symbol === equipment!.symbol)!.count += 1;
 		} else {
@@ -43,14 +53,19 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 				avgChronCost: bestChronCost(equipment, skirmish),
 			});
 		}
-
+		
+		if (unskirm) return BAD_COST;
 		return 0;
 	}
 
-	for (let iter of equipment.recipe.list) {
+	for (let iter of equipment.recipe.list) {		
 		let recipeEquipment = items.find((item) => item.symbol === iter.symbol);
 		if (!recipeEquipment) {
 			continue;
+		}
+
+		if (recipeEquipment.item_sources.every(f => f.type === 0 || f.type === 2) && skirmish) {
+			unskirm = true;
 		}
 
 		if (dupeChecker.has(iter.symbol)) {
@@ -72,7 +87,8 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 			avgChronCost: bestChronCost(recipeEquipment, skirmish),
 		});
 	}
-
+	
+	if (unskirm) return 9999999;
 	return equipment.recipe.craftCost;
 }
 
