@@ -1,7 +1,7 @@
 // TODO: share this file with \datacore\src\utils\equipment.ts
 import { DCData } from '../data/DCData';
 
-const BAD_COST = 99999999;
+const BAD_COST = 999999999;
 
 export interface IDemand {
 	count: number;
