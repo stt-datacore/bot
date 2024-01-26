@@ -244,7 +244,7 @@ async function handleShipBehold(message: Message, beholdResult: any, fromCommand
 						let embedtext = "";
 						
 						if (ship.owned) {
-							embedtext += `Owned: ${ship.level}/${ship.max_level}\n`;
+							embedtext += `${ship.level}/${ship.max_level}\n`;
 						}
 						else if (user && user.profiles.length > 0) {
 							embedtext += `Unowned/${ship.max_level}`;
@@ -253,12 +253,21 @@ async function handleShipBehold(message: Message, beholdResult: any, fromCommand
 							embedtext += `${ship.max_level}`;
 						}
 
-						embedtext += `Score: ${ship.score?.toLocaleString()}\n`;
-						embedtext += `${ship.flavor ?? ''}`;
+						//embedtext += `Score: ${ship.score?.toLocaleString()}\n`;
+						//embedtext += `${ship.flavor ?? ''}`;
 
 						embed = embed.addFields({ 
 							name: ship.name ?? ship.symbol, 
-							value: embedtext
+							value: ship.flavor ?? ''
+						});
+						embed = embed.addFields({ 
+							name: 'Traits', 
+							value: ship.traits?.join(", ") ?? ''
+						});
+						embed = embed.addFields({ 
+							name: 'Level', 
+							value: embedtext,
+							inline: true
 						});
 					}
 
