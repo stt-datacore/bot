@@ -4,6 +4,7 @@ import { watch, FSWatcher } from 'chokidar';
 import Fuse from 'fuse.js';
 import { IEventData } from '../datacore/events';
 import { getRecentEvents } from '../utils/events';
+import { Schematics } from 'src/datacore/ship';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;
@@ -12,6 +13,7 @@ class DCDataClass {
 	private _dilemmas: any[] = [];
 	private _rawCrew: Definitions.BotCrew[] = [];
 	private _recentEvents: IEventData[] = [];
+	private _schematics: Schematics[] = [];
 
 	public setup(datacore_path: string): void {
 		// Set up a watcher to reload data on changes
@@ -22,6 +24,7 @@ class DCDataClass {
 		this._reloadData(path.join(datacore_path, 'quests.json'));
 		this._reloadData(path.join(datacore_path, 'dilemmas.json'));
 		this._reloadData(path.join(datacore_path, 'crew.json'));
+		this._reloadData(path.join(datacore_path, 'ship_schematics.json'));
 		this._reloadData(path.join(datacore_path, 'event_instances.json'));
 	}
 
@@ -42,6 +45,8 @@ class DCDataClass {
 				this._quests = parsedData;
 			} else if (filePath.endsWith('dilemmas.json')) {
 				this._dilemmas = parsedData;
+			} else if (filePath.endsWith('ship_schematics.json')) {
+				this._schematics = parsedData;
 			} else if (filePath.endsWith('crew.json')) {
 				this._rawCrew = parsedData;
 
@@ -80,6 +85,10 @@ class DCDataClass {
 		});
 	}
 
+	public getSchematics(): Schematics[] {
+		return this._schematics;
+	}
+	
 	public getItems(): Definitions.Item[] {
 		return this._items;
 	}
