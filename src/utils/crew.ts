@@ -3,6 +3,26 @@ import { getEmoteOrString } from './discord';
 import CONFIG from './config';
 import { PlayerCrew } from '../datacore/player';
 
+export function formatTrait(value: string) {
+	value = value.replace(/_/g, " ");
+	let vm = "";
+	let pch = ""
+	for (let ch of value) {
+		if (ch === " ") {
+			vm += " ";
+		}
+		else if (pch === "" || pch === " ") {
+			vm += ch.toUpperCase();
+		}
+		else {
+			vm += ch.toLowerCase();
+		}
+		pch = ch;
+	}
+
+	return vm;
+}
+
 function formatSkill(skill: Definitions.Skill, useSpace: boolean, forGauntlet: boolean = false) {
 	if (forGauntlet) {
 		return `${useSpace ? ' ' : '^'}(${skill.range_min ?? 0}-${skill.range_max ?? 0})`;

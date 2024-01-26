@@ -1,7 +1,7 @@
 import { Message, Embed, EmbedBuilder } from 'discord.js';
 
 import { DCData } from '../data/DCData';
-import { formatStatLine, formatCrewCoolRanks, colorFromRarity } from './crew';
+import { formatStatLine, formatCrewCoolRanks, colorFromRarity, formatTrait, actionAbilityoString } from './crew';
 import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, loadFullProfile } from './profile';
 import { sendAndCache } from './discord';
 import CONFIG from './config';
@@ -238,38 +238,78 @@ async function handleShipBehold(message: Message, beholdResult: any, fromCommand
 
 			embed = embed
 					.setThumbnail(assetUrl)
-					.setDescription(`${best.name ?? ''} is your best bet.`)
+					.setDescription(`**${best.name ?? ''}** is your best bet.`)
+			
+			if (user) {
+				embed = embed.addFields({
+					name: user.profiles[0].captainName,
+					value: `Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s schematics`
+				});
+			}
+
+			for (let ship of ships) {
+				let embedtext = "";
+				
+				if (ship.owned) {
+					embedtext += `${ship.level}/${ship.max_level}\n`;
+				}
+				else if (user && user.profiles.length > 0) {
+					embedtext += `Unowned/${ship.max_level}`;
+				}
+				else {
+					embedtext += `${ship.max_level}`;
+				}
+
+				//embedtext += `Score: ${ship.score?.toLocaleString()}\n`;
+				//embedtext += `${ship.flavor ?? ''}`;
+
+				embed = embed.addFields({ 
+					name: ship.name ?? ship.symbol, 
+					value: ship.flavor ?? ''
+				});
+				embed = embed.addFields({ 
+					name: 'Score', 
+					value: `${Math.round((ship.score ?? 0) / 10000)}`,
+					inline: true
+				});
+
+				embed = embed.addFields({ 
+					name: 'Level', 
+					value: embedtext,
+					inline: true
+				});
+				embed = embed.addFields({ 
+					name: 'Traits', 
+					value: ship.traits?.map(t => formatTrait(t)).join(", ") ?? '',
+					inline: true
+				});
+				embed = embed.addFields({ 
+					name: 'Attack', 
+					value: `${ship.attack}`,
+					inline: true
+				});
+				embed = embed.addFields({ 
+					name: 'Accuracy', 
+					value: `${ship.accuracy}`,
+					inline: true
+				});
+				embed = embed.addFields({ 
+					name: 'Evasion', 
+					value: `${ship.evasion}`,
+					inline: true
+				});
+
+				// for (let ability of ship.actions ?? []) {
+				// 	if (ability.ability) {
+				// 		embed = embed.addFields({ 
+				// 			name: ability.ability_text ?? '', 
+				// 			value: actionAbilityoString(ability.ability),
+				// 			inline: true
+				// 		});								
+				// 	}
 					
-					for (let ship of ships) {
-						let embedtext = "";
-						
-						if (ship.owned) {
-							embedtext += `${ship.level}/${ship.max_level}\n`;
-						}
-						else if (user && user.profiles.length > 0) {
-							embedtext += `Unowned/${ship.max_level}`;
-						}
-						else {
-							embedtext += `${ship.max_level}`;
-						}
-
-						//embedtext += `Score: ${ship.score?.toLocaleString()}\n`;
-						//embedtext += `${ship.flavor ?? ''}`;
-
-						embed = embed.addFields({ 
-							name: ship.name ?? ship.symbol, 
-							value: ship.flavor ?? ''
-						});
-						embed = embed.addFields({ 
-							name: 'Traits', 
-							value: ship.traits?.join(", ") ?? ''
-						});
-						embed = embed.addFields({ 
-							name: 'Level', 
-							value: embedtext,
-							inline: true
-						});
-					}
+				// }
+			}
 
 			embed = embed.setFooter({
 						text: customranks[0]
