@@ -5,8 +5,9 @@ import { formatStatLine, formatCrewCoolRanks, colorFromRarity, formatTrait, acti
 import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, loadFullProfile } from './profile';
 import { sendAndCache } from './discord';
 import CONFIG from './config';
-import { PlayerData } from 'src/datacore/player';
-import { Schematics, Ship } from 'src/datacore/ship';
+import { PlayerData } from '../datacore/player';
+import { Schematics, Ship } from '../datacore/ship';
+import { shipSum } from './ships';
 
 export function isValidBehold(data: any, threshold: number = 10) {
 	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
@@ -160,10 +161,6 @@ function applyCrew(increw: Definitions.BotCrew, buffConfig: Definitions.BuffConf
 	});
 
 	return crew;
-}
-
-function shipSum(ship: Ship) {
-	return ((ship.accuracy / ship.evasion) + (ship.attack * ship.attacks_per_second)) + (ship.shield_regen * ship.evasion) + (ship.crit_bonus * ship.crit_chance);
 }
 
 async function handleShipBehold(message: Message, beholdResult: any, fromCommand: boolean, base: boolean) {
