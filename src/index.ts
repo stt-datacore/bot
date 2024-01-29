@@ -8,7 +8,6 @@ import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
 import { Commands } from './commands';
 import levenshtein from 'js-levenshtein';
-import { shipSum } from './utils/ships';
 
 const Yargs = require('yargs/yargs');
 
