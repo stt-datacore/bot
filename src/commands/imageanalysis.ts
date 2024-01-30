@@ -38,7 +38,7 @@ export async function runImageAnalysis(message: Message, url: string, usedPrefix
 			} else{
 				sendAndCache(
 					message,
-					"Sorry, the image appears to be a behold, but the crew cannot be identified. " +
+					"Sorry, the image appears to be a behold, but the crew or ships cannot be identified. " +
 					"This can be caused by lighting effects or background fuzzyness in the game, but there are some limitations related to low-height crew. " +
 					"Please try submitting another screenshot."
 				);

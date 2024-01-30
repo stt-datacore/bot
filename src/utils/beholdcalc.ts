@@ -11,6 +11,10 @@ import { shipSum } from './ships';
 
 export function isValidBehold(data: any, threshold: number = 10) {
 	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
+	let crew = [data.crew1, data.crew2, data.crew3];	
+	if (crew.some(c => c.symbol === 'behold_title')) {
+		return false;		
+	}
 
 	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {		
 		if (!scores.every(e => e >= threshold)) return false;
