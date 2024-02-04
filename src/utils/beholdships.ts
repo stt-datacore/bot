@@ -16,7 +16,7 @@ export async function handleShipBehold(message: Message, beholdResult: any, from
 
 	if (ships.length === 3) {
 		let embed = new EmbedBuilder()
-		.setTitle('Detailed comparison')
+		.setTitle('Ship Behold is P.O.C.!')
 		.setColor(colorFromRarity(ships[0].rarity));
 
 		let customranks = ['', '', ''];
@@ -80,7 +80,7 @@ export async function handleShipBehold(message: Message, beholdResult: any, from
 
 			embed = embed
 					.setThumbnail(assetUrl)
-					.setDescription(`**${best.name ?? ''}** is your best bet.`)
+					.setDescription(`**${best.name ?? ''}** is the P.O.C. result.`)
 			
 			if (user) {
 				embed = embed.addFields({
