@@ -16,7 +16,7 @@ import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
-import { PlayerCrew, PlayerData } from 'src/datacore/player';
+import { PlayerCrew, PlayerData } from '../datacore/player';
 
 require('dotenv').config();
 

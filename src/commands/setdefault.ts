@@ -16,7 +16,7 @@ import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
 import { PlayerCrew, PlayerData } from '../datacore/player';
-import { Profile } from 'src/models/Profile';
+import { Profile } from '../models/Profile';
 
 require('dotenv').config();
 

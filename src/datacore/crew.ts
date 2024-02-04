@@ -1,6 +1,18 @@
 import { ShipBonus, ShipAction as ShipAction } from "./ship";
 import { Icon } from "./game-elements"
 
+export interface IName {
+  name: string;
+}
+
+export interface ISymbol {
+  symbol: string;
+}
+
+export interface IId {
+  id: number;
+}
+
 export interface CrossFuseTarget {
   symbol: string;
   name?: string;
@@ -17,7 +29,7 @@ export interface MarkdownInfo {
  * This is the model for the master list of all crew in STT.
  * PlayerCrew derives from this and CompactCrew.
  */
-export interface CrewMember {
+export interface CrewMember extends ISymbol, IName {
   symbol: string
   name: string
   short_name: string
@@ -42,7 +54,7 @@ export interface CrewMember {
   collections: string[]
   nicknames: Nickname[]
   cab_ov: string
-  cab_ov_rank: number
+  cab_ov_rank: string
   cab_ov_grade: string
   totalChronCost: number
   factionOnlyTotal: number
@@ -171,7 +183,7 @@ export interface Ranks {
   G_CMD_MED?: number
   B_DIP?: number
   A_DIP?: number
-  voyTriplet?: VoyTriplet
+  voyTriplet: VoyTriplet
   V_SCI_DIP?: number
   G_SCI_DIP?: number
   V_ENG_DIP?: number

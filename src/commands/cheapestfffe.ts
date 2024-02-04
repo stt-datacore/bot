@@ -2,7 +2,7 @@ import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js'
 import yargs from 'yargs';
 
 import { DCData } from '../data/DCData';
-import { formatSources, formatRecipe } from '../utils/items';
+import { binaryLocateSymbol } from '../utils/items';
 import { colorFromRarity, formatCollectionName } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
@@ -56,7 +56,7 @@ async function asyncHandler(
 			needs[c.symbol] = needed;
 		}
 		
-		let findcrew = crew.find((d) => d.symbol === c.symbol);
+		let findcrew = binaryLocateSymbol(c.symbol, crew);
 
 		if (!fuse) {		
 			if (c.rarity === findcrew?.max_rarity) {
@@ -153,9 +153,7 @@ async function asyncHandler(
 
 	const embeds = candidatesForImmortalisation.slice(0, 5).map((can: any) => {
 		
-		const matched = crew.find((crew) => {
-			return crew.symbol === can.symbol
-		});
+		const matched = binaryLocateSymbol(can.symbol, crew) as Definitions.BotCrew | undefined;
 		
 		if (!matched) {
 			return;

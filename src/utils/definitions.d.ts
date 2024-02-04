@@ -1,6 +1,19 @@
 declare type CommandModule = import('yargs').CommandModule;
 
 declare namespace Definitions {
+
+	export interface IDilemmaChoice {
+		text: string;
+		reward: string[];
+	}
+	
+	export interface IDilemma {
+		title: string;
+		choiceA: IDilemmaChoice;
+		choiceB: IDilemmaChoice;
+		choiceC?: IDilemmaChoice;
+	}
+
 	export interface Command extends CommandModule {
 		name: string;
 		options?: any;

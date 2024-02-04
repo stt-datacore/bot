@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import { DCData } from '../data/DCData';
 import { getEmoteOrString } from './discord';
 import CONFIG from '../utils/config';
-import { Skill } from '../datacore/crew';
+import { IId, IName, ISymbol, Skill } from '../datacore/crew';
 import { EquipmentItem, EquipmentItemSource } from '../datacore/equipment';
 import { Mission } from '../datacore/missions';
 
@@ -54,12 +54,22 @@ export function formatSources(
 				if (entry.mission_symbol && entry.avg_cost > 0) {
 					let quest = DCData.questBySymbol(entry.mission_symbol);
 					let avg_cost = entry.avg_cost * (adjustForKit ? 0.75 : 1)
-					recipe.push({
-						cost: avg_cost,
-						text: `${formatQuestName(quest, !rich)}, ${formatMastery(entry.mastery)} ${formatType(
-							entry.type
-						)} **${avg_cost.toFixed(2)} ${getEmoteOrString(message, 'chrons', 'chronitons')}**`
-					});
+					if (quest.mission.cadet) {
+						recipe.push({
+							cost: avg_cost,
+							text: `${formatQuestName(quest, !rich)}, ${formatMastery(entry.mastery)} ${formatType(
+								entry.type
+							)} **${avg_cost.toFixed(2)}**`
+						});	
+					}
+					else {
+						recipe.push({
+							cost: avg_cost,
+							text: `${formatQuestName(quest, !rich)}, ${formatMastery(entry.mastery)} ${formatType(
+								entry.type
+							)} **${avg_cost.toFixed(2)} ${getEmoteOrString(message, 'chrons', 'chronitons')}**`
+						});	
+					}
 				}
 			}
 		});
@@ -79,6 +89,8 @@ function formatType(type: number): string {
 		return 'faction mission';
 	} else if (type == 2) {
 		return 'ship battle';
+	} else if (type == 4) {
+		return 'cadet mission';
 	} else {
 		return '';
 	}
@@ -215,4 +227,91 @@ export function postProcessCadetItems(missions: Mission[], items: (Definitions.I
 	}
 
 	console.log("Done with cadet missions.");
+}
+
+export function binaryLocateString(search: string, items: any[], prop: string, ci: boolean): any {
+	let lo = 0, hi = items.length - 1;
+	if (ci) search = search.toLowerCase();
+
+	while (true)
+	{
+		if (lo > hi) break;
+
+		let p = Math.floor((hi + lo) / 2);
+		let elem = items[p];
+		let c: number;
+
+		if (ci) {
+			c = search.localeCompare(items[p][prop].toLowerCase());
+		}
+		else {
+			c = search.localeCompare(items[p][prop]);
+		}
+
+		if (c == 0)
+		{
+			return elem;
+		}
+		else if (c < 0)
+		{
+			hi = p - 1;
+		}
+		else
+		{
+			lo = p + 1;
+		}
+	}
+
+	return undefined;
+}
+
+export function binaryLocateNumber(search: number, items: any[], prop: string): number {
+	let lo = 0, hi = items.length - 1;
+
+	while (true)
+	{
+		if (lo > hi) break;
+
+		let p = Math.floor((hi + lo) / 2);
+		let elem = items[p];
+
+		let c = search - items[p][prop];
+
+		if (c == 0)
+		{
+			return elem;
+		}
+		else if (c < 0)
+		{
+			hi = p - 1;
+		}
+		else
+		{
+			lo = p + 1;
+		}
+	}
+
+	return -1;
+}
+
+
+export function binaryLocateSymbol<T extends ISymbol>(symbol: string, source: T[]) {
+	return binaryLocateString(symbol, source, "symbol", false);
+}
+
+export function binaryLocateCrew<T extends Definitions.BotCrew>(symbol: string, source: T[]): Definitions.BotCrew | undefined {
+	return binaryLocateString(symbol, source, "symbol", false) as Definitions.BotCrew | undefined;
+	
+}
+
+export function binaryLocateName<T extends IName>(symbol: string, source: T[]) {
+	return binaryLocateString(symbol, source, "name", true);
+}
+
+export function binaryLocateId<T extends IId>(id: number, source: T[]) {
+	return binaryLocateNumber(id, source, "symbol");
+}
+
+export function binaryLocateArchetypeId(id: number, source: any[]) {
+	return binaryLocateNumber(id, source, "archetype_id");
 }

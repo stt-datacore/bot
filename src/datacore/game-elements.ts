@@ -1,4 +1,4 @@
-import { CrewMember } from "./crew";
+import { CrewMember, ISymbol } from "./crew";
 import { MilestoneBuff, Reward } from "./player";
 
 export type Variant = {
@@ -172,9 +172,6 @@ export interface InitialOptions {
   page?: number;  
 }
 
-export interface ISymbol {
-  symbol: string;
-}
 
 export interface SymbolName extends ISymbol {
   symbol: string;

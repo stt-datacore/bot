@@ -8,19 +8,7 @@ import { colorFromRarity } from '../utils/crew';
 import CONFIG from '../utils/config';
 
 
-interface IDilemmaChoice {
-	text: string;
-	reward: string[];
-}
-interface IDilemma {
-	title: string,
-	choiceA: IDilemmaChoice;
-	choiceB: IDilemmaChoice;
-	choiceC?: IDilemmaChoice;
-}
-
-
-function formatChoice(message: Message, choice: IDilemmaChoice): string {
+function formatChoice(message: Message, choice: Definitions.IDilemmaChoice): string {
 	let result = choice.text + '\n' + choice.reward.join(', ');
 	result = result.split(':honor:').join(getEmoteOrString(message, 'honor', 'honor'));
 	result = result.split(':chrons:').join(getEmoteOrString(message, 'chrons', 'chrons'));
@@ -28,7 +16,7 @@ function formatChoice(message: Message, choice: IDilemmaChoice): string {
 	return result;
 }
 
-function getChoiceRarity(choice: IDilemmaChoice) {
+function getChoiceRarity(choice: Definitions.IDilemmaChoice) {
 	if (choice.reward.some((r: string) => r.includes("100 :honor:"))) return 5;
 	else if (choice.reward.some((r: string) => r.includes("60 :honor:"))) return 4;
 	else return 3;
@@ -38,7 +26,7 @@ async function asyncHandler(message: Message, searchString: string) {
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 	
 	let test_search = searchString.trim().toLowerCase().replace(/\"/g, '').replace(/\'/g, '').replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '');
-	let dilemmas = DCData.getDilemmas() as IDilemma[];
+	let dilemmas = DCData.getDilemmas() as Definitions.IDilemma[];
 
 	if (test_search === 'list') {
 		dilemmas.sort((a, b) => a.title.localeCompare(b.title));

@@ -4,24 +4,31 @@ import { watch, FSWatcher } from 'chokidar';
 import Fuse from 'fuse.js';
 import { IEventData } from '../datacore/events';
 import { getRecentEvents } from '../utils/events';
-import { Schematics } from 'src/datacore/ship';
+import { Schematics } from '../datacore/ship';
+import { Mission } from '../datacore/missions';
+import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../utils/items';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;
 	private _items: Definitions.Item[] = [];
-	private _quests: any[] = [];
+	private _quests: Mission[] = [];
 	private _dilemmas: any[] = [];
 	private _rawCrew: Definitions.BotCrew[] = [];
+	private _rawCrewByName: Definitions.BotCrew[] = [];
 	private _recentEvents: IEventData[] = [];
 	private _schematics: Schematics[] = [];
+	private _cadet: Mission[] = [];
+	private _procCadet = false;
 
 	public setup(datacore_path: string): void {
+		this._procCadet = false;
 		// Set up a watcher to reload data on changes
 		this._watcher = watch(datacore_path, { persistent: true, awaitWriteFinish: true });
 		this._watcher.on('change', filePath => this._reloadData(filePath));
 		// Initial read
 		this._reloadData(path.join(datacore_path, 'items.json'));
 		this._reloadData(path.join(datacore_path, 'quests.json'));
+		this._reloadData(path.join(datacore_path, 'cadet_episodes.txt'));
 		this._reloadData(path.join(datacore_path, 'dilemmas.json'));
 		this._reloadData(path.join(datacore_path, 'crew.json'));
 		this._reloadData(path.join(datacore_path, 'ship_schematics.json'));
@@ -29,7 +36,7 @@ class DCDataClass {
 	}
 
 	private _reloadData(filePath: string) {
-		if (filePath.endsWith('.json')) {
+		if (filePath.endsWith('.json') || filePath.endsWith("cadet_episodes.txt")) {
 			console.log(`File ${filePath} has been changed`);
 			let parsedData = undefined;
 			try {
@@ -47,8 +54,17 @@ class DCDataClass {
 				this._dilemmas = parsedData;
 			} else if (filePath.endsWith('ship_schematics.json')) {
 				this._schematics = parsedData;
+			} else if (filePath.endsWith('cadet_episodes.txt')) {
+				this._cadet = parsedData;
 			} else if (filePath.endsWith('crew.json')) {
 				this._rawCrew = parsedData;
+				this._rawCrew.sort((a, b) => 
+					a.symbol.localeCompare(b.symbol)
+				);
+				this._rawCrewByName = [ ... this._rawCrew ];
+				this._rawCrewByName.sort((a, b) => (
+					a.name.localeCompare(b.name)
+				));
 
 				// Add pseudo-traits for the skills (for search to work)
 				this._rawCrew.forEach(crew => {
@@ -62,6 +78,11 @@ class DCDataClass {
 				});
 			} else if (filePath.endsWith('event_instances.json')) {											
 				this._recentEvents = getRecentEvents(this._rawCrew, parsedData);				
+			}
+
+			if (this._cadet?.length && this._items?.length && !this._procCadet) {
+				postProcessCadetItems(this._cadet, this._items);
+				this._procCadet = true;
 			}
 		}
 	}
@@ -85,6 +106,10 @@ class DCDataClass {
 		});
 	}
 
+	public getCadet(): Mission[] {
+		return this._cadet;
+	}
+
 	public getSchematics(): Schematics[] {
 		return this._schematics;
 	}
@@ -93,7 +118,7 @@ class DCDataClass {
 		return this._items;
 	}
 
-	public getDilemmas(): any[] {
+	public getDilemmas(): Definitions.IDilemma[] {
 		return this._dilemmas;
 	}
 
@@ -102,7 +127,7 @@ class DCDataClass {
 	}
 
 	public questBySymbol(symbol: string): any {
-		return this._quests.find((q: any) => q.symbol === symbol);
+		return this._quests.find((q: any) => q.symbol === symbol) ?? this._cadet.find((q: any) => q.symbol === symbol);
 	}
 
 	public itemBySymbol(symbol: string): any {
@@ -188,21 +213,36 @@ class DCDataClass {
 
 		// Try a plain substring search first in case we get an exact match
 		if (!includeTraits) {
-			let found = crew.filter(
-				c =>
-					c.name.toLowerCase() === searchString.toLowerCase() ||
-					c.name
-						.replace(/"/g, '')
-						.replace(/'/g, '')
-						.replace(/“/g, '')
-						.replace(/’/g, '')
-						.toLowerCase() === searchString.toLowerCase()
-			);
+			let found: Definitions.BotCrew[];
+
+			let fcrew = binaryLocateName(searchString, this._rawCrewByName);
+
+			if (!fcrew) {
+				fcrew = binaryLocateSymbol(searchString, this._rawCrew);				
+			}
+
+			if (fcrew) {
+				found = [fcrew as Definitions.BotCrew];
+			}
+			else {
+				found = crew.filter(
+					c =>
+						c.name.toLowerCase() === searchString.toLowerCase() ||
+						c.name
+							.replace(/"/g, '')
+							.replace(/'/g, '')
+							.replace(/“/g, '')
+							.replace(/’/g, '')
+							.toLowerCase() === searchString.toLowerCase()
+				);
+			}
+
 			if (found && found.length === 1) {
 				return [found[0]];
 			}
 
 			found = crew.filter(c => c.name.toLowerCase().indexOf(searchString.toLowerCase()) >= 0);
+
 			if (found && found.length === 1) {
 				return [found[0]];
 			}

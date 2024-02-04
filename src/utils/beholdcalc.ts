@@ -8,6 +8,9 @@ import CONFIG from './config';
 import { PlayerData } from '../datacore/player';
 import { Schematics, Ship } from '../datacore/ship';
 import { shipSum } from './ships';
+import { binaryLocateCrew, binaryLocateId, binaryLocateSymbol } from './items';
+import { CrewMember } from '../datacore/crew';
+import { handleShipBehold } from './beholdships';
 
 export function isValidBehold(data: any, threshold: number = 10) {
 	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
@@ -167,165 +170,6 @@ function applyCrew(increw: Definitions.BotCrew, buffConfig: Definitions.BuffConf
 	return crew;
 }
 
-async function handleShipBehold(message: Message, beholdResult: any, fromCommand: boolean, base: boolean) {
-
-	let allSchematics = DCData.getSchematics();
-	let results = [beholdResult.crew1, beholdResult.crew2, beholdResult.crew3];
-	let ships = results.map(r => allSchematics.find(f => f.ship.model === r.symbol)).filter(s => s !== undefined).map(s => (s as Schematics).ship);
-
-	if (ships.length === 3) {
-		let embed = new EmbedBuilder()
-		.setTitle('Detailed comparison')
-		.setColor(colorFromRarity(ships[0].rarity));
-
-		let customranks = ['', '', ''];
-
-		if (!base) {
-			let user = await userFromMessage(message);
-			if (user && user.profiles.length > 0) {
-				// Apply personalization
-				let fullProfile = loadFullProfile(user.profiles[0].dbid) as PlayerData;
-				let ownedShips = fullProfile.player.character.ships.filter(f => results.some(r => r.symbol === f.model));
-				let unownedShips = fullProfile.player.character.ships.filter(f => !results.some(r => r.symbol === f.model));
-
-				for (let ship of ownedShips) {
-					let shipresult = ships.find(f => f.symbol === ship.symbol);
-					if (shipresult) {
-						shipresult.level = ship.level;
-						shipresult.schematic_gain_cost_next_level = ship.schematic_gain_cost_next_level;
-						shipresult.owned = true;
-						shipresult.score = shipSum(shipresult);
-					}
-				}
-
-				for (let ship of unownedShips) {
-					let shipresult = ships.find(f => f.symbol === ship.symbol);
-					if (shipresult) {
-						shipresult.level = 0;
-						shipresult.schematic_gain_cost_next_level = ship.schematic_gain_cost_next_level;
-						shipresult.owned = false;
-						shipresult.score = shipSum(shipresult);
-					}
-				}				
-			}
-			else {
-				for (let shipresult of ships) {
-					shipresult.level = 0;
-					shipresult.schematic_gain_cost_next_level = 0;
-					shipresult.owned = false;
-					shipresult.score = shipSum(shipresult);
-				}
-			}
-
-			let protobest = [...ships];
-			protobest.sort((a, b) => {
-				let r = (b.score ?? 0) - (a.score ?? 0);					
-				if (a.level === a.max_level && b.level === b.max_level) {
-					return r;
-				}
-				else if (a.level === a.max_level) {
-					return 1;
-				}
-				else if (b.level === b.max_level) {
-					return -1;
-				}
-				else {
-					return r;
-				}
-			});
-
-			let best = protobest[0];
-			let assetUrl = `${CONFIG.ASSETS_URL}${best.icon?.file.replace("ship_previews\/", "ship_previews_")}.png`;
-
-			embed = embed
-					.setThumbnail(assetUrl)
-					.setDescription(`**${best.name ?? ''}** is your best bet.`)
-			
-			if (user) {
-				embed = embed.addFields({
-					name: user.profiles[0].captainName,
-					value: `Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s schematics`
-				});
-			}
-
-			for (let ship of ships) {
-				let embedtext = "";
-				
-				if (ship.owned) {
-					embedtext += `${ship.level}/${ship.max_level}\n`;
-				}
-				else if (user && user.profiles.length > 0) {
-					embedtext += `Unowned/${ship.max_level}`;
-				}
-				else {
-					embedtext += `${ship.max_level}`;
-				}
-
-				//embedtext += `Score: ${ship.score?.toLocaleString()}\n`;
-				//embedtext += `${ship.flavor ?? ''}`;
-
-				embed = embed.addFields({ 
-					name: ship.name ?? ship.symbol, 
-					value: ship.flavor ?? ''
-				});
-				embed = embed.addFields({ 
-					name: 'Score', 
-					value: `${Math.round((ship.score ?? 0) / 10000)}`,
-					inline: true
-				});
-
-				embed = embed.addFields({ 
-					name: 'Level', 
-					value: embedtext,
-					inline: true
-				});
-				embed = embed.addFields({ 
-					name: 'Traits', 
-					value: ship.traits?.map(t => formatTrait(t)).join(", ") ?? '',
-					inline: true
-				});
-				embed = embed.addFields({ 
-					name: 'Attack', 
-					value: `${ship.attack}`,
-					inline: true
-				});
-				embed = embed.addFields({ 
-					name: 'Accuracy', 
-					value: `${ship.accuracy}`,
-					inline: true
-				});
-				embed = embed.addFields({ 
-					name: 'Evasion', 
-					value: `${ship.evasion}`,
-					inline: true
-				});
-
-				// for (let ability of ship.actions ?? []) {
-				// 	if (ability.ability) {
-				// 		embed = embed.addFields({ 
-				// 			name: ability.ability_text ?? '', 
-				// 			value: actionAbilityoString(ability.ability),
-				// 			inline: true
-				// 		});								
-				// 	}
-					
-				// }
-			}
-
-			embed = embed.setFooter({
-						text: customranks[0]
-							? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
-							: `Upload your profile to get custom recommendations`
-					});
-
-			sendAndCache(message, '', {embeds: [embed]});
-			return true;
-		}
-	}
-
-	return false;
-}
-
 export async function calculateBehold(message: Message, beholdResult: any, fromCommand: boolean, base: boolean) {
 	
 	let results = [beholdResult.crew1, beholdResult.crew2, beholdResult.crew3];
@@ -334,9 +178,10 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		return handleShipBehold(message, beholdResult, fromCommand, base);
 	}
 	
-	let crew1 = DCData.getBotCrew().find((c: any) => c.symbol === beholdResult.crew1.symbol);
-	let crew2 = DCData.getBotCrew().find((c: any) => c.symbol === beholdResult.crew2.symbol);
-	let crew3 = DCData.getBotCrew().find((c: any) => c.symbol === beholdResult.crew3.symbol);
+	let _bc = DCData.getBotCrew();
+	let crew1 = binaryLocateCrew(beholdResult.crew1.symbol, _bc);
+	let crew2 = binaryLocateCrew(beholdResult.crew2.symbol, _bc);
+	let crew3 = binaryLocateCrew(beholdResult.crew3.symbol, _bc);
 
 	if (!crew1 || !crew2 || !crew3) {
 		if (fromCommand) {
@@ -372,6 +217,8 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 			// TODO: multiple profiles
 			let profile = await loadProfile(user.profiles[0].dbid);
 			if (profile) {
+				profile.crew.sort((a, b) => a.id - b.id);
+
 				crew1 = applyCrew(crew1, profile.buffConfig);
 				crew2 = applyCrew(crew2, profile.buffConfig);
 				crew3 = applyCrew(crew3, profile.buffConfig);
@@ -379,20 +226,24 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 				let bcrew = [crew1, crew2, crew3];
 
 				let found = [1, 1, 1];
-				for (let entry of profile.crew) {
-					for (let i = 0; i < 3; i++) {
-						if (entry.id === bcrew[i].archetype_id) {
+				let i = 0;
 
-							if (entry.rarity && entry.rarity < bcrew[i].max_rarity) {
-								entry.rarity++;
-								found[i] = entry.rarity;
-							}
-							
-							if (!beholdResult["crew" + (i + 1).toString()].stars) {
-								beholdResult["crew" + (i + 1).toString()].stars = (entry.rarity ?? 1) - 1;
-							}							
+				for (let bc of bcrew) {
+					let pidx = profile.crew.findIndex(crew => bc.archetype_id === crew.id);
+					if (pidx !== -1) {
+						let entry = profile.crew[pidx];
+						if (entry.rarity && entry.rarity < bcrew[i].max_rarity) {
+							entry.rarity++;
+							found[i] = entry.rarity;
 						}
-					}
+						
+						if (!beholdResult["crew" + (i + 1).toString()].stars) {
+							beholdResult["crew" + (i + 1).toString()].stars = (entry.rarity ?? 1) - 1;
+						}							
+
+						i++;
+						if (i >= 3) break;
+					}	
 				}
 
 				for (let i = 0; i < 3; i++) {
