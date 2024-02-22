@@ -2,16 +2,12 @@ import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js'
 import yargs from 'yargs';
 import {
 	userFromMessage,
-	refreshProfile,
-	loadProfileRoster,
-	loadProfile,
-	ProfileRosterEntry,
-	loadFleet,
+	refreshProfile, loadFleet,
 	loadFullProfile,
-	toTimestamp,
+	toTimestamp
 } from '../utils/profile';
 import CONFIG from '../utils/config';
-import { sendAndCache, sendSplitText, deleteOldReplies } from '../utils/discord';
+import { sendAndCache, sendSplitText } from '../utils/discord';
 import { DCData } from '../data/DCData';
 import { FACTIONS } from '../utils/factions';
 
