@@ -16,9 +16,11 @@ class DCDataClass {
 	private _rawCrew: Definitions.BotCrew[] = [];
 	private _rawCrewByName: Definitions.BotCrew[] = [];
 	private _recentEvents: IEventData[] = [];
+	private _allEvents: Definitions.EventInstance[] = [];
 	private _schematics: Schematics[] = [];
 	private _cadet: Mission[] = [];
 	private _procCadet = false;
+	private _refreshHour = 0;
 
 	public setup(datacore_path: string): void {
 		this._procCadet = false;
@@ -77,7 +79,8 @@ class DCDataClass {
 					if (crew.base_skills.medicine_skill) crew.traits_pseudo.push('med');
 				});
 			} else if (filePath.endsWith('event_instances.json')) {											
-				this._recentEvents = getRecentEvents(this._rawCrew, parsedData);				
+				this._allEvents = parsedData;
+				this.refreshEvents();				
 			}
 
 			if (this._cadet?.length && this._items?.length && !this._procCadet) {
@@ -87,7 +90,16 @@ class DCDataClass {
 		}
 	}
 
+	public refreshEvents() {
+		this._recentEvents = getRecentEvents(this._rawCrew, this._allEvents);
+		this._refreshHour = (new Date()).getHours();
+	}
+
 	public getEvents() {
+		if (this._refreshHour !== (new Date()).getHours()) {
+			this.refreshEvents();
+		}
+		
 		return this._recentEvents;
 	}
 

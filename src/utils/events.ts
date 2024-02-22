@@ -95,44 +95,55 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 }
 
 // Current event here refers to an ongoing event, or the next event if none is ongoing
-function guessCurrentEventId(start: number, allEvents: Definitions.EventInstance[]): number {
+function guessCurrentEventId(allEvents: Definitions.EventInstance[]): number {
+	const easternTime = new Date((new Date()).toLocaleString('en-US', { timeZone: 'America/New_York' }));
+	const estDay = easternTime.getDay(), estHour = easternTime.getHours();
+	
 	// Use penultimate event instance if current time is:
 	//	>= Wednesday Noon ET (approx time when game data is updated with next week's event)
 	//		and < Monday Noon ET (when event ends)
 	// Otherwise use ultimate event
 	//	Note: DataCore autosyncs events at ~1PM ET every day, so there might be some lag on Wednesday
-	const currentIndex = start < 24*60*60 ? 2 : 1;
+	const currentIndex = estDay === 3 && estHour >= 12 ? 1 : 2; // start < 24*60*60 ? 2 : 1;
 	return allEvents[allEvents.length-currentIndex].instance_id;
 }
 
 // Get seconds to event start, end from current time
 function getCurrentStartEndTimes(): { start: number, end: number, startTime: Date, endTime: Date } {
+
 	const currentTime = new Date();
-	const utcDay = currentTime.getUTCDay(), utcHour = currentTime.getUTCHours();
+	const easternTime = new Date((new Date()).toLocaleString('en-US', { timeZone: 'America/New_York' }));
+
+	const currHour = currentTime.getHours();
+	const estDay = easternTime.getDay(), estHour = easternTime.getHours();
+
+	const tzdiff = (currHour < estHour) ? ((24 - estHour) + currHour) : (currHour - estHour);
 
 	// Event "week" starts and ends on Monday at Noon ET
-	let eventDay = [6, 0, 1, 2, 3, 4, 5][utcDay];
-	eventDay = utcHour < 16 ? (eventDay-1 < 0 ? 6 : eventDay-1) : eventDay;
+	let eventDay = [6, 0, 1, 2, 3, 4, 5][estDay];
+	eventDay = estHour < 12 ? (eventDay-1 < 0 ? 6 : eventDay-1) : eventDay;
 
 	// Event end time is Monday Noon ET (Event Day "7", 0:00:00)
 	let endTime = new Date();
 	endTime.setDate(endTime.getDate()+(6-eventDay));
-	endTime.setUTCHours(16, 0, 0, 0);	// Noon ET is 16:00:00 UTC
-	if (endTime.getUTCDay() === 0) {
+	endTime.setHours(12 + tzdiff, 0, 0, 0);	// Noon ET is 16/15:00:00 UTC
+
+	if (endTime.getDay() === 0) {
 		endTime.setDate(endTime.getDate()+1);
 	}
+
 	// Event start time is Thursday Noon ET (Event Day 3, 0:00:00)
 	//	aka exactly 4 days before endTime
 	let startTime = new Date(endTime.getTime());
 	startTime.setDate(startTime.getDate()-4);
 
 	let start = 0;
-	let diff = endTime.getTime() - currentTime.getTime();
+	let diff = endTime.getTime() - easternTime.getTime();
 	const end = Math.floor((diff)/1000);
 
 	// Event hasn't started yet
 	if (eventDay < 3) {
-		diff = startTime.getTime() - currentTime.getTime();
+		diff = startTime.getTime() - easternTime.getTime();
 		start = Math.floor((diff)/1000);
 	}
 
@@ -143,7 +154,7 @@ export function getRecentEvents(allCrew: Definitions.BotCrew[], allEvents: Defin
 	const recentEvents = [] as IEventData[];
 
 	const { start, end, startTime, endTime } = getCurrentStartEndTimes();
-	const currentEventId = guessCurrentEventId(start, allEvents);
+	const currentEventId = guessCurrentEventId(allEvents);
 
 	let index = 1;
 	while (recentEvents.length < 2) {
