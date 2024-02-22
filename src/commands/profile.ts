@@ -20,7 +20,7 @@ require('dotenv').config();
 const MAX_CREW = 10;
 
 function shipFormat(entry: Ship) {
-	return `**${entry.name}** (${entry.level}/${entry.max_level})`;
+	return `**${entry.name}** (${entry.level+1}/${(entry.max_level ?? entry.level)+1})`;
 }
 
 function eventCrewFormat(entry: Definitions.BotCrew, profileData: any): string {
