@@ -17,10 +17,15 @@ import { FACTIONS } from '../utils/factions';
 
 import { configure } from 'as-table';
 import { PlayerCrew, PlayerData } from '../datacore/player';
+import { Ship } from '../datacore/ship';
 
 require('dotenv').config();
 
 const MAX_CREW = 10;
+
+function shipFormat(entry: Ship) {
+	return `**${entry.name}** (${entry.level}/${entry.max_level})`;
+}
 
 function eventCrewFormat(entry: Definitions.BotCrew, profileData: any): string {
 	let pcrew = profileData.player.character.crew.find((crew: PlayerCrew) => crew.symbol === entry.symbol);
@@ -248,6 +253,13 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 											.map((entry) => entry ? eventCrewFormat(entry, profileData) : '') 
 											.join(', ')
 							}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
+
+							if (event.ships?.length) {
+								let shipbonus = (profileData as PlayerData).player.character.ships.filter(f => event.ships.some(s => s.ship.symbol === f.symbol));
+								if (shipbonus?.length) {
+									reply += `\r\nShips: ${shipbonus.map(sb => shipFormat(sb)).join(", ")}`
+								}
+							}
 
 							embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply });
 						}

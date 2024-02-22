@@ -1,4 +1,5 @@
 
+import { DCData } from '../data/DCData';
 import { IEventData } from '../datacore/events';
 import { Content, GameEvent, Shuttle } from '../datacore/player';
 import fs from 'fs';
@@ -29,7 +30,18 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 		}
 	}
 	result.type = types.join("/");
-
+	if (types.includes("Skirmish")) {
+		let rex = new RegExp(/.+Using (.+), (.+), or (.+) will provide a hull.+/);
+		let matches = rex.exec(activeEvent.rules);
+		if (matches) {
+			let ships = [matches[1], matches[2], matches[3]];
+			for (let i in ships) {
+				ships[i] = ships[i].replace("the ", "").replace(" ship", "");
+			}
+			let schematics = DCData.getSchematics().filter(f => f.ship.name && ships.includes(f.ship.name));
+			result.ships = schematics;
+		}
+	}
 	// We can get event image more definitively by fetching from events/instance_id.json rather than player data
 	result.image = activeEvent.phases[0].splash_image.file.slice(1).replace(/\//g, '_') + '.png';
 

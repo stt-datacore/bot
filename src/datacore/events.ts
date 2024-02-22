@@ -1,4 +1,5 @@
 import { Icon } from "./game-elements"
+import { Schematics } from "./ship"
 
 export interface EventLeaderboard {
   instance_id: number
@@ -30,6 +31,7 @@ export interface IEventData {
 	image: string;
 	bonus: string[];	/* ALL bonus crew by symbol */
 	featured: string[];	/* ONLY featured crew by symbol */
+  ships: Schematics[];
 	bonusGuessed?: boolean;
   startDate?: Date;
   endDate?: Date;
