@@ -37,7 +37,7 @@ class DCDataClass {
 		this._reloadData(path.join(datacore_path, 'event_instances.json'));
 	}
 
-	private _reloadData(filePath: string) {
+	private _reloadData(filePath: string) {		
 		if (filePath.endsWith('.json') || filePath.endsWith("cadet_episodes.txt")) {
 			console.log(`File ${filePath} has been changed`);
 			let parsedData = undefined;
@@ -49,6 +49,7 @@ class DCDataClass {
 			}
 
 			if (filePath.endsWith('items.json')) {
+				this._procCadet = false;
 				this._items = parsedData;
 			} else if (filePath.endsWith('quests.json')) {
 				this._quests = parsedData;
@@ -57,6 +58,7 @@ class DCDataClass {
 			} else if (filePath.endsWith('ship_schematics.json')) {
 				this._schematics = parsedData;
 			} else if (filePath.endsWith('cadet_episodes.txt')) {
+				this._procCadet = false;
 				this._cadet = parsedData;
 			} else if (filePath.endsWith('crew.json')) {
 				this._rawCrew = parsedData;
@@ -306,6 +308,10 @@ class DCDataClass {
 	}
 
 	public searchItems(searchString: string, rarity: number): Definitions.Item[] | undefined {
+		if (!this._procCadet) {
+			postProcessCadetItems(this._cadet, this._items);
+		}
+		
 		let options = {
 			shouldSort: true,
 			tokenize: true,
