@@ -179,9 +179,10 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 	}
 	
 	let _bc = DCData.getBotCrew();
-	let crew1 = binaryLocateCrew(beholdResult.crew1.symbol, _bc);
-	let crew2 = binaryLocateCrew(beholdResult.crew2.symbol, _bc);
-	let crew3 = binaryLocateCrew(beholdResult.crew3.symbol, _bc);
+
+	let crew1 = _bc.find(f => f.symbol === beholdResult.crew1.symbol);
+	let crew2 = _bc.find(f => f.symbol === beholdResult.crew2.symbol);
+	let crew3 = _bc.find(f => f.symbol === beholdResult.crew3.symbol);
 
 	if (!crew1 || !crew2 || !crew3) {
 		if (fromCommand) {
@@ -223,27 +224,46 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 				crew2 = applyCrew(crew2, profile.buffConfig);
 				crew3 = applyCrew(crew3, profile.buffConfig);
 
-				let bcrew = [crew1, crew2, crew3];
+				const bcrew = [crew1, crew2, crew3];
 
 				let found = [1, 1, 1];
 				let i = 0;
 
 				for (let bc of bcrew) {
-					let pidx = profile.crew.findIndex(crew => bc.archetype_id === crew.id);
-					if (pidx !== -1) {
-						let entry = profile.crew[pidx];
-						if (entry.rarity && entry.rarity < bcrew[i].max_rarity) {
+					let filter = profile.crew.filter(crew => bc.archetype_id === crew.id);
+					if (filter?.length) {
+						if (filter.length > 1) {
+							filter.sort((a, b) => {
+								if (a.rarity !== undefined && b.rarity !== undefined) {
+									return b.rarity - a.rarity;
+								}
+								else if (a.rarity !== undefined) {
+									return -1;
+								}
+								else if (b.rarity !== undefined) {
+									return 1;
+								}
+								else {
+									return 0;
+								}
+							});
+						}
+
+						let entry = filter[0];						
+						beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
+						
+						if (entry.rarity !== undefined && entry.rarity < bcrew[i].max_rarity) {
 							entry.rarity++;
+							beholdResult["crew" + (i + 1).toString()].stars++;
 							found[i] = entry.rarity;
 						}
-						
-						if (!beholdResult["crew" + (i + 1).toString()].stars) {
-							beholdResult["crew" + (i + 1).toString()].stars = (entry.rarity ?? 1) - 1;
-						}							
 
 						i++;
 						if (i >= 3) break;
-					}	
+					}
+					else {
+						break;
+					}
 				}
 
 				for (let i = 0; i < 3; i++) {
@@ -267,7 +287,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 
 				embed = embed.addFields({
 					name: user.profiles[0].captainName,
-					value: `Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
+					value: `Stats and stars are computed from [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs and crew roster`
 				});
 			}
 		}
