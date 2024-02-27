@@ -252,18 +252,16 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 						let entry = filter[0];						
 						beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
 						
-						if (entry.rarity !== undefined && entry.rarity < bcrew[i].max_rarity) {
+						if (entry.rarity !== undefined && entry.rarity < bc.max_rarity) {
 							entry.rarity++;
 							beholdResult["crew" + (i + 1).toString()].stars++;
 							found[i] = entry.rarity;
 						}
 
-						i++;
-						if (i >= 3) break;
 					}
-					else {
-						break;
-					}
+
+					i++;
+					if (i >= 3) break;
 				}
 
 				for (let i = 0; i < 3; i++) {
