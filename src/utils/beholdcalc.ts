@@ -287,7 +287,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 
 				embed = embed.addFields({
 					name: user.profiles[0].captainName,
-					value: `Stats and stars are computed from [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs and crew roster`
+					value: `Stats and stars are computed from [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs and crew roster.`
 				});
 			}
 		}
