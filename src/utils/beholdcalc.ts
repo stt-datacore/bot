@@ -315,20 +315,25 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		.addFields({ name: crew3.name, value: formatCrewField(message, crew3, beholdResult.crew3.stars, customranks[2], crew3.collections)})
 		.addFields({ name: "Collections", value: formatCollections(crew3.collections)})
 
-		if (isStale) {
-			embed = embed.setFooter({
-				text: `**Your profile data is ${days} old!** Make sure to re-upload your profile frequently to get accurate custom recommendations`
-			});
+		embed = embed.setFooter({
+			text: customranks[0]
+				? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
+				: `Upload your profile to get custom recommendations`
+		});
+
+		// if (isStale) {
+		// 	embed = embed.setFooter({
+		// 		text: `**Your profile data is ${days} old!** Make sure to re-upload your profile frequently to get accurate custom recommendations`
+		// 	});
 	
-		}
-		else {
-			embed = embed.setFooter({
-				text: customranks[0]
-					? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
-					: `Upload your profile to get custom recommendations`
-			});
-	
-		}
+		// }
+		// else {
+		// 	embed = embed.setFooter({
+		// 		text: customranks[0]
+		// 			? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
+		// 			: `Upload your profile to get custom recommendations`
+		// 	});
+		// }
 
 	sendAndCache(message, '', {embeds: [embed]});
 
