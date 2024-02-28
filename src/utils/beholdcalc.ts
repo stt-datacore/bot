@@ -180,9 +180,13 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 	
 	let _bc = DCData.getBotCrew();
 
-	let crew1 = _bc.find(f => f.symbol === beholdResult.crew1.symbol);
-	let crew2 = _bc.find(f => f.symbol === beholdResult.crew2.symbol);
-	let crew3 = _bc.find(f => f.symbol === beholdResult.crew3.symbol);
+	let crew1 = binaryLocateCrew(beholdResult.crew1.symbol, _bc);
+	let crew2 = binaryLocateCrew(beholdResult.crew2.symbol, _bc);
+	let crew3 = binaryLocateCrew(beholdResult.crew3.symbol, _bc);
+
+	// let crew1 = _bc.find(f => f.symbol === beholdResult.crew1.symbol);
+	// let crew2 = _bc.find(f => f.symbol === beholdResult.crew2.symbol);
+	// let crew3 = _bc.find(f => f.symbol === beholdResult.crew3.symbol);
 
 	if (!crew1 || !crew2 || !crew3) {
 		if (fromCommand) {
@@ -210,14 +214,16 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		.setURL(`${CONFIG.DATACORE_URL}behold/?crew=${crew1.symbol}&crew=${crew2.symbol}&crew=${crew3.symbol}`);
 
 	let customranks = ['', '', ''];
-	if (!base) {
-		let user = await userFromMessage(message);
-		if (user && user.profiles.length > 0) {
-			// Apply personalization
+	const staleDate = new Date();
+	staleDate.setDate(staleDate.getDate() - 7);
 
-			// TODO: multiple profiles
-			let profile = await loadProfile(user.profiles[0].dbid);
-			if (profile) {
+	if (!base) {
+		let user = await userFromMessage(message);		
+		if (user && user.profiles.length > 0) {
+			// Apply personalization			
+			let profile = await loadProfile(user.profiles[0].dbid);			
+			
+			if (profile && (profile.lastUpdate.getTime() > staleDate.getTime())) {
 				profile.crew.sort((a, b) => a.id - b.id);
 
 				crew1 = applyCrew(crew1, profile.buffConfig);
@@ -233,9 +239,9 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 					let filter = profile.crew.filter(crew => bc.archetype_id === crew.id);
 					if (filter?.length) {
 						if (filter.length > 1) {
-							filter.sort((a, b) => {
+							filter.sort((a, b) => {								
 								if (a.rarity !== undefined && b.rarity !== undefined) {
-									return b.rarity - a.rarity;
+									return a.rarity - b.rarity;
 								}
 								else if (a.rarity !== undefined) {
 									return -1;
@@ -253,11 +259,8 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 						beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
 						
 						if (entry.rarity !== undefined && entry.rarity < bc.max_rarity) {
-							entry.rarity++;
-							beholdResult["crew" + (i + 1).toString()].stars++;
 							found[i] = entry.rarity;
 						}
-
 					}
 
 					i++;
