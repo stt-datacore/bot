@@ -2,7 +2,7 @@ import { Message, Embed, EmbedBuilder } from 'discord.js';
 
 import { DCData } from '../data/DCData';
 import { formatStatLine, formatCrewCoolRanks, colorFromRarity, formatTrait, actionAbilityoString } from './crew';
-import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, loadFullProfile } from './profile';
+import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, loadFullProfile, toTimestamp } from './profile';
 import { sendAndCache } from './discord';
 import CONFIG from './config';
 import { PlayerData } from '../datacore/player';
@@ -214,16 +214,20 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		.setURL(`${CONFIG.DATACORE_URL}behold/?crew=${crew1.symbol}&crew=${crew2.symbol}&crew=${crew3.symbol}`);
 
 	let customranks = ['', '', ''];
-	const staleDate = new Date();
-	staleDate.setDate(staleDate.getDate() - 7);
 
+	let isStale = undefined as boolean | undefined;
+	let days = 0;
+	
 	if (!base) {
 		let user = await userFromMessage(message);		
 		if (user && user.profiles.length > 0) {
 			// Apply personalization			
 			let profile = await loadProfile(user.profiles[0].dbid);			
 			
-			if (profile && (profile.lastUpdate.getTime() > staleDate.getTime())) {
+			if (profile) {
+				days = Math.round(((new Date()).getTime() - profile.lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+				if (days > 7) isStale = true;
+
 				profile.crew.sort((a, b) => a.id - b.id);
 
 				crew1 = applyCrew(crew1, profile.buffConfig);
@@ -259,7 +263,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 						beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
 						
 						if (entry.rarity !== undefined && entry.rarity < bc.max_rarity) {
-							found[i] = entry.rarity;
+							found[i] = entry.rarity + 1;
 						}
 					}
 
@@ -288,7 +292,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 
 				embed = embed.addFields({
 					name: user.profiles[0].captainName,
-					value: `Stats and stars are computed from [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs and crew roster.`
+					value: `Stats and stars are computed from [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs and crew roster. (Last updated: ${toTimestamp(profile.lastUpdate)})`
 				});
 			}
 		}
@@ -310,11 +314,21 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		.addFields({ name: "Collections", value: formatCollections(crew2.collections)})
 		.addFields({ name: crew3.name, value: formatCrewField(message, crew3, beholdResult.crew3.stars, customranks[2], crew3.collections)})
 		.addFields({ name: "Collections", value: formatCollections(crew3.collections)})
-		.setFooter({
-			text: customranks[0]
-				? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
-				: `Upload your profile to get custom recommendations`
-		});
+
+		if (isStale) {
+			embed = embed.setFooter({
+				text: `**Your profile data is ${days} old!** Make sure to re-upload your profile frequently to get accurate custom recommendations`
+			});
+	
+		}
+		else {
+			embed = embed.setFooter({
+				text: customranks[0]
+					? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
+					: `Upload your profile to get custom recommendations`
+			});
+	
+		}
 
 	sendAndCache(message, '', {embeds: [embed]});
 
