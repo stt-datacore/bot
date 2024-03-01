@@ -9,6 +9,7 @@ import { sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { Logger } from '../utils';
 import { formatCrewField } from '../utils/beholdcalc';
+import { userFromMessage, loadProfile, loadProfileRoster, ProfileRosterEntry } from '../utils/profile';
 
 
 let OffersCache = new NodeCache({ stdTTL: 600 });
@@ -39,7 +40,7 @@ function getOfferList(offers: any) {
 	return new Set(offers.map((o: any) => o.primary_content[0].title));
 }
 
-async function asyncHandler(message: Message, offer_name?: String) {
+async function asyncHandler(message: Message, offer_name?: String, needed?: boolean) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 	
@@ -84,8 +85,22 @@ async function asyncHandler(message: Message, offer_name?: String) {
 	let remainder = [] as Definitions.BotCrew[];
 	let pricrew = [] as Definitions.BotCrew[];	
 	let part = 1;
+	let roster = [] as ProfileRosterEntry[];
 
-	relevantCrew = relevantCrew.sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime());
+	if (needed){
+		let user = await userFromMessage(message);		
+		if (user && user.profiles.length > 0) {
+			// Apply personalization			
+			let profile = await loadProfile(user.profiles[0].dbid);		
+			if (profile) {
+				roster = loadProfileRoster(profile) ?? [];
+				
+			}
+		}
+	}
+
+	relevantCrew = relevantCrew.sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime())
+		.filter(f => !roster.length || !roster.some(r => r.crew.symbol === f.symbol) || !roster.every(r => (f.symbol === r.crew.symbol && r.rarity >= r.crew.max_rarity) || (f.symbol !== r.crew.symbol)));
 	
 	pricrew = relevantCrew.splice(0, maxOffer);
 	let andmore = relevantCrew.length;		
@@ -130,7 +145,7 @@ async function asyncHandler(message: Message, offer_name?: String) {
 		datafield[datafield.length - 1].value += ", and " + andmore.toString() +" more ...";
 	}
 
-	let content = '';
+	let content = embeds.length ? '' : `No needed crew found in offer '${selectedOffer.primary_content[0].title}'.`;
 	sendAndCache(message, content, { embeds });
 
 	return;
@@ -138,7 +153,7 @@ async function asyncHandler(message: Message, offer_name?: String) {
 
 class Offers implements Definitions.Command {
 	name = 'offers';
-	command = 'offers [offer_name..]';
+	command = 'offers [offer_name..] [--needed true|false]';
 	aliases = ['offer'];
 	describe = 'Lists current offers available in the portal or details of an offer';
 	options = [
@@ -147,19 +162,34 @@ class Offers implements Definitions.Command {
 			type: ApplicationCommandOptionType.String,
 			description: "name of the offer to show details of",
 			required: false,
+		},
+		{
+			name: 'needed',			
+			type: ApplicationCommandOptionType.Boolean,
+			description: "show only crew from offers that are unowned or fusable",
+			required: false,
+			default: false
 		}
 	];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('offer_name', {
 				describe: 'name of the offer to show details of',
+				type: 'string'
+			})
+			.option('needed', {
+				alias: "n",
+				describe: "show only crew from offers that are unowned or fusable",
+				type: 'boolean',
+				default: false
 			});
 	}
 
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
 		let offerName = <string[]>args.offer_name;
-		args.promisedResult = asyncHandler(message, typeof(offerName) === 'object' ? offerName.join(' ') : offerName);
+		let needed = <boolean>(args.needed ?? false);
+		args.promisedResult = asyncHandler(message, typeof(offerName) === 'object' ? offerName.join(' ') : offerName, needed);
 	}
 }
 
