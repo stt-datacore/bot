@@ -88,7 +88,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 class SetDefaultProfile implements Definitions.Command {
 	name = 'setdefault';
 	command = 'setdefault <profile name>' 
-	aliases = [];
+	aliases = ['use'];
 	describe = 'Set your default player profile';
 	options = [
 		{
