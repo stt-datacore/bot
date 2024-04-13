@@ -110,7 +110,7 @@ class SetDefaultProfile implements Definitions.Command {
 		let message = <Message>args.message;
 		let guildConfig = args.guildConfig ? (args.guildConfig as Definitions.GuildConfig) : undefined;
 
-		let verb = args.profile ? (args.profile as string) : undefined;		
+		let verb = (args.profile as string) ?? (args.profilename as string);
 		args.promisedResult = asyncHandler(message, guildConfig, verb);
 	}
 }
