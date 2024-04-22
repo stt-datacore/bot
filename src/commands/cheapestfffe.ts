@@ -22,11 +22,11 @@ async function asyncHandler(
 	message: Message,
 	fuse?: number,
 	skirmish?: boolean,
-	min_rarity?: number,
-	max_rarity?: number
+	min?: number,
+	max?: number
 ) {
-	min_rarity ??= 1;
-	max_rarity ??= 5;
+	const min_rarity = min ?? 1;
+	const max_rarity = max ?? 5;
 
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
