@@ -22,11 +22,11 @@ async function asyncHandler(
 	message: Message,
 	fuse?: number,
 	skirmish?: boolean,
-	min_rarity?: number,
-	max_rarity?: number
+	min?: number,
+	max?: number
 ) {
-	min_rarity ??= 1;
-	max_rarity ??= 5;
+	const min_rarity = min ?? 1;
+	const max_rarity = max ?? 5;
 
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
@@ -38,13 +38,19 @@ async function asyncHandler(
 		return;
 	}
 
-	let crew = DCData.getBotCrew().filter(f => f.max_rarity <= max_rarity && f.max_rarity >= min_rarity);
+	let crew = DCData.getBotCrew();
 	let profileCrew = profile.player.character.crew;
 	let profileItems = profile.player.character.items;
 	const needs = {} as { [key: string]: { demands: IDemand[], craftCost: number } };
 	const sources = {} as { [key: string]: Definitions.ItemSource[] };
 
-	let candidatesForImmortalisation = profileCrew.filter((c: any) => {
+	let candidatesForImmortalisation = profileCrew.filter((c: any) => {	
+		let findcrew = binaryLocateSymbol(c.symbol, crew);
+		
+		if (findcrew?.max_rarity) {
+			if (findcrew.max_rarity > max_rarity || findcrew.max_rarity < min_rarity) return false;
+		}
+
 		if (c.level >= 90) {			
 			if (c.equipment.length === 4) return false;
 			let needed = getNeededItems(c.symbol, 90, c.level, skirmish);
@@ -60,8 +66,6 @@ async function asyncHandler(
 			}
 			needs[c.symbol] = needed;
 		}
-		
-		let findcrew = binaryLocateSymbol(c.symbol, crew);
 
 		if (!fuse) {		
 			if (c.rarity === findcrew?.max_rarity) {
@@ -307,14 +311,14 @@ class CheapestFFFE implements Definitions.Command {
 		if (typeof args.max_rarity === 'string') {
 			max = Number(args.max_rarity);
 		}
-		else {
+		else if (typeof args.max_rarity === 'number') {
 			max = args.max_rarity as number;
 		}
 		
 		if (typeof args.min_rarity === 'string') {
 			min = Number(args.min_rarity);
 		}
-		else {
+		else if (typeof args.min_rarity === 'number')  {
 			min = args.min_rarity as number;
 		}
 		
