@@ -21,8 +21,13 @@ function bonusName(bonus: string) {
 async function asyncHandler(
 	message: Message,
 	fuse?: number,
-	skirmish?: boolean
+	skirmish?: boolean,
+	min_rarity?: number,
+	max_rarity?: number
 ) {
+	min_rarity ??= 1;
+	max_rarity ??= 5;
+
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
@@ -33,7 +38,7 @@ async function asyncHandler(
 		return;
 	}
 
-	let crew = DCData.getBotCrew();
+	let crew = DCData.getBotCrew().filter(f => f.max_rarity <= max_rarity && f.max_rarity >= min_rarity);
 	let profileCrew = profile.player.character.crew;
 	let profileItems = profile.player.character.items;
 	const needs = {} as { [key: string]: { demands: IDemand[], craftCost: number } };
@@ -235,6 +240,34 @@ class CheapestFFFE implements Definitions.Command {
 			description: 'optimize for skirmish (ship battles and faction missions, only)',
 			required: false,
 			default: false
+		},
+		{
+			name: 'max_rarity',
+			type: ApplicationCommandOptionType.Integer,
+			description: 'display crew up to this rarity',
+			required: false,
+			default: 5,
+			choices: [
+				{ name: '1', value: 1 },
+				{ name: '2', value: 2 },
+				{ name: '3', value: 3 },
+				{ name: '4', value: 4 },
+				{ name: '5', value: 5 },
+			]
+		},
+		{
+			name: 'min_rarity',
+			type: ApplicationCommandOptionType.Number,
+			description: 'display crew down to this rarity',
+			required: false,
+			default: 1,
+			choices: [
+				{ name: '1', value: 1 },
+				{ name: '2', value: 2 },
+				{ name: '3', value: 3 },
+				{ name: '4', value: 4 },
+				{ name: '5', value: 5 },
+			]
 		}]
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp.option('fuseneed', {
@@ -245,6 +278,14 @@ class CheapestFFFE implements Definitions.Command {
 			alias: 's',
 			desc: 'optimize for skirmish (ship battles and faction missions, only)',
 			type: 'boolean'
+		}).option('max_rarity', {
+			alias: 'max',
+			desc: 'display crew up to this rarity',
+			type: 'number'
+		}).option('min_rarity', {
+			alias: 'min',
+			desc: 'display crew down to this rarity',
+			type: 'number'
 		});
 	}
 
@@ -252,14 +293,32 @@ class CheapestFFFE implements Definitions.Command {
 		let message = <Message>args.message;
 		let fuse = args.fuseneed as number;
 		let skirmish = false;
+		
+		let max = 5;
+		let min = 1;
+
 		if (typeof args.skirmish === 'string') {
 			skirmish = args.skirmish.trim().toLowerCase() === 'true';
 		}
 		else if (typeof args.skirmish === 'boolean') {
 			skirmish = args.skirmish;
 		}
+
+		if (typeof args.max_rarity === 'string') {
+			max = Number(args.max_rarity);
+		}
+		else {
+			max = args.max_rarity as number;
+		}
 		
-		args.promisedResult = asyncHandler(message, fuse, skirmish);
+		if (typeof args.min_rarity === 'string') {
+			min = Number(args.min_rarity);
+		}
+		else {
+			min = args.min_rarity as number;
+		}
+		
+		args.promisedResult = asyncHandler(message, fuse, skirmish, min, max);
 	}
 }
 
