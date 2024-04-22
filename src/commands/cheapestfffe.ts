@@ -307,14 +307,14 @@ class CheapestFFFE implements Definitions.Command {
 		if (typeof args.max_rarity === 'string') {
 			max = Number(args.max_rarity);
 		}
-		else {
+		else if (typeof args.max_rarity === 'number') {
 			max = args.max_rarity as number;
 		}
 		
 		if (typeof args.min_rarity === 'string') {
 			min = Number(args.min_rarity);
 		}
-		else {
+		else if (typeof args.min_rarity === 'number')  {
 			min = args.min_rarity as number;
 		}
 		
