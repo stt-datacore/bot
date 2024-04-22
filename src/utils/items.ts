@@ -296,16 +296,15 @@ export function binaryLocateNumber(search: number, items: any[], prop: string): 
 
 
 export function binaryLocateSymbol<T extends ISymbol>(symbol: string, source: T[]) {
-	return binaryLocateString(symbol, source, "symbol", false);
+	return binaryLocateString(symbol, source, "symbol", false) as T | undefined;
 }
 
 export function binaryLocateCrew<T extends Definitions.BotCrew>(symbol: string, source: T[]): Definitions.BotCrew | undefined {
-	return binaryLocateString(symbol, source, "symbol", false) as Definitions.BotCrew | undefined;
-	
+	return binaryLocateString(symbol, source, "symbol", false) as Definitions.BotCrew | undefined;	
 }
 
 export function binaryLocateName<T extends IName>(symbol: string, source: T[]) {
-	return binaryLocateString(symbol, source, "name", true);
+	return binaryLocateString(symbol, source, "name", true) as T | undefined;
 }
 
 export function binaryLocateId<T extends IId>(id: number, source: T[]) {

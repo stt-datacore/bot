@@ -38,13 +38,19 @@ async function asyncHandler(
 		return;
 	}
 
-	let crew = DCData.getBotCrew().filter(f => f.max_rarity <= max_rarity && f.max_rarity >= min_rarity);
+	let crew = DCData.getBotCrew();
 	let profileCrew = profile.player.character.crew;
 	let profileItems = profile.player.character.items;
 	const needs = {} as { [key: string]: { demands: IDemand[], craftCost: number } };
 	const sources = {} as { [key: string]: Definitions.ItemSource[] };
 
-	let candidatesForImmortalisation = profileCrew.filter((c: any) => {
+	let candidatesForImmortalisation = profileCrew.filter((c: any) => {	
+		let findcrew = binaryLocateSymbol(c.symbol, crew);
+		
+		if (findcrew?.max_rarity) {
+			if (findcrew.max_rarity > max_rarity || findcrew.max_rarity < min_rarity) return false;
+		}
+
 		if (c.level >= 90) {			
 			if (c.equipment.length === 4) return false;
 			let needed = getNeededItems(c.symbol, 90, c.level, skirmish);
@@ -60,8 +66,6 @@ async function asyncHandler(
 			}
 			needs[c.symbol] = needed;
 		}
-		
-		let findcrew = binaryLocateSymbol(c.symbol, crew);
 
 		if (!fuse) {		
 			if (c.rarity === findcrew?.max_rarity) {
