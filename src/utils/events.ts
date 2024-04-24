@@ -1,7 +1,7 @@
 
 import { DCData } from '../data/DCData';
 import { IEventData } from '../datacore/events';
-import { Content, GameEvent, Shuttle } from '../datacore/player';
+import { Content, GameEvent, PlayerData, Shuttle } from '../datacore/player';
 import fs from 'fs';
 
 export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCrew[]): IEventData | undefined {
@@ -14,22 +14,15 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 	result.seconds_to_start = activeEvent.seconds_to_start;
 	result.seconds_to_end = activeEvent.seconds_to_end;
     
-	let types = [] as string[];
-    
-    if (activeEvent.rules.includes("Faction")) types.push("Faction");;
-    if (activeEvent.rules.includes("Skirmish")) types.push("Skirmish");
-	if (activeEvent.rules.includes("Supply")) types.push("Galaxy");
-	
-	if (types.length === 2) {
-		let atype = types[0] === 'Galaxy' ? 'Supply' : types[0];
-		let btype = types[1] === 'Galaxy' ? 'Supply' : types[1];
-		let a = activeEvent.rules.indexOf(atype);
-		let b = activeEvent.rules.indexOf(btype);
-		if (b < a) {
-			types = [ types[1], types[0] ];
-		}
-	}
-	result.type = types.join("/");
+	const typemap = {
+		"gather": "Galaxy",
+		"skirmish": "Skirmish",
+		"shuttles": "Faction"
+	} as { [key: string]: string };
+
+	const types = activeEvent.content_types.map(c => typemap[c]);
+	result.type = [ ...new Set(types)].join("/");
+
 	if (types.includes("Skirmish")) {
 		let rex = new RegExp(/.+Using (.+), (.+), or (.+) will provide a hull.+/);
 		let matches = rex.exec(activeEvent.rules);
@@ -162,9 +155,17 @@ function getCurrentStartEndTimes(): { start: number, end: number, startTime: Dat
 	return { start, end, startTime, endTime };
 }
 
-export function getRecentEvents(allCrew: Definitions.BotCrew[], allEvents: Definitions.EventInstance[]): IEventData[] {
+export function getRecentEvents(allCrew: Definitions.BotCrew[], allEvents: Definitions.EventInstance[], profileData?: PlayerData): IEventData[] {
 	const recentEvents = [] as IEventData[];
 
+	if (profileData?.player.character.events?.length) {
+		profileData?.player.character.events.forEach((event) => {
+			let pevent = getEventData(event, allCrew);
+			if (pevent) {
+				recentEvents.push(pevent);
+			}
+		})
+	}
 	const { start, end, startTime, endTime } = getCurrentStartEndTimes();
 	const currentEventId = guessCurrentEventId(allEvents);
 
@@ -188,6 +189,15 @@ export function getRecentEvents(allCrew: Definitions.BotCrew[], allEvents: Defin
             eventData.startDate = new Date(startTime.getTime() + (1000 * 24 * 60 * 60 * 7));
 			eventData.endDate = new Date(endTime.getTime() + (1000 * 24 * 60 * 60 * 7));
         }
+		// if ("discovered" in json) {
+		// 	let d = new Date(json['discovered']);
+		// 	if ((new Date()).getTime() - d.getTime() < (7 * 24 * 60 * 60 * 1000) && d.getDay() < 4) {
+		// 		recentEvents.push(eventData);
+		// 		index++;
+		// 		if (eventId === currentEventId) break;
+		// 		continue;
+		// 	}
+		// }
 		recentEvents.unshift(eventData);
 		index++;
 		if (eventId === currentEventId) break;
