@@ -7,6 +7,7 @@ import { getRecentEvents } from '../utils/events';
 import { Schematics } from '../datacore/ship';
 import { Mission } from '../datacore/missions';
 import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../utils/items';
+import { PlayerData } from 'src/datacore/player';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;
@@ -92,14 +93,14 @@ class DCDataClass {
 		}
 	}
 
-	public refreshEvents() {
-		this._recentEvents = getRecentEvents(this._rawCrew, this._allEvents);
+	public refreshEvents(profileData?: PlayerData) {
+		this._recentEvents = getRecentEvents(this._rawCrew, this._allEvents, profileData);
 		this._refreshHour = (new Date()).getHours();
 	}
 
-	public getEvents() {
+	public getEvents(profileData?: PlayerData) {
 		if (this._refreshHour !== (new Date()).getHours()) {
-			this.refreshEvents();
+			this.refreshEvents(profileData);
 		}
 		
 		return this._recentEvents;

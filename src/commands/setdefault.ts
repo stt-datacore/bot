@@ -22,6 +22,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 			message,
 			`You don't currently have a profile set up. Upload your profile at ${CONFIG.DATACORE_URL}voyage and use the **associate** command to link it.`
 		);
+		return;
 	} else {
 		if (profileName) {
 			let profiles = [] as PlayerData[];
