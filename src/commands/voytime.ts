@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { ApplicationCommandOptionType, Message } from 'discord.js';
 import yargs from 'yargs';
 
 import { voyCalc, formatVoyageReply } from '../utils/voyage';
@@ -9,6 +9,51 @@ class VoyTime implements Definitions.Command {
 	command = 'voytime <primary> <secondary> <skill3> <skill4> <skill5> <skill6> [antimmatter]';
 	aliases = [];
 	describe = 'Estimates the length of a voyage';
+	// options = [
+	// 	{
+	// 		name: "primary",
+	// 		type: ApplicationCommandOptionType.Number,
+	// 		description: 'value of the primary skill',
+	// 		required: true
+	// 	},
+	// 	{
+	// 		name: "secondary",
+	// 		type: ApplicationCommandOptionType.Number,
+	// 		description: 'value of the secondary skill',
+	// 		required: true
+	// 	},
+	// 	{
+	// 		name: "skill3",
+	// 		type: ApplicationCommandOptionType.Number,
+	// 		description: 'value of a tertiary skill',
+	// 		required: true
+	// 	},
+	// 	{
+	// 		name: "skill4",
+	// 		type: ApplicationCommandOptionType.Number,
+	// 		description: 'value of a tertiary skill',
+	// 		required: true
+	// 	},
+	// 	{
+	// 		name: "skill5",
+	// 		type: ApplicationCommandOptionType.Number,
+	// 		description: 'value of a tertiary skill',
+	// 		required: true
+	// 	},
+	// 	{
+	// 		name: "skill6",
+	// 		type: ApplicationCommandOptionType.Number,
+	// 		description: 'value of a tertiary skill',
+	// 		required: true
+	// 	},
+	// 	{
+	// 		name: "antimmatter",
+	// 		type: ApplicationCommandOptionType.Number,
+	// 		description: 'the antimatter (including bonuses) at start of voyage',
+	// 		required: false,
+	// 		default: 2500
+	// 	}
+	// ];
 	builder(yp: yargs.Argv): yargs.Argv {
 		return yp
 			.positional('primary', {
