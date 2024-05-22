@@ -74,8 +74,10 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 		return;
 	}
 
+	let split = (selectedOffer.primary_content[0].info_text as string).split("<b>").map((sp: string) => sp.replace(/<\/b>.*/, '').replace(/\n.*/g, '').trim());
+
 	let relevantCrew = DCData.getBotCrew()
-		.filter(crew => selectedOffer.primary_content[0].info_text.indexOf(`>${crew.name}<`) !== -1);
+		.filter(crew => split.includes(crew.name));
 	if (relevantCrew.length === 0) {
 		sendAndCache(message, `Could not find any crew for offer ${selectedOffer.primary_content[0].title}`)
 		return;
