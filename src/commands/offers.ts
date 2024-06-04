@@ -74,7 +74,7 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 		return;
 	}
 
-	let split = (selectedOffer.primary_content[0].info_text as string).split("<b>").map((sp: string) => sp.replace(/<\/b>.*/, '').replace(/\n.*/g, '').trim());
+	let split = (selectedOffer.primary_content[0].info_text as string).split(/\<[#A-Fa-f0-9]+\>/).map(sp => sp.replace(/\<\/[#A-Za-z0-9]+\>.*/, '').replace(/\n.*/g, '').trim());
 
 	let relevantCrew = DCData.getBotCrew()
 		.filter(crew => split.includes(crew.name));
