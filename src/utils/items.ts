@@ -114,11 +114,11 @@ function formatQuestName(quest: any, long: boolean): string {
 	}
 
 	if (quest.mission.episode > 0) {
-		return `${quest.name} (EP ${quest.mission.episode} - ${quest.mission.episode_title})`;
+		return `(EP **${quest.mission.episode}** - ${quest.mission.episode_title}) -> ${quest.index ? `(**${quest.index}**) ` : ''}${quest.name}`;
 	} else if (quest.mission.cadet) {
-		return `${quest.name} (CADET ${quest.mission.episode_title})`;
+		return `(CADET **${quest.mission.episode_title}**) -> ${quest.index ? `(**${quest.index}**) ` : ''}${quest.name}`;
 	} else {
-		return `${quest.name} (${quest.mission.episode_title})`;
+		return `(${quest.mission.episode_title}) -> ${quest.index ? `(**${quest.index}**) ` : ''}${quest.name}`;
 	}
 }
 
