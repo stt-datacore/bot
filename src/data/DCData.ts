@@ -5,14 +5,14 @@ import Fuse from 'fuse.js';
 import { IEventData } from '../datacore/events';
 import { getRecentEvents } from '../utils/events';
 import { Schematics } from '../datacore/ship';
-import { Mission } from '../datacore/missions';
+import { Mission, Quest } from '../datacore/missions';
 import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../utils/items';
 import { PlayerData } from 'src/datacore/player';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;
 	private _items: Definitions.Item[] = [];
-	private _quests: Mission[] = [];
+	private _missions: Quest[] = [];
 	private _dilemmas: any[] = [];
 	private _rawCrew: Definitions.BotCrew[] = [];
 	private _rawCrewByName: Definitions.BotCrew[] = [];
@@ -53,7 +53,8 @@ class DCDataClass {
 				this._procCadet = false;
 				this._items = parsedData;
 			} else if (filePath.endsWith('quests.json')) {
-				this._quests = parsedData;
+				this._missions = parsedData;
+				this.organizeMissions(path.dirname(filePath));		
 			} else if (filePath.endsWith('dilemmas.json')) {
 				this._dilemmas = parsedData;
 			} else if (filePath.endsWith('ship_schematics.json')) {
@@ -91,6 +92,37 @@ class DCDataClass {
 				this._procCadet = true;
 			}
 		}
+	}
+
+	private organizeMissions(datacore_path: string) {
+		console.log("Indexing missions and quests...");
+		let missions = JSON.parse(fs.readFileSync(path.join(datacore_path, 'episodes.json'), 'utf-8')) as Mission[];		
+		let mhash = {} as { [key: string]: any[] };
+
+		this._missions.forEach((quest) => {
+			let id = (quest as any).mission.episode_title;
+			mhash[id] ??= [];
+			mhash[id].push(quest as any);
+		});
+		
+		Object.entries(mhash).forEach(([episode, quests]) => {			
+			let tempquests = [] as any[];
+			let fmission = missions.find(f => f.episode_title === episode || f.name === episode);
+			if (fmission) {
+				let miss_quests = fmission.quests.filter(q => q.quest_type !== 'NarrativeQuest');
+				for (let quest of quests) {
+					if (quest.quest_type !== 'NarrativeQuest') {
+						quest.index = miss_quests.findIndex(f => f.id.toString() === quest.id.toString()) + 1;
+						tempquests.push(quest);
+					}
+				}	
+				tempquests.sort((a, b) => a.index - b.index)			
+				if (tempquests.length > 1 && tempquests[0].mission.episode > 0) {
+					tempquests[tempquests.length - 1].index = tempquests[tempquests.length - 2].index;
+				}
+			}
+		});
+		missions.length = 0;
 	}
 
 	public refreshEvents(profileData?: PlayerData) {
@@ -142,7 +174,7 @@ class DCDataClass {
 	}
 
 	public questBySymbol(symbol: string): any {
-		return this._quests.find((q: any) => q.symbol === symbol) ?? this._cadet.find((q: any) => q.symbol === symbol);
+		return this._missions.find((q: any) => q.symbol === symbol) ?? this._cadet.find((q: any) => q.symbol === symbol);		
 	}
 
 	public itemBySymbol(symbol: string): any {
