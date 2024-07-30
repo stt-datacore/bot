@@ -151,6 +151,7 @@ async function asyncHandler(
 				}				
 			}
 			else {
+				if (!reply) reply = `No item sources found for '${item.rarity}* ${item.name}'`;
 				sendAndCache(message, reply);
 			}
 			

@@ -74,8 +74,10 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 		return;
 	}
 
+	let split = (selectedOffer.primary_content[0].info_text as string).split(/\<[#A-Fa-f0-9]+\>/).map(sp => sp.replace(/\<\/[#A-Za-z0-9]+\>.*/, '').replace(/\n.*/g, '').trim());
+
 	let relevantCrew = DCData.getBotCrew()
-		.filter(crew => selectedOffer.primary_content[0].info_text.indexOf(`>${crew.name}<`) !== -1);
+		.filter(crew => split.includes(crew.name));
 	if (relevantCrew.length === 0) {
 		sendAndCache(message, `Could not find any crew for offer ${selectedOffer.primary_content[0].title}`)
 		return;
@@ -102,6 +104,7 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 	relevantCrew = relevantCrew.sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime())
 		.filter(f => !roster.length || !roster.some(r => r.crew.symbol === f.symbol) || !roster.every(r => (f.symbol === r.crew.symbol && r.rarity >= r.crew.max_rarity) || (f.symbol !== r.crew.symbol)));
 	
+	let relevantRoster = roster.filter(f => relevantCrew.some(crew => crew.symbol === f.crew.symbol));
 	pricrew = relevantCrew.splice(0, maxOffer);
 	let andmore = relevantCrew.length;		
 	relevantCrew = relevantCrew.splice(0, 20);
@@ -113,7 +116,9 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 			.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title} (Part ${part++})`)
 			.setURL(`${CONFIG.DATACORE_URL}crew/${pricrew[0].symbol}`);
 		pricrew.splice(0, 1).forEach((crew) => {
-			embed.addFields({ name: crew.name, value: formatCrewField(message, crew, crew.max_rarity, '', crew?.collections ?? []) });
+			let rostcrew = relevantRoster.find(f => f.crew.symbol === crew.symbol);
+			
+			embed.addFields({ name: crew.name, value: formatCrewField(message, crew, rostcrew ? rostcrew.rarity + 1 : crew.max_rarity, '', crew?.collections ?? []) });
 		});		
 		
 		embeds.push(embed);

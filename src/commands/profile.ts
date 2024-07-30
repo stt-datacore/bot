@@ -48,6 +48,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 			message,
 			`You don't currently have a profile set up. Upload your profile at ${CONFIG.DATACORE_URL}voyage and use the **associate** command to link it.`
 		);
+		return;
 	} else {
 		let defaultReply = true;
 		if (verb && verb.toLowerCase() === 'refresh') {
@@ -208,7 +209,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						}
 	
 						if (eventReply) {
-							let event = DCData.getEvents()[0];
+							let event = DCData.getEvents(profileData as PlayerData)[0];
 							let allCrew = DCData.getBotCrew();
 
 							if (event.startDate && event.startDate < new Date()) {

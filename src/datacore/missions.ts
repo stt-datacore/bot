@@ -20,6 +20,8 @@ export interface Mission {
   cadet?: boolean
   name?: string
   faction_id?: number
+  index?: number
+  quest_type?: string;
 }
 
 export interface Quest {
@@ -52,6 +54,7 @@ export interface Quest {
   screens?: MissionScreen[]
   compiled_paths?: string[]
   unlock_text?: string
+  index?: number;
 }
 
 export interface MissionIntro {

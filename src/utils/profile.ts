@@ -217,7 +217,7 @@ export async function associateUser(userDB: User, dbid: string, access_token?: s
 	let profileDB = await Profile.findOne({ where: { dbid: `${dbid}` }, include: [User] });
 	if (!profileDB) {
 		return {
-			error: `DBID not found. Make sure you uploaded the profile for the correct account at ${CONFIG.DATACORE_URL}playertools `
+			error: `DBID not found. Make sure you uploaded the profile for the correct account at ${CONFIG.DATACORE_URL} `
 		};
 	}
 
