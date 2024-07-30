@@ -13,7 +13,7 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 	result.content_types = activeEvent.content_types;
 	result.seconds_to_start = activeEvent.seconds_to_start;
 	result.seconds_to_end = activeEvent.seconds_to_end;
-    
+
 	const typemap = {
 		"gather": "Galaxy",
 		"skirmish": "Skirmish",
@@ -103,7 +103,7 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 function guessCurrentEventId(allEvents: Definitions.EventInstance[]): number {
 	const easternTime = new Date((new Date()).toLocaleString('en-US', { timeZone: 'America/New_York' }));
 	const estDay = easternTime.getDay(), estHour = easternTime.getHours();
-	
+
 	// Use penultimate event instance if current time is:
 	//	>= Wednesday Noon ET (approx time when game data is updated with next week's event)
 	//		and < Monday Noon ET (when event ends)
@@ -172,7 +172,13 @@ export function getRecentEvents(allCrew: Definitions.BotCrew[], allEvents: Defin
 	let index = 1;
 	while (recentEvents.length < 2) {
 		const eventId = allEvents[allEvents.length-index].instance_id;
-		const response = fs.readFileSync(process.env.DC_DATA_PATH! + '/events/'+eventId+'.json', 'utf8');
+		const eventFile = process.env.DC_DATA_PATH! + 'events/'+eventId+'.json';
+		if (!fs.existsSync(eventFile)) {
+			console.log(`Event file '${eventFile}' not found! Aborting recent event mapping.`);
+			break;
+		}
+
+		const response = fs.readFileSync(eventFile, 'utf8');
 		const json = JSON.parse(response);
 		const eventData = getEventData(json, allCrew) as IEventData;
 		if (eventId === currentEventId) {
