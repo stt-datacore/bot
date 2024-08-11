@@ -64,7 +64,7 @@ function addAuthorNotes(crew: Definitions.BotCrew, embed: EmbedBuilder) {
 			value: toTimestamp(new Date(crew.markdownInfo.modified), 'd'),
 			inline: true
 		});
-	}	
+	}
 	return embed;
 }
 
@@ -148,9 +148,9 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		if (crew.cab_ov) {
-			embed = embed.addFields({ name: 'CAB Grade', value: `[${crew.cab_ov_grade}](https://sttpowerratings.com/)`, inline: true });
-			embed = embed.addFields({ name: 'CAB Rating', value: `[${crew.cab_ov}](https://sttpowerratings.com/)`, inline: true });
-			embed = embed.addFields({ name: 'CAB Rank', value: `[${crew.cab_ov_rank}](https://sttpowerratings.com/)`, inline: true });
+			embed = embed.addFields({ name: 'CAB Grade', value: `[${crew.cab_ov_grade}](https://cabtools.app/)`, inline: true });
+			embed = embed.addFields({ name: 'CAB Rating', value: `[${crew.cab_ov}](https://cabtools.app/)`, inline: true });
+			embed = embed.addFields({ name: 'CAB Rank', value: `[${crew.cab_ov_rank}](https://cabtools.app/)`, inline: true });
 		}
 
 		if (crew.collections && crew.collections.length > 0) {
@@ -183,12 +183,12 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 			embed = embed.addFields({ name: 'Ship Abilities', value: shipAbilities });
 		}
-		
+
 		let mdContent = crew.markdownContent;
 		mdContent += `\n\n[More at Bigbook.app](https://www.bigbook.app/crew/${crew.symbol})`;
-		
+
 		if (extended && mdContent && mdContent.length < 980) {
-			embed = embed.addFields({ name: 'Big Book note', value: mdContent });			
+			embed = embed.addFields({ name: 'Big Book note', value: mdContent });
 			embed = addAuthorNotes(crew, embed);
 		}
 
@@ -229,22 +229,22 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 							n++;
 						}
 						markdown += markdownChunks[i];
-					}					
+					}
 
 					if (!markdown?.length) break;
-				
+
 					let embed = new EmbedBuilder()
 						.setTitle(`Big Book note for ${crew.name}, Part ${p++}`)
 						.setColor(colorFromRarity(crew.max_rarity))
 						.setURL(`https://www.bigbook.app/crew/${crew.symbol}/`)
 						.setDescription(markdown);
 					embeds.push(embed);
-					
+
 					markdownChunks.splice(0, i);
 					markdown = "";
 					n = 0;
 				}
-				
+
 				if (embeds.length === 1) {
 					embeds[0] = embeds[0].setTitle(`Big Book note for ${crew.name}`);
 				}
