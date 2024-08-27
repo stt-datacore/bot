@@ -10,6 +10,8 @@ import { executeGetRequest } from './sttapi';
 import { Logger } from '../utils';
 import { stripPlayerData } from './playerutils';
 import { discordUserFromMessage } from './discord';
+import { PlayerCrew, PlayerData, StoredImmortal } from 'src/datacore/player';
+import { CrewMember } from 'src/datacore/crew';
 
 export interface ProfileCrewEntry {
 	id: number;
@@ -160,7 +162,7 @@ export function loadProfileRoster(profile: ProfileEntry | undefined = undefined)
 }
 
 export async function userFromMessage(message: Message | CommandInteraction) {
-	let id = discordUserFromMessage(message)!.id;	
+	let id = discordUserFromMessage(message)!.id;
 	console.log(`Discord Id: ${id}`);
 	let result = await User.findOne({ where: { discordUserId: `${id}` }, include: [Profile] });
 	if (result?.profiles?.length) {
@@ -183,7 +185,7 @@ export async function userFromMessage(message: Message | CommandInteraction) {
 
 export async function createUserFromMessage(message: Message) {
 	let userDB = await userFromMessage(message);
-	
+
 	if (!userDB) {
 		let id = discordUserFromMessage(message)?.id;
 		if (!id) {
@@ -298,7 +300,7 @@ export async function loadFleet(fleet_id: string): Promise<any> {
 	}
 }
 
-export async function getDbidFromDiscord(username: string, discriminator: string) : Promise<any>{ 
+export async function getDbidFromDiscord(username: string, discriminator: string) : Promise<any>{
 	try {
 		let response = await fetch(`${CONFIG.DATACORE_URL}api/get_dbid_from_discord?username=${username}&discriminator=${discriminator}`);
 		if (response.ok) {
@@ -332,11 +334,23 @@ export async function loadRemoteProfile(dbid: string): Promise<any> {
 }
 
 export function loadFullProfile(dbid: string): any {
-	let profileData = JSON.parse(fs.readFileSync(process.env.PROFILE_DATA_PATH + dbid, 'utf8'));
+	let profileData = JSON.parse(fs.readFileSync(process.env.PROFILE_DATA_PATH + dbid, 'utf8')) as PlayerData;
 	if (profileData && profileData.player.dbid.toString() === dbid) {
 		let stat = fs.statSync(process.env.PROFILE_DATA_PATH + dbid);
 		if (stat?.mtime) {
 			profileData.lastModified = stat.mtime;
+		}
+		let frozen = DCData.getBotCrew().filter(f => profileData.player.character.stored_immortals?.some((si: StoredImmortal) => si.id === f.archetype_id) || profileData.player.character.c_stored_immortals?.includes(f.archetype_id));
+		if (frozen?.length) {
+			frozen.forEach((item: Definitions.BotCrew) => {
+				profileData.player.character.crew.push({
+					...item,
+					skills: item.base_skills,
+					rarity: item.max_rarity,
+					level: 100,
+					immortal: 1
+				} as any as PlayerCrew)
+			});
 		}
 		return profileData;
 	}
