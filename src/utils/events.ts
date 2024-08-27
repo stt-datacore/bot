@@ -17,7 +17,8 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 	const typemap = {
 		"gather": "Galaxy",
 		"skirmish": "Skirmish",
-		"shuttles": "Faction"
+		"shuttles": "Faction",
+		"voyage": "Voyage"
 	} as { [key: string]: string };
 
 	const types = activeEvent.content_types.map(c => typemap[c]);
@@ -35,6 +36,19 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 			result.ships = schematics;
 		}
 	}
+	else if (types.includes("Voyage")) {
+		let rex = new RegExp(/.+Using (.+), (.+), or (.+) will provide a bonus to antimatter.+/);
+		let matches = rex.exec(activeEvent.rules);
+		if (matches) {
+			let ships = [matches[1], matches[2], matches[3]];
+			for (let i in ships) {
+				ships[i] = ships[i].replace("the ", "").replace(" ships", "").replace(" ship", "");
+			}
+			let schematics = DCData.getSchematics().filter(f => f.ship.name && ships.includes(f.ship.name));
+			result.ships = schematics;
+		}
+	}
+
 	// We can get event image more definitively by fetching from events/instance_id.json rather than player data
 	result.image = activeEvent.phases[0].splash_image.file.slice(1).replace(/\//g, '_') + '.png';
 
@@ -87,6 +101,60 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 			});
 		}
 	}
+	else if (activePhase.content_type === 'voyage') {
+		if (activePhase.featured_crews) {
+			for (let i = 0; i < activePhase.featured_crews.length; i++) {
+				let symbol = activePhase.featured_crews[i];
+				if (!result.bonus.includes(symbol)) {
+					result.bonus.push(symbol);
+					result.featured.push(symbol);
+				}
+			}
+		}
+		// Voyages uses activePhase.antimatter_bonus_crew_traits to identify smaller bonus event crew
+		if (activePhase.antimatter_bonus_crew_traits) {
+			activePhase.antimatter_bonus_crew_traits.forEach(trait => {
+				const perfectTraits = allCrew.filter(crew => crew.traits.includes(trait) || crew.traits_hidden.includes(trait));
+				perfectTraits.forEach(crew => {
+					if (!result.bonus.includes(crew.symbol)) {
+						result.bonus.push(crew.symbol);
+					}
+				});
+			});
+		}
+
+		result.bonus_ship ??= [];
+		result.featured_ship ??= [];
+		if (activePhase.featured_ships) {
+			let schematics = DCData.getSchematics().filter(f => activePhase.featured_ships?.includes(f.ship.symbol));
+			result.ships = schematics;
+			for (let i = 0; i < activePhase.featured_ships.length; i++) {
+				let symbol = activePhase.featured_ships[i];
+				if (!result.bonus_ship.includes(symbol)) {
+					result.bonus_ship.push(symbol);
+					result.featured_ship.push(symbol);
+				}
+			}
+		}
+		// Voyages uses activePhase.antimatter_bonus_crew_traits to identify smaller bonus event crew
+		if (activePhase.antimatter_bonus_ship_traits) {
+
+			const allShips = DCData.getSchematics().map(m => m.ship);
+
+			result.bonus_ship_traits = [...activePhase.antimatter_bonus_ship_traits];
+			activePhase.antimatter_bonus_ship_traits.forEach(trait => {
+				const perfectTraits = allShips.filter(ship => ship.traits?.includes(trait) || ship.traits_hidden?.includes(trait));
+				perfectTraits.forEach(crew => {
+					if (!result.bonus_ship?.includes(crew.symbol)) {
+						result.bonus_ship?.push(crew.symbol);
+					}
+				});
+			});
+		}
+
+		result.primary_skill = activePhase.primary_skill;
+		result.secondary_skill = activePhase.secondary_skill;
+	}
 
 	// Guess featured crew when not explicitly listed in event data (e.g. pre-start skirmish or hybrid w/ phase 1 skirmish)
 	if (result.bonus.length === 0) {
@@ -95,7 +163,9 @@ export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCre
 		result.featured = featured;
 		result.bonusGuessed = true;
 	}
-
+	if (result.ships?.length) {
+		result.ships.sort((a, b) => b.ship.antimatter - a.ship.antimatter);
+	}
 	return result;
 }
 
@@ -219,7 +289,7 @@ function guessBonusCrew(activeEvent: GameEvent, allCrew: Definitions.BotCrew[]):
 	// Guess bonus crew from bonus_text
 	//	bonus_text seems to be reliably available, but might be inconsistently written
 	if (activeEvent.bonus_text !== '') {
-		const words = activeEvent.bonus_text.replace('Crew Bonus: ', '').replace(' crew', '').replace(/\sor\s/, ',').split(',').filter(word => word !== '');
+		const words = activeEvent.bonus_text.replace('Crew Bonus: ', '').replace('Bonus: ', '').replace(' crew', '').replace('(Ship/Crew)', '').replace('(Ship)', '').replace('(Crew)', '').replace(/\sor\s/, ',').split(',').filter(word => word !== '');
 		words.forEach(trait => {
 			// Search for exact name first
 			const testName = trait.trim();

@@ -36,4 +36,9 @@ export interface IEventData {
   startDate?: Date;
   endDate?: Date;
   type?: string;
+  bonus_ship?: string[];
+  bonus_ship_traits?: string[];
+  featured_ship?: string[];
+  primary_skill?: string;
+  secondary_skill?: string;
 };

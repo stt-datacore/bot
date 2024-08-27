@@ -185,7 +185,7 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 					let profileData = loadFullProfile(profile.dbid);
 					if (profileData) {
 						let embed = new EmbedBuilder().setTitle(profile.captainName).setColor('DarkGreen');
-	
+
 						if (eventReply) {
 							embed = embed
 								.addFields(
@@ -201,13 +201,13 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 									{ name: 'Level', value: profileData.player.character.level.toString(), inline: true }
 								);
 							}
-	
+
 						embed = embed.addFields({ name: 'Shuttles', value: profileData.player.character.shuttle_bays.toString(), inline: true });
-	
+
 						if (profileData.player.character.crew_avatar && profileData.player.character.crew_avatar?.portrait?.file) {
 							embed = embed.setThumbnail(`${CONFIG.ASSETS_URL}${profileData.player.character.crew_avatar.portrait.file}`);
 						}
-	
+
 						if (eventReply) {
 							let event = DCData.getEvents(profileData as PlayerData)[0];
 							let allCrew = DCData.getBotCrew();
@@ -215,22 +215,22 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 							if (event.startDate && event.startDate < new Date()) {
 								// TODO: No data for upcoming event, error out
 							}
-	
+
 							// let profile = await loadProfile(user.profiles[0].dbid);
 							// let roster = loadProfileRoster(profile);
-	
+
 							let highbonus = (profileData as PlayerData).player.character.crew.filter((entry) => event.featured.includes(entry.symbol)).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
-							let smallbonus = (profileData as PlayerData).player.character.crew.filter((entry) => 							
+							let smallbonus = (profileData as PlayerData).player.character.crew.filter((entry) =>
 								event.bonus.includes(entry.symbol)
 							).map(crew1 => allCrew.find(crew2 => crew2.symbol === crew1.symbol));
-	
+
 							smallbonus.sort((a, b) => (a?.ranks.voyRank ?? 0) - (b?.ranks.voyRank ?? 0));
-	
+
 							// Remove from smallbonus the highbonus crew
 							smallbonus = smallbonus.filter((entry) => !highbonus.includes(entry));
-							
+
 							event.endDate ??= new Date();
-							
+
 							let reply = "";
 							if (event.startDate && event.startDate.getTime() > (new Date()).getTime()) {
 								reply = `Event starting on *${toTimestamp(event.startDate)}*`;
@@ -247,12 +247,12 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 									? 'NONE'
 									: smallbonus
 											.slice(0, MAX_CREW)
-											.map((entry) => entry ? eventCrewFormat(entry, profileData) : '') 
+											.map((entry) => entry ? eventCrewFormat(entry, profileData) : '')
 											.join(', ')
 							}${smallbonus.length > MAX_CREW ? ` and ${smallbonus.length - MAX_CREW} more` : ''}\n`;
 
 							if (event.ships?.length) {
-								let shipbonus = (profileData as PlayerData).player.character.ships.filter(f => event.ships.some(s => s.ship.symbol === f.symbol));
+								let shipbonus = (profileData as PlayerData).player.character.ships.filter(f => event.ships.some(s => s.ship.symbol === f.symbol)).sort((a, b) => b.antimatter - a.antimatter);
 								if (shipbonus?.length) {
 									reply += `\r\nShips: ${shipbonus.map(sb => shipFormat(sb)).join(", ")}`
 								}
@@ -260,19 +260,19 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 
 							embed = embed.addFields({name: `**${event.name}** (${event.type})`, value: reply });
 						}
-	
+
 						if (text) {
 							embed = embed.addFields({ name: 'Other details', value: text });
 						}
-	
+
 						if (!eventReply && profileData.player.fleet && profileData.player.fleet.id) {
 							embed = embed.addFields({
 								name: 'Fleet',
 								value: `[${profileData.player.fleet.slabel}](${CONFIG.DATACORE_URL}fleet_info?fleetid=${profileData.player.fleet.id})`
 							});
 						}
-	
-						embeds.push(embed);		
+
+						embeds.push(embed);
 					}
 				}
 
