@@ -348,7 +348,8 @@ export function loadFullProfile(dbid: string): any {
 					skills: item.base_skills,
 					rarity: item.max_rarity,
 					level: 100,
-					immortal: 1
+					immortal: 1,
+					equipment: [1, 2, 3, 4]
 				} as any as PlayerCrew)
 			});
 		}
