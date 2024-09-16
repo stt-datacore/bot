@@ -93,7 +93,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			.setColor(colorFromRarity(crew.max_rarity))
 			.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`);
 
-		if (extended && crew.nicknames && crew.nicknames.length > 0) {
+		if (extended && crew.nicknames && crew.nicknames.length > 0 && crew.nicknames[0].cleverThing && crew.nicknames[0].creator) {
 			embed = embed.addFields({ name: 'Also known as', value: `${crew.nicknames.map((n) => `${n.cleverThing}${n.creator ? ` (coined by _${n.creator}_)` : ''}`).join(', ')}` });
 		}
 
