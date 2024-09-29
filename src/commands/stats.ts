@@ -71,7 +71,7 @@ function addAuthorNotes(crew: Definitions.BotCrew, embed: EmbedBuilder) {
 async function asyncHandler(message: Message, searchString: string, raritySearch: number, extended: boolean, base: boolean) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
-
+	let open_collection_ids = null as number[] | null;
 	let results = DCData.searchCrew(searchString);
 	if (results === undefined) {
 		sendAndCache(message, `Sorry, I couldn't find a crew matching '${searchString}'`);
@@ -107,6 +107,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				// TODO: multiple profiles
 				let profile = await loadProfile(user.profiles[0].dbid);
 				if (profile) {
+					open_collection_ids = profile.metadata?.open_collection_ids ?? null;
 					crew = JSON.parse(JSON.stringify(crew));
 					crew.base_skills = applyCrewBuffs(crew.base_skills, profile.buffConfig, false);
 					crew.skill_data.forEach((sd: any) => {
@@ -154,10 +155,19 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		if (crew.collections && crew.collections.length > 0) {
-			embed = embed.addFields({
-				name: 'Collections',
-				value: crew.collections.map((c: string) => `[${c}](${CONFIG.DATACORE_URL}collections/#${encodeURIComponent(c)}/)`).join(', ')
-			});
+			if (open_collection_ids) {
+				let ocols = DCData.getCollectionNamesFromIds(open_collection_ids);
+				embed = embed.addFields({
+					name: 'Collections',
+					value: crew.collections.map((c: string) => `[${ocols.includes(c) ? c : '~~' + c + '~~'}](${CONFIG.DATACORE_URL}collections/#${encodeURIComponent(c)}/)`).join(', ')
+				});
+			}
+			else {
+				embed = embed.addFields({
+					name: 'Collections',
+					value: crew.collections.map((c: string) => `[${c}](${CONFIG.DATACORE_URL}collections/#${encodeURIComponent(c)}/)`).join(', ')
+				});
+			}
 		}
 
 		if (extended) {
