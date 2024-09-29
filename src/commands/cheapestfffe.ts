@@ -39,19 +39,21 @@ async function asyncHandler(
 	}
 
 	let crew = DCData.getBotCrew();
+	let open_collection_ids = (user && profile) ? user.profiles[0].metadata?.open_collection_ids ?? null : null;
+	let ocols = open_collection_ids ? DCData.getCollectionNamesFromIds(open_collection_ids) : null;
 	let profileCrew = profile.player.character.crew;
 	let profileItems = profile.player.character.items;
 	const needs = {} as { [key: string]: { demands: IDemand[], craftCost: number } };
 	const sources = {} as { [key: string]: Definitions.ItemSource[] };
 
-	let candidatesForImmortalisation = profileCrew.filter((c: any) => {	
+	let candidatesForImmortalisation = profileCrew.filter((c: any) => {
 		let findcrew = binaryLocateSymbol(c.symbol, crew);
-		
+
 		if (findcrew?.max_rarity) {
 			if (findcrew.max_rarity > max_rarity || findcrew.max_rarity < min_rarity) return false;
 		}
 
-		if (c.level >= 90) {			
+		if (c.level >= 90) {
 			if (c.equipment.length === 4) return false;
 			let needed = getNeededItems(c.symbol, 90, c.level, skirmish);
 			if (!needed || needed.demands.every(d => d.avgChronCost <= BAD_COST) || needed.craftCost <= BAD_COST) {
@@ -67,7 +69,7 @@ async function asyncHandler(
 			needs[c.symbol] = needed;
 		}
 
-		if (!fuse) {		
+		if (!fuse) {
 			if (c.rarity === findcrew?.max_rarity) {
 				c.max_rarity = findcrew?.max_rarity;
 				return true;
@@ -99,7 +101,7 @@ async function asyncHandler(
 			return c;
 		}
 		let neededItems = needed.demands;
-	
+
 		let requiredChronCost = neededItems.reduce((totalCost, item) => {
 			let have = profileItems.find((j: any) => j.symbol === item.symbol)?.quantity || 0;
 			let need = item.count;
@@ -108,7 +110,7 @@ async function asyncHandler(
 			}
 			return totalCost + ((need - have) * item.avgChronCost);
 		}, 0);
-	
+
 		let requiredFactionItems = neededItems.reduce((totalItems, item) => {
 			let have = profileItems.find((j: any) => j.symbol === item.symbol)?.quantity || 0;
 			let need = item.count;
@@ -127,7 +129,7 @@ async function asyncHandler(
 			craftCost: needed.craftCost,
 		}
 	}).sort((a: any, b: any) => {
-		let r = 0;		
+		let r = 0;
 		if (skirmish) {
 			sources[a.symbol] ??= needs[a.symbol].demands.map(d => d.equipment.item_sources ?? []).flat();
 			sources[b.symbol] ??= needs[b.symbol].demands.map(d => d.equipment.item_sources ?? []).flat();
@@ -145,7 +147,7 @@ async function asyncHandler(
 					ac = as / ac;
 					bc = bs / bc;
 					r = bc - ac;
-				}			
+				}
 				else if (as) {
 					r = -1;
 				}
@@ -161,9 +163,9 @@ async function asyncHandler(
 
 
 	const embeds = candidatesForImmortalisation.slice(0, 5).map((can: any) => {
-		
+
 		const matched = binaryLocateSymbol(can.symbol, crew) as Definitions.BotCrew | undefined;
-		
+
 		if (!matched) {
 			return;
 		}
@@ -196,7 +198,7 @@ async function asyncHandler(
 				},
 				{
 					name: `${matched.name} is in the following collections: `,
-					value: !matched?.collections?.length ? 'No Collections' : matched?.collections?.map(c => formatCollectionName(c))?.join(", ") ?? '',
+					value: !matched?.collections?.length ? 'No Collections' : matched?.collections?.map(c => formatCollectionName(c, ocols))?.join(", ") ?? '',
 					inline: true
 				}
 			)
@@ -206,14 +208,14 @@ async function asyncHandler(
 	let skirmtext =  skirmish ? '[Skirmish Mode] ' : '';
 
 	if (fuse) {
-		sendAndCache(message, 
-			`${skirmtext}Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
+		sendAndCache(message,
+			`${skirmtext}Cheapest candidates for immortalisation that need ${fuse} fuse${fuse === 1 ? '' : 's'} for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`,
 			{ embeds }
 		   );
 	}
 	else {
-		sendAndCache(message, 
-			`${skirmtext}Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`, 
+		sendAndCache(message,
+			`${skirmtext}Cheapest candidates for immortalisation for **${user.profiles[0].captainName}**'s roster (last updated ${toTimestamp(profile.lastModified ?? user.profiles[0].lastUpdate)})`,
 			{ embeds }
 		   );
 	}
@@ -297,7 +299,7 @@ class CheapestFFFE implements Definitions.Command {
 		let message = <Message>args.message;
 		let fuse = args.fuseneed as number;
 		let skirmish = false;
-		
+
 		let max = 5;
 		let min = 1;
 
@@ -314,14 +316,14 @@ class CheapestFFFE implements Definitions.Command {
 		else if (typeof args.max_rarity === 'number') {
 			max = args.max_rarity as number;
 		}
-		
+
 		if (typeof args.min_rarity === 'string') {
 			min = Number(args.min_rarity);
 		}
 		else if (typeof args.min_rarity === 'number')  {
 			min = args.min_rarity as number;
 		}
-		
+
 		args.promisedResult = asyncHandler(message, fuse, skirmish, min, max);
 	}
 }

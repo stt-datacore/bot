@@ -329,7 +329,13 @@ export function formatCurrentStatLine(message: Message, crew: Definitions.BotCre
 }
 
 
-export function formatCollectionName(collection: string): string {
+export function formatCollectionName(collection: string, ocols?: string[] | null): string {
+	if (ocols) {
+		return `[${ocols.includes(collection) ? collection : `~~${collection}~~`}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(collection)})`;
 
-	return `[${collection}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(collection)})`;
+	}
+	else {
+		return `[${collection}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(collection)})`;
+
+	}
 }
