@@ -8,12 +8,14 @@ import { Schematics } from '../datacore/ship';
 import { Mission, Quest } from '../datacore/missions';
 import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../utils/items';
 import { PlayerData } from 'src/datacore/player';
+import { Collection } from 'src/datacore/game-elements';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;
 	private _items: Definitions.Item[] = [];
 	private _missions: Quest[] = [];
 	private _dilemmas: any[] = [];
+	private _collections: Collection[] = [];
 	private _rawCrew: Definitions.BotCrew[] = [];
 	private _rawCrewByName: Definitions.BotCrew[] = [];
 	private _recentEvents: IEventData[] = [];
@@ -34,11 +36,12 @@ class DCDataClass {
 		this._reloadData(path.join(datacore_path, 'cadet_episodes.txt'));
 		this._reloadData(path.join(datacore_path, 'dilemmas.json'));
 		this._reloadData(path.join(datacore_path, 'crew.json'));
+		this._reloadData(path.join(datacore_path, 'collections.json'));
 		this._reloadData(path.join(datacore_path, 'ship_schematics.json'));
 		this._reloadData(path.join(datacore_path, 'event_instances.json'));
 	}
 
-	private _reloadData(filePath: string) {		
+	private _reloadData(filePath: string) {
 		if (filePath.endsWith('.json') || filePath.endsWith("cadet_episodes.txt")) {
 			console.log(`File ${filePath} has been changed`);
 			let parsedData = undefined;
@@ -54,7 +57,9 @@ class DCDataClass {
 				this._items = parsedData;
 			} else if (filePath.endsWith('quests.json')) {
 				this._missions = parsedData;
-				this.organizeMissions(path.dirname(filePath));		
+				this.organizeMissions(path.dirname(filePath));
+			} else if (filePath.endsWith('collections.json')) {
+				this._collections = parsedData;
 			} else if (filePath.endsWith('dilemmas.json')) {
 				this._dilemmas = parsedData;
 			} else if (filePath.endsWith('ship_schematics.json')) {
@@ -64,7 +69,7 @@ class DCDataClass {
 				this._cadet = parsedData;
 			} else if (filePath.endsWith('crew.json')) {
 				this._rawCrew = parsedData;
-				this._rawCrew.sort((a, b) => 
+				this._rawCrew.sort((a, b) =>
 					a.symbol.localeCompare(b.symbol)
 				);
 				this._rawCrewByName = [ ... this._rawCrew ];
@@ -82,9 +87,9 @@ class DCDataClass {
 					if (crew.base_skills.diplomacy_skill) crew.traits_pseudo.push('dip');
 					if (crew.base_skills.medicine_skill) crew.traits_pseudo.push('med');
 				});
-			} else if (filePath.endsWith('event_instances.json')) {											
+			} else if (filePath.endsWith('event_instances.json')) {
 				this._allEvents = parsedData;
-				this.refreshEvents();				
+				this.refreshEvents();
 			}
 
 			if (this._cadet?.length && this._items?.length && !this._procCadet) {
@@ -96,7 +101,7 @@ class DCDataClass {
 
 	private organizeMissions(datacore_path: string) {
 		console.log("Indexing missions and quests...");
-		let missions = JSON.parse(fs.readFileSync(path.join(datacore_path, 'episodes.json'), 'utf-8')) as Mission[];		
+		let missions = JSON.parse(fs.readFileSync(path.join(datacore_path, 'episodes.json'), 'utf-8')) as Mission[];
 		let mhash = {} as { [key: string]: any[] };
 
 		this._missions.forEach((quest) => {
@@ -104,8 +109,8 @@ class DCDataClass {
 			mhash[id] ??= [];
 			mhash[id].push(quest as any);
 		});
-		
-		Object.entries(mhash).forEach(([episode, quests]) => {			
+
+		Object.entries(mhash).forEach(([episode, quests]) => {
 			let tempquests = [] as any[];
 			let fmission = missions.find(f => f.episode_title === episode || f.name === episode);
 			if (fmission) {
@@ -115,8 +120,8 @@ class DCDataClass {
 						quest.index = miss_quests.findIndex(f => f.id.toString() === quest.id.toString()) + 1;
 						tempquests.push(quest);
 					}
-				}	
-				tempquests.sort((a, b) => a.index - b.index)			
+				}
+				tempquests.sort((a, b) => a.index - b.index)
 				if (tempquests.length > 1 && tempquests[0].mission.episode > 0) {
 					tempquests[tempquests.length - 1].index = tempquests[tempquests.length - 2].index;
 				}
@@ -134,7 +139,7 @@ class DCDataClass {
 		if (this._refreshHour !== (new Date()).getHours()) {
 			this.refreshEvents(profileData);
 		}
-		
+
 		return this._recentEvents;
 	}
 
@@ -142,6 +147,10 @@ class DCDataClass {
 		if (this._watcher) {
 			this._watcher.close();
 		}
+	}
+
+	public getCollectionNamesFromIds(ids: number[]): string[] {
+		return this._collections.filter(f => ids.includes(f.id)).map(m => m.name);
 	}
 
 	public getBotCrew(): Definitions.BotCrew[] {
@@ -160,7 +169,7 @@ class DCDataClass {
 	public getSchematics(): Schematics[] {
 		return this._schematics;
 	}
-	
+
 	public getItems(): Definitions.Item[] {
 		return this._items;
 	}
@@ -174,7 +183,7 @@ class DCDataClass {
 	}
 
 	public questBySymbol(symbol: string): any {
-		return this._missions.find((q: any) => q.symbol === symbol) ?? this._cadet.find((q: any) => q.symbol === symbol);		
+		return this._missions.find((q: any) => q.symbol === symbol) ?? this._cadet.find((q: any) => q.symbol === symbol);
 	}
 
 	public itemBySymbol(symbol: string): any {
@@ -265,7 +274,7 @@ class DCDataClass {
 			let fcrew = binaryLocateName(searchString, this._rawCrewByName);
 
 			if (!fcrew) {
-				fcrew = binaryLocateSymbol(searchString, this._rawCrew);				
+				fcrew = binaryLocateSymbol(searchString, this._rawCrew);
 			}
 
 			if (fcrew) {
@@ -344,7 +353,7 @@ class DCDataClass {
 		if (!this._procCadet) {
 			postProcessCadetItems(this._cadet, this._items);
 		}
-		
+
 		let options = {
 			shouldSort: true,
 			tokenize: true,

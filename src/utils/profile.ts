@@ -24,6 +24,9 @@ export interface ProfileEntry {
 	lastUpdate: Date;
 	buffConfig: Definitions.BuffConfig;
 	userId?: number;
+	metadata?: {
+		open_collection_ids: null | number[];
+	}
 }
 
 export interface ProfileRosterEntry {
@@ -58,7 +61,8 @@ export async function loadProfile(dbid: string): Promise<ProfileEntry | undefine
 		crew,
 		lastUpdate: profile.lastUpdate,
 		buffConfig: profile.buffConfig,
-		userId: profile.userId
+		userId: profile.userId,
+		metadata: profile.metadata
 	};
 }
 

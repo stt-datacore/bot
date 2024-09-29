@@ -14,12 +14,12 @@ import { handleShipBehold } from './beholdships';
 
 export function isValidBehold(data: any, threshold: number = 10) {
 	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
-	let crew = [data?.crew1, data?.crew2, data?.crew3];	
+	let crew = [data?.crew1, data?.crew2, data?.crew3];
 	if (crew?.some(c => c?.symbol === 'behold_title')) {
-		return false;		
+		return false;
 	}
 
-	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {		
+	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {
 		if (!scores.every(e => e >= threshold)) return false;
 	}
 
@@ -34,7 +34,7 @@ export function isValidBehold(data: any, threshold: number = 10) {
 		}
 		else {
 			return false;
-		}		
+		}
 	}
 
 	if (data.closebuttons > 0) {
@@ -82,7 +82,7 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	if (custom) {
 		reply += `\n\n**${custom}**`;
 	}
-	
+
 	return reply;
 }
 
@@ -155,9 +155,14 @@ CAB Ratings recommendation: ${bestCab[0].crew.name}`
 	};
 }
 
-function formatCollections(collections: any[]) {
+function formatCollections(collections: any[], open_cols?: string[] | null) {
 	if (!collections?.length) return "None";
-	return collections.map(c => `[${c}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(c)})`).join(', ') + "";
+	if (open_cols) {
+		return collections.map(c => `[${open_cols.includes(c) ? c : '~~' + c + '~~'}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(c)})`).join(', ') + "";
+	}
+	else {
+		return collections.map(c => `[${c}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(c)})`).join(', ') + "";
+	}
 }
 
 function applyCrew(increw: Definitions.BotCrew, buffConfig: Definitions.BuffConfig): Definitions.BotCrew {
@@ -171,13 +176,13 @@ function applyCrew(increw: Definitions.BotCrew, buffConfig: Definitions.BuffConf
 }
 
 export async function calculateBehold(message: Message, beholdResult: any, fromCommand: boolean, base: boolean) {
-	
+
 	let results = [beholdResult.crew1, beholdResult.crew2, beholdResult.crew3];
 
 	if (results.every(r => r.symbol.startsWith("model_"))) {
 		return handleShipBehold(message, beholdResult, fromCommand, base);
 	}
-	
+
 	let _bc = DCData.getBotCrew();
 
 	let crew1 = binaryLocateCrew(beholdResult.crew1.symbol, _bc);
@@ -217,13 +222,15 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 
 	let isStale = undefined as boolean | undefined;
 	let days = 0;
-	
+	let open_cols = null as string[] | null;
 	if (!base) {
-		let user = await userFromMessage(message);		
+		let user = await userFromMessage(message);
 		if (user && user.profiles.length > 0) {
-			// Apply personalization			
-			let profile = await loadProfile(user.profiles[0].dbid);			
-			
+			// Apply personalization
+			let profile = await loadProfile(user.profiles[0].dbid);
+			let open_collection_ids = profile?.metadata?.open_collection_ids;
+			open_cols = open_collection_ids ? DCData.getCollectionNamesFromIds(open_collection_ids) : null;
+
 			if (profile) {
 				days = Math.round(((new Date()).getTime() - profile.lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
 				if (days > 7) isStale = true;
@@ -243,7 +250,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 					let filter = profile.crew.filter(crew => bc.archetype_id === crew.id);
 					if (filter?.length) {
 						if (filter.length > 1) {
-							filter.sort((a, b) => {								
+							filter.sort((a, b) => {
 								if (a.rarity !== undefined && b.rarity !== undefined) {
 									return a.rarity - b.rarity;
 								}
@@ -259,9 +266,9 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 							});
 						}
 
-						let entry = filter[0];						
+						let entry = filter[0];
 						beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
-						
+
 						if (entry.rarity !== undefined && entry.rarity < bc.max_rarity) {
 							found[i] = entry.rarity + 1;
 						}
@@ -307,13 +314,13 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 
 	embed = embed
 		.setThumbnail(`${CONFIG.ASSETS_URL}${best.imageUrlPortrait}`)
-		.setDescription(description)		
+		.setDescription(description)
 		.addFields({ name: crew1.name, value: formatCrewField(message, crew1, beholdResult.crew1.stars, customranks[0], crew1.collections)})
-		.addFields({ name: "Collections", value: formatCollections(crew1.collections)})
+		.addFields({ name: "Collections", value: formatCollections(crew1.collections, open_cols)})
 		.addFields({ name: crew2.name, value: formatCrewField(message, crew2, beholdResult.crew2.stars, customranks[1], crew2.collections)})
-		.addFields({ name: "Collections", value: formatCollections(crew2.collections)})
+		.addFields({ name: "Collections", value: formatCollections(crew2.collections, open_cols)})
 		.addFields({ name: crew3.name, value: formatCrewField(message, crew3, beholdResult.crew3.stars, customranks[2], crew3.collections)})
-		.addFields({ name: "Collections", value: formatCollections(crew3.collections)})
+		.addFields({ name: "Collections", value: formatCollections(crew3.collections, open_cols)})
 
 		embed = embed.setFooter({
 			text: customranks[0]
@@ -325,7 +332,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		// 	embed = embed.setFooter({
 		// 		text: `**Your profile data is ${days} old!** Make sure to re-upload your profile frequently to get accurate custom recommendations`
 		// 	});
-	
+
 		// }
 		// else {
 		// 	embed = embed.setFooter({
