@@ -158,7 +158,6 @@ CAB Ratings recommendation: ${bestCab[0].crew.name}`
 function formatCollections(collections: any[], open_cols?: string[] | null) {
 	if (!collections?.length) return "None";
 	if (open_cols) {
-		console.log(`Debugging open_cols`, open_cols);
 		return collections.map(c => `[${open_cols.includes(c) ? c : '~~' + c + '~~'}](${CONFIG.DATACORE_URL}collections?select=${encodeURIComponent(c)})`).join(', ') + "";
 	}
 	else {

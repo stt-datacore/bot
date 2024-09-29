@@ -150,7 +150,7 @@ class DCDataClass {
 	}
 
 	public getCollectionNamesFromIds(ids: number[]): string[] {
-		return this._collections.filter(f => ids.includes(f.id)).map(m => m.name);
+		return this._collections.filter(f => ids.includes(Number(f.id))).map(m => m.name);
 	}
 
 	public getBotCrew(): Definitions.BotCrew[] {
