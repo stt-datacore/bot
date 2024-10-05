@@ -285,7 +285,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 						}
 
 						let entry = filter[0];
-						beholdResult["crew" + (i + 1).toString()].stars = entry.rarity;
+						beholdResult["crew" + (i + 1).toString()].stars = entry.rarity ?? bc.max_rarity;
 
 						if (entry.rarity !== undefined && entry.rarity < bc.max_rarity) {
 							found[i] = entry.rarity + 1;
