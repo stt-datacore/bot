@@ -113,8 +113,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 
 	let title = '';
 
-	const cbsbr = (starBest: CrewFromBehold, colBest: CrewFromBehold) => {
-		let r = 0;
+	const weightBest = (starBest: CrewFromBehold, colBest: CrewFromBehold) => {
 		let ac = cols(starBest);
 		let bc = cols(colBest);
 		let as = starBest.stars;
@@ -124,8 +123,8 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 		ac = ac / bc;
 		if (as === 0 || bs === 0) return ac > 1 ? starBest : colBest;
 		as = as / bs;
-		if (ac < as) return colBest;
-		return starBest;
+		if (as / ac > 1) return starBest;
+		return colBest;
 	}
 
 	const printPickCols = (colBest: CrewFromBehold[], actualBest?: CrewFromBehold) => {
@@ -133,9 +132,8 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 		starBest.sort((a, b) => b.stars - a.stars);
 		if (colBest.length > 2 && colBest.every(c => cols(c) === bc)) {
 			if (starBest.length) {
-				let cbr = cbsbr(starBest[0], colBest[0]);
-				title = `Pick ${cbr.crew.name} for collections`;
-				bestCrew = cbr.crew;
+				title = `Pick ${starBest[0].crew.name} for collections`;
+				bestCrew = starBest[0].crew;
 			}
 			else {
 				title = `Pick anyone for collections`
@@ -148,15 +146,26 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 				bestCrew = colBest[0].crew;
 			}
 			else {
-				title = `Pick ${starBest[0].crew.name} for collections`;
-				bestCrew = starBest[0].crew;
+				let sbc = weightBest(starBest[0], colBest[0]);
+				title = `Pick ${sbc.crew.name} for collections`;
+				bestCrew = sbc.crew;
+				// title = `Pick ${starBest[0].crew.name} for collections`;
+				// bestCrew = starBest[0].crew;
 			}
 		}
 		else {
-			title = `Pick ${colBest[0].crew.name} for collections`;
-			bestCrew = colBest[0].crew;
+			if (starBest.length > 0) {
+				starBest.sort((a, b) => b.stars - a.stars);
+				let sbc = weightBest(starBest[0], colBest[0]);
+				title = `Pick ${sbc.crew.name} for collections`;
+				bestCrew = sbc.crew;
+			}
+			else {
+				title = `Pick ${colBest[0].crew.name} for collections`;
+				bestCrew = colBest[0].crew;
+			}
 		}
-		if (actualBest) {
+		if (actualBest && actualBest.crew !== bestCrew) {
 			title += `, but ${actualBest.crew.name} is the best crew in this behold`
 		}
 	}
@@ -208,7 +217,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 
 	let suffix = ".";
-	if (!title.includes("collections") && Math.abs(best[0].crew.bigbook_tier - best[1].crew.bigbook_tier) <= 1 &&
+	if (Math.abs(best[0].crew.bigbook_tier - best[1].crew.bigbook_tier) <= 1 &&
 		Math.abs(best[0].crew.bigbook_tier - best[2].crew.bigbook_tier) <= 1 &&
 		Math.abs(best[1].crew.bigbook_tier - best[2].crew.bigbook_tier) <= 1) {
 		suffix = " but check their links as tiers are similar."
