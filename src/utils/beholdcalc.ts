@@ -109,17 +109,32 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 		starBest = starBest.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
 	}
 
-	let colBest = openCols?.length && starBest.length ? starBest.filter(c => !ff(c)).sort((a, b) => cols(b) - cols(a)) : null;
+	let colBest = openCols?.length && best.length ? best.filter(c => !ff(c)).sort((a, b) => cols(b) - cols(a)) : null;
 
 	let title = '';
 
 	const printPickCols = (colBest: CrewFromBehold[], actualBest?: CrewFromBehold) => {
 		let bc = cols(colBest[0]);
+		starBest.sort((a, b) => b.stars - a.stars);
 		if (colBest.length > 2 && colBest.every(c => cols(c) === bc)) {
-			title = `Pick anyone for collections`
+			if (starBest.length) {
+				title = `Pick ${starBest[0].crew.name} for collections`;
+				bestCrew = starBest[0].crew;
+			}
+			else {
+				title = `Pick anyone for collections`
+			}
 		}
 		else if (colBest.length > 1 && colBest.every(c => cols(c) === bc)) {
-			title = `Pick ${colBest[0].crew.name} or ${colBest[1].crew.name} for collections`;
+			let sbc = starBest.filter(f => colBest.includes(f));
+			if (sbc.length >= 2 && sbc.every(sd => sbc.every(se => sd.stars === se.stars))) {
+				title = `Pick ${colBest[0].crew.name} or ${colBest[1].crew.name} for collections`;
+				bestCrew = colBest[0].crew;
+			}
+			else {
+				title = `Pick ${starBest[0].crew.name} for collections`;
+				bestCrew = starBest[0].crew;
+			}
 		}
 		else {
 			title = `Pick ${colBest[0].crew.name} for collections`;
@@ -166,7 +181,13 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			//title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
 	} else {
-		title = `${best[0].crew.name} is your best bet`;
+		if (colBest?.length && cols(colBest[0])) {
+			printPickCols(colBest, best[0]);
+			bestCrew = colBest[0].crew;
+		}
+		else {
+			title = `${best[0].crew.name} is your best bet`;
+		}
 	}
 
 	let suffix = ".";
@@ -177,8 +198,12 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 	title += suffix;
 	if (best[0] !== bestCab[0]) {
-		title = `Big Book recommendation: ${title}
-CAB Ratings recommendation: ${bestCab[0].crew.name}`
+		if (title.includes('collections')) {
+			title = `${title}\n\nBig Book Recommendation: ${best[0].crew.name}\nCAB Ratings recommendation: ${bestCab[0].crew.name}`
+		}
+		else {
+			title = `Big Book recommendation: ${title}\nCAB Ratings recommendation: ${bestCab[0].crew.name}`
+		}
 	}
 
 	return {
