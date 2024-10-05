@@ -207,9 +207,8 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			//title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
 	} else {
-		if (colBest?.length && cols(colBest[0])) {
+		if (colBest?.length && cols(colBest[0]) && best[0].crew.bigbook_tier > 4) {
 			printPickCols(colBest, best[0]);
-			bestCrew = colBest[0].crew;
 		}
 		else {
 			title = `${best[0].crew.name} is your best bet`;
