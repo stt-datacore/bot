@@ -112,18 +112,26 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	let colBest = openCols?.length && starBest.length ? starBest.filter(c => !ff(c)).sort((a, b) => cols(b) - cols(a)) : null;
 
 	let title = '';
+
+	const printPickCols = (colBest: CrewFromBehold[], actualBest?: CrewFromBehold) => {
+		let bc = cols(colBest[0]);
+		if (colBest.length > 2 && colBest.every(c => cols(c) === bc)) {
+			title = `Pick anyone for collections`
+		}
+		else if (colBest.length > 1 && colBest.every(c => cols(c) === bc)) {
+			title = `Pick ${colBest[0].crew.name} or ${colBest[1].crew.name} for collections`;
+		}
+		else {
+			title = `Pick ${colBest[0].crew.name} for collections`;
+		}
+		if (actualBest) {
+			title += `, but ${actualBest.crew.name} is the best crew in this behold`
+		}
+	}
+
 	if (best[0].crew.bigbook_tier >= 7) {
 		if (colBest?.length && !colBest.every(c => cols(c) === 0)) {
-			let bc = cols(colBest[0]);
-			if (colBest.length > 2 && colBest.every(c => cols(c) === bc)) {
-				title = `Pick anyone for collections`
-			}
-			else if (colBest.length > 1 && colBest.every(c => cols(c) === bc)) {
-				title = `Pick ${colBest[0].crew.name} or ${colBest[1].crew.name} for collections`;
-			}
-			else {
-				title = `Pick ${colBest[0].crew.name} for collections`;
-			}
+			printPickCols(colBest);
 		} else if (starBest.length > 0) {
 			title = `Add a star to ${starBest[0].crew.name}`;
 		} else {
@@ -148,7 +156,13 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
 			bestCrew = best[1].crew;
 		} else {
-			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
+			if (colBest?.length && cols(colBest[0])) {
+				printPickCols(colBest, best[0]);
+				bestCrew = colBest[0].crew;
+			}
+			else {
+				title = `Pick ${starBest[0].crew.name} if you don't want dupes, but ${best[0].crew.name} is the best crew in this behold`;
+			}
 			//title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
 	} else {
