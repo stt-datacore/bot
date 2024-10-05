@@ -138,6 +138,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 		}
 		else {
 			title = `Pick ${colBest[0].crew.name} for collections`;
+			bestCrew = colBest[0].crew;
 		}
 		if (actualBest) {
 			title += `, but ${actualBest.crew.name} is the best crew in this behold`
