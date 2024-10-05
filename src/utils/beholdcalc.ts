@@ -193,7 +193,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			title = `Pick ${best[0].crew.name} or ${equals[0].crew.name}`;
 		}
 	} else if (starBest.length > 0 && ff(best[0])) {
-		if (best[1].crew.bigbook_tier < 6 && !ff(best[1])) {
+		if (best[1].crew.bigbook_tier < 3 && !ff(best[1])) {
 			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
 			bestCrew = best[1].crew;
 		} else {
