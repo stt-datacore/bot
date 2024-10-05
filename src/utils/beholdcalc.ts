@@ -113,13 +113,29 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 
 	let title = '';
 
+	const cbsbr = (starBest: CrewFromBehold, colBest: CrewFromBehold) => {
+		let r = 0;
+		let ac = cols(starBest);
+		let bc = cols(colBest);
+		let as = starBest.stars;
+		let bs = colBest.stars;
+		if (bc === 0) return starBest;
+		if (ac === 0) return colBest;
+		ac = ac / bc;
+		if (as === 0 || bs === 0) return ac > 1 ? starBest : colBest;
+		as = as / bs;
+		if (ac < as) return colBest;
+		return starBest;
+	}
+
 	const printPickCols = (colBest: CrewFromBehold[], actualBest?: CrewFromBehold) => {
 		let bc = cols(colBest[0]);
 		starBest.sort((a, b) => b.stars - a.stars);
 		if (colBest.length > 2 && colBest.every(c => cols(c) === bc)) {
 			if (starBest.length) {
-				title = `Pick ${starBest[0].crew.name} for collections`;
-				bestCrew = starBest[0].crew;
+				let cbr = cbsbr(starBest[0], colBest[0]);
+				title = `Pick ${cbr.crew.name} for collections`;
+				bestCrew = cbr.crew;
 			}
 			else {
 				title = `Pick anyone for collections`
@@ -146,7 +162,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 
 	if (best[0].crew.bigbook_tier >= 7) {
-		if (starBest.length > 1 && colBest?.length && !colBest.every(c => cols(c) === 0)) {
+		if (starBest.length > 1 && colBest?.length) {
 			printPickCols(colBest);
 		} else if (starBest.length > 0) {
 			title = `Add a star to ${starBest[0].crew.name}`;
