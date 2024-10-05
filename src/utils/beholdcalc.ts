@@ -1,8 +1,8 @@
 import { Message, Embed, EmbedBuilder } from 'discord.js';
 
 import { DCData } from '../data/DCData';
-import { formatStatLine, formatCrewCoolRanks, colorFromRarity, formatTrait, actionAbilityoString } from './crew';
-import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, loadFullProfile, toTimestamp } from './profile';
+import { formatStatLine, formatCrewCoolRanks, colorFromRarity, formatTrait, actionAbilityoString, isRecent } from './crew';
+import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, loadFullProfile, toTimestamp, ProfileEntry } from './profile';
 import { sendAndCache } from './discord';
 import CONFIG from './config';
 import { PlayerData } from '../datacore/player';
@@ -11,6 +11,7 @@ import { shipSum } from './ships';
 import { binaryLocateCrew, binaryLocateId, binaryLocateSymbol } from './items';
 import { CrewMember } from '../datacore/crew';
 import { handleShipBehold } from './beholdships';
+import { Profile } from 'src/models/Profile';
 
 export function isValidBehold(data: any, threshold: number = 10) {
 	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
@@ -175,14 +176,17 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			printPickCols(colBest);
 		} else if (starBest.length > 0) {
 			title = `Add a star to ${starBest[0].crew.name}`;
+			bestCrew = starBest[0].crew;
 		} else {
 			title = `Pick ${best[0].crew.name} if you have room`;
+			bestCrew = starBest[0].crew;
 		}
 	} else if (starBest.length > 0 && starBest[0].crew != best[0].crew && !ff(best[0])) {
 		if (starBest[0].crew.bigbook_tier > 5) {
 			title = `${best[0].crew.name} is your best bet; star up ${starBest[0].crew.name} if you don't have any slots to spare`;
 		} else {
 			title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
+			bestCrew = starBest[0].crew;
 		}
 	} else if (best.find((c,i)=> i != 0 && c.crew.bigbook_tier == best[0].crew.bigbook_tier && !ff(c)) && !ff(best[0])) {
 		// There's an equally good option, neither FF
@@ -207,11 +211,11 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			//title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
 	} else {
-		if (colBest?.length && cols(colBest[0]) && best[0].crew.bigbook_tier > 4) {
+		if (colBest?.length && cols(colBest[0]) && !(isRecent(best[0].crew)) && (best[0].crew.bigbook_tier > 4 || best[0].crew.max_rarity === best[0].stars)) {
 			printPickCols(colBest, best[0]);
 		}
 		else {
-			title = `${best[0].crew.name} is your best bet`;
+			title = `${best[0].crew.name} is your best bet`
 		}
 	}
 
@@ -310,7 +314,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		if (user && user.profiles.length > 0) {
 			// Apply personalization
 			let profile = await loadProfile(user.profiles[0].dbid);
-			let open_collection_ids = profile?.metadata?.open_collection_ids;
+			let open_collection_ids = profile?.metadata?.open_collection_ids || DCData.getCollections().map(m => Number(m.id));
 			open_cols = open_collection_ids ? DCData.getCollectionNamesFromIds(open_collection_ids) : null;
 
 			if (profile) {

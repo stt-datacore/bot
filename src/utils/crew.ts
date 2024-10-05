@@ -339,3 +339,13 @@ export function formatCollectionName(collection: string, ocols?: string[] | null
 
 	}
 }
+
+export function isRecent(crew: { date_added: Date | string; [key: string]: any }) {
+	const now = new Date();
+	const month = 1000 * 60 * 60 * 24 * 48;
+	now.setTime(now.getTime() - month);
+	if (typeof crew.date_added === 'string') {
+		crew.date_added = new Date(crew.date_added);
+	}
+	return crew.date_added.getTime() >= now.getTime();
+}

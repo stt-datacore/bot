@@ -162,6 +162,10 @@ class DCDataClass {
 		});
 	}
 
+	public getCollections(): Collection[] {
+		return this._collections;
+	}
+
 	public getCadet(): Mission[] {
 		return this._cadet;
 	}
