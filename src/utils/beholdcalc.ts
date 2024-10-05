@@ -203,7 +203,6 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 		} else {
 			if (colBest?.length && cols(colBest[0])) {
 				printPickCols(colBest, best[0]);
-				bestCrew = colBest[0].crew;
 			}
 			else {
 				title = `Pick ${starBest[0].crew.name} if you don't want dupes, but ${best[0].crew.name} is the best crew in this behold`;
