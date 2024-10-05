@@ -191,7 +191,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 
 	let suffix = ".";
-	if (Math.abs(best[0].crew.bigbook_tier - best[1].crew.bigbook_tier) <= 1 &&
+	if (!title.includes("collections") && Math.abs(best[0].crew.bigbook_tier - best[1].crew.bigbook_tier) <= 1 &&
 		Math.abs(best[0].crew.bigbook_tier - best[2].crew.bigbook_tier) <= 1 &&
 		Math.abs(best[1].crew.bigbook_tier - best[2].crew.bigbook_tier) <= 1) {
 		suffix = " but check their links as tiers are similar."
