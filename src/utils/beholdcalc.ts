@@ -91,9 +91,13 @@ interface CrewFromBehold {
 	stars: number;
 }
 
-function recommendations(crew: CrewFromBehold[]) {
+function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	const ff = (c: CrewFromBehold) => {
 		return c.stars == c.crew.max_rarity;
+	}
+
+	const cols = (c: CrewFromBehold) => {
+		return c.crew.collections.filter(f => openCols?.includes(f)).length || 0;
 	}
 
 	let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
@@ -105,9 +109,22 @@ function recommendations(crew: CrewFromBehold[]) {
 		starBest = starBest.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
 	}
 
+	let colBest = openCols?.length && starBest.length ? starBest.filter(c => !ff(c)).sort((a, b) => cols(b) - cols(a)) : null;
+
 	let title = '';
-	if (best[0].crew.bigbook_tier > 8) {
-		if (starBest.length > 0) {
+	if (best[0].crew.bigbook_tier >= 7) {
+		if (colBest?.length && !colBest.every(c => cols(c) === 0)) {
+			let bc = cols(colBest[0]);
+			if (colBest.length > 2 && colBest.every(c => cols(c) === bc)) {
+				title = `Pick anyone for collections`
+			}
+			else if (colBest.length > 1 && colBest.every(c => cols(c) === bc)) {
+				title = `Pick ${colBest[0].crew.name} or ${colBest[1].crew.name} for collections`;
+			}
+			else {
+				title = `Pick ${colBest[0].crew.name} for collections`;
+			}
+		} else if (starBest.length > 0) {
 			title = `Add a star to ${starBest[0].crew.name}`;
 		} else {
 			title = `Pick ${best[0].crew.name} if you have room`;
@@ -131,7 +148,8 @@ function recommendations(crew: CrewFromBehold[]) {
 			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
 			bestCrew = best[1].crew;
 		} else {
-			title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
+			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
+			//title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
 	} else {
 		title = `${best[0].crew.name} is your best bet`;
@@ -309,7 +327,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		{ crew: crew1, stars: beholdResult.crew1.stars },
 		{ crew: crew2, stars: beholdResult.crew2.stars },
 		{ crew: crew3, stars: beholdResult.crew3.stars }
-	]);
+	], open_cols || undefined);
 
 
 	embed = embed
