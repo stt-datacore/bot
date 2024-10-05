@@ -27,7 +27,7 @@ function eventCrewFormat(entry: Definitions.BotCrew, profileData: any): string {
 	let pcrew = profileData.player.character.crew.find((crew: PlayerCrew) => crew.symbol === entry.symbol);
 
 	if (!pcrew || (pcrew.immortal && pcrew.immortal > 0)) {
-		return `**${entry.name}** (🥶)`;
+		return `**${entry.name}** (❄️)`;
 	} else {
 		if (pcrew.rarity === entry.max_rarity && pcrew.level === 100 && pcrew.equipment.length === 4) {
 			return `**${entry.name}** (FF/FE)`;
