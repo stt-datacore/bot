@@ -146,7 +146,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 
 	if (best[0].crew.bigbook_tier >= 7) {
-		if (colBest?.length && !colBest.every(c => cols(c) === 0)) {
+		if (starBest.length > 1 && colBest?.length && !colBest.every(c => cols(c) === 0)) {
 			printPickCols(colBest);
 		} else if (starBest.length > 0) {
 			title = `Add a star to ${starBest[0].crew.name}`;
