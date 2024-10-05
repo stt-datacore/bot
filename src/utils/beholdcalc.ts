@@ -179,7 +179,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			bestCrew = starBest[0].crew;
 		} else {
 			title = `Pick ${best[0].crew.name} if you have room`;
-			bestCrew = starBest[0].crew;
+			bestCrew = best[0].crew;
 		}
 	} else if (starBest.length > 0 && starBest[0].crew != best[0].crew && !ff(best[0])) {
 		if (starBest[0].crew.bigbook_tier > 5) {
