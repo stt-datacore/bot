@@ -242,7 +242,7 @@ export function getRecentEvents(allCrew: Definitions.BotCrew[], allEvents: Defin
 	let index = 1;
 	while (recentEvents.length < 2) {
 		const eventId = allEvents[allEvents.length-index].instance_id;
-		const eventFile = process.env.DC_DATA_PATH! + 'events/'+eventId+'.json';
+		const eventFile = process.env.DC_DATA_PATH! + '/events/'+eventId+'.json';
 		if (!fs.existsSync(eventFile)) {
 			console.log(`Event file '${eventFile}' not found! Aborting recent event mapping.`);
 			break;
