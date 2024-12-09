@@ -1,3 +1,5 @@
+import { Definitions } from "./definitions";
+
 require('dotenv').config();
 
 export default class CONFIG {

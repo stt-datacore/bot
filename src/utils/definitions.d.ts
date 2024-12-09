@@ -1,3 +1,5 @@
+import { CrewMember } from 'src/datacore/crew';
+
 declare type CommandModule = import('yargs').CommandModule;
 
 declare namespace Definitions {
@@ -6,7 +8,7 @@ declare namespace Definitions {
 		text: string;
 		reward: string[];
 	}
-	
+
 	export interface IDilemma {
 		title: string;
 		choiceA: IDilemmaChoice;
@@ -155,7 +157,7 @@ declare namespace Definitions {
 		symbol: string
 	}
 
-	export interface BotCrew {
+	export interface BotCrew extends CrewMember {
 		archetype_id: number;
 		symbol: string;
 		name: string;
@@ -233,11 +235,11 @@ declare namespace Definitions {
 		imageUrl: string;
 		factionOnly: boolean;
 
-		
+
 		duration?: number;
 		max_rarity_requirement?: number;
 		traits_requirement_operator?: string; // "and" | "or" | "not" | "xor";
-		traits_requirement?: string[];  
+		traits_requirement?: string[];
 		kwipment?: boolean;
 		kwipment_id?: number | string;
 	}
@@ -262,7 +264,7 @@ declare namespace Definitions {
 		image: string
 		event_details?: boolean
 	  }
-	  
+
 
 	export interface EventDetails {
 		id: number

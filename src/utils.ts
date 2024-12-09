@@ -9,6 +9,7 @@ const Yargs = require('yargs/yargs');
 
 import { Commands } from './commands';
 import { sendAndCache } from './utils/discord';
+import { Definitions } from './utils/definitions';
 
 require('dotenv').config();
 

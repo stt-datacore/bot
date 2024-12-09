@@ -12,6 +12,7 @@ import { binaryLocateCrew, binaryLocateId, binaryLocateSymbol } from './items';
 import { CrewMember } from '../datacore/crew';
 import { handleShipBehold } from './beholdships';
 import { Profile } from 'src/models/Profile';
+import { Definitions } from './definitions';
 
 export function isValidBehold(data: any, threshold: number = 10) {
 	let scores = [data?.crew1?.score ?? 0, data?.crew2?.score ?? 0, data?.crew3?.score ?? 0];
@@ -98,7 +99,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 
 	const cols = (c: CrewFromBehold) => {
-		return c.crew.collections.filter(f => openCols?.includes(f)).length || 0;
+		return c?.crew?.collections?.filter(f => openCols?.includes(f))?.length || 0;
 	}
 
 	let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);

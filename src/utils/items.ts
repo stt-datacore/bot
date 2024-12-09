@@ -5,6 +5,7 @@ import CONFIG from '../utils/config';
 import { IId, IName, ISymbol, Skill } from '../datacore/crew';
 import { EquipmentItem, EquipmentItemSource } from '../datacore/equipment';
 import { Mission } from '../datacore/missions';
+import { Definitions } from './definitions';
 
 export function formatRecipe(message: Message, item: Definitions.Item, rich: boolean = false) {
 	if (!item.recipe || !item.recipe.list || item.recipe.list.length === 0) {
@@ -60,7 +61,7 @@ export function formatSources(
 							text: `${formatQuestName(quest, !rich)}, ${formatMastery(entry.mastery)} ${formatType(
 								entry.type
 							)} **${avg_cost.toFixed(2)}**`
-						});	
+						});
 					}
 					else {
 						recipe.push({
@@ -68,7 +69,7 @@ export function formatSources(
 							text: `${formatQuestName(quest, !rich)}, ${formatMastery(entry.mastery)} ${formatType(
 								entry.type
 							)} **${avg_cost.toFixed(2)} ${getEmoteOrString(message, 'chrons', 'chronitons')}**`
-						});	
+						});
 					}
 				}
 			}
@@ -126,7 +127,7 @@ function formatQuestName(quest: any, long: boolean): string {
 /**
  * Creates a formatted title (appelation) from the given text.
  * @param text The text to convert into a title
- * @returns 
+ * @returns
  */
 export function appelate(text: string) {
 	let curr: string = "";
@@ -161,12 +162,12 @@ export interface ItemBonusInfo {
 export function getItemBonuses(item: EquipmentItem): ItemBonusInfo {
     let bonusText = [] as string[];
     let bonuses = {} as { [key: string]: Skill };
-    
+
     if (item.bonuses) {
         for (let [key, value] of Object.entries(item.bonuses)) {
             let bonus = CONFIG.STATS_CONFIG[Number.parseInt(key)];
             if (bonus) {
-                bonusText.push(`+${value} ${bonus.symbol}`);	
+                bonusText.push(`+${value} ${bonus.symbol}`);
                 bonuses[bonus.skill] ??= {} as Skill;
 				let stat = bonus.symbol.replace(`${bonus.skill}_`, '');
                 (bonuses[bonus.skill] as any)[stat] = value;
@@ -300,7 +301,7 @@ export function binaryLocateSymbol<T extends ISymbol>(symbol: string, source: T[
 }
 
 export function binaryLocateCrew<T extends Definitions.BotCrew>(symbol: string, source: T[]): Definitions.BotCrew | undefined {
-	return binaryLocateString(symbol, source, "symbol", false) as Definitions.BotCrew | undefined;	
+	return binaryLocateString(symbol, source, "symbol", false) as Definitions.BotCrew | undefined;
 }
 
 export function binaryLocateName<T extends IName>(symbol: string, source: T[]) {

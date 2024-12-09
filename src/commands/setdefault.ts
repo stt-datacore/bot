@@ -8,6 +8,7 @@ import { sendAndCache } from '../utils/discord';
 
 import { PlayerData } from '../datacore/player';
 import { Profile } from '../models/Profile';
+import { Definitions } from 'src/utils/definitions';
 
 require('dotenv').config();
 
@@ -35,8 +36,8 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 				}
 
 			}
-			
-			let text = profileName.toLowerCase().trim();			
+
+			let text = profileName.toLowerCase().trim();
 			let pf = profiles.find(p => p.player.character.display_name.toLowerCase().trim().includes(text as string));
             if (!pf) {
                 pf = profiles.find(p => p.player.dbid.toString() === profileName.toString());
@@ -60,26 +61,26 @@ async function asyncHandler(message: Message, guildConfig?: Definitions.GuildCon
 						prof.save();
 					}
 				})
-				
+
 				sendAndCache(
 					message,
 					`Your default profile has been updated to '${captainName}'.`
-				);		
+				);
 
                 return;
-			}			
+			}
 		}
 
         sendAndCache(
             message,
             `Sorry, couldn't find what you were looking for.`
-        );		
+        );
 	}
 }
 
 class SetDefaultProfile implements Definitions.Command {
 	name = 'setdefault';
-	command = 'setdefault <profile name>' 
+	command = 'setdefault <profile name>'
 	aliases = ['use'];
 	describe = 'Set your default player profile';
 	options = [

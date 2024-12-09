@@ -9,6 +9,7 @@ import { Mission, Quest } from '../datacore/missions';
 import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../utils/items';
 import { PlayerData } from 'src/datacore/player';
 import { Collection } from 'src/datacore/game-elements';
+import { Definitions } from 'src/utils/definitions';
 
 class DCDataClass {
 	private _watcher?: FSWatcher;

@@ -9,6 +9,7 @@ import { EquipmentCommon, EquipmentItem } from "./equipment";
 import { Collection, Icon } from "./game-elements"
 import { ShuttleAdventure } from "./shuttle";
 import { Archetype17, ArchetypeRoot17, ArchetypeRoot20 } from "./archetype";
+import { Definitions } from "src/utils/definitions";
 
 export interface AtlasIcon extends Icon {
     atlas_info: string

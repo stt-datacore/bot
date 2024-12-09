@@ -6,6 +6,7 @@ import { formatSources, formatRecipe } from '../utils/items';
 import { colorFromRarity } from '../utils/crew';
 import { sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
+import { Definitions } from 'src/utils/definitions';
 
 function bonusName(bonus: string) {
 	let cfg = CONFIG.STATS_CONFIG[Number.parseInt(bonus)];
@@ -98,7 +99,7 @@ async function asyncHandler(
 
 				embed = embed.addFields({ name: 'Equippable by this crew', value: equip });
 			}
-			
+
 			if (embed.data.fields && embed.data.fields.length > 0) {
 				sendAndCache(message, '', {embeds: [embed]});
 			}
@@ -148,13 +149,13 @@ async function asyncHandler(
 					let sendlines = lines.splice(0, 10);
 					await sendAndCache(message, sendlines.join("\n"), { isFollowUp: !!n++ });
 
-				}				
+				}
 			}
 			else {
 				if (!reply) reply = `No item sources found for '${item.rarity}* ${item.name}'`;
 				sendAndCache(message, reply);
 			}
-			
+
 		}
 	}
 }

@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import yargs from 'yargs';
 import { userFromMessage, clearUser } from '../utils/profile';
 import { sendAndCache } from '../utils/discord';
+import { Definitions } from 'src/utils/definitions';
 
 async function asyncHandler(message: Message) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution

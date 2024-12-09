@@ -8,6 +8,7 @@ import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { loadFullProfile, toTimestamp, userFromMessage } from '../utils/profile';
 import { BAD_COST, IDemand, getNeededItems } from '../utils/equipment';
+import { Definitions } from 'src/utils/definitions';
 
 function bonusName(bonus: string) {
 	let cfg = CONFIG.STATS_CONFIG[Number.parseInt(bonus)];

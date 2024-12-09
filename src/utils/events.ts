@@ -3,6 +3,7 @@ import { DCData } from '../data/DCData';
 import { IEventData } from '../datacore/events';
 import { Content, GameEvent, PlayerData, Shuttle } from '../datacore/player';
 import fs from 'fs';
+import { Definitions } from './definitions';
 
 export function getEventData(activeEvent: GameEvent, allCrew: Definitions.BotCrew[]): IEventData | undefined {
 	const result = {} as IEventData;

@@ -6,6 +6,7 @@ import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import levenshtein from 'js-levenshtein';
 import { colorFromRarity } from '../utils/crew';
 import CONFIG from '../utils/config';
+import { Definitions } from 'src/utils/definitions';
 
 
 function formatChoice(message: Message, choice: Definitions.IDilemmaChoice): string {
@@ -24,7 +25,7 @@ function getChoiceRarity(choice: Definitions.IDilemmaChoice) {
 async function asyncHandler(message: Message, searchString: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
-	
+
 	let test_search = searchString.trim().toLowerCase().replace(/\"/g, '').replace(/\'/g, '').replace(/,/g, '').replace(/:/g, '').replace(/;/g, '').replace(/'/g, '');
 	let dilemmas = DCData.getDilemmas() as Definitions.IDilemma[];
 
@@ -48,22 +49,22 @@ async function asyncHandler(message: Message, searchString: string) {
 				intermediate.push({ distance, dilemma });
 			}
 		});
-	
+
 		if (intermediate.length) {
 			intermediate.sort((a, b) => {
 				let r = a.distance - b.distance;
 				if (!r) r = a.dilemma.title.localeCompare(b.dilemma.title);
 				return r;
 			});
-		
+
 			if (intermediate.some(i => i.distance === 0)) {
 				results = intermediate.filter(i => i.distance === 0).map(i => i.dilemma);
 			}
 			else {
 				results = intermediate.map(i => i.dilemma);
-			}	
+			}
 		}
-	
+
 	}
 
 	if ((results === undefined) || (results.length === 0)) {
@@ -74,8 +75,8 @@ async function asyncHandler(message: Message, searchString: string) {
 		let botCrew = DCData.getBotCrew().filter(crew => crew.traits_hidden.includes("exclusive_voyage"));
 		let legend = [] as string[];
 		results = JSON.parse(JSON.stringify(results));
-		
-		for (let dilemma of results) {			
+
+		for (let dilemma of results) {
 			let crewurl = undefined as string | undefined;
 			let dil = 0;
 			[dilemma.choiceA, dilemma.choiceB, dilemma.choiceC ?? null].forEach((choice) => {
@@ -101,7 +102,7 @@ async function asyncHandler(message: Message, searchString: string) {
 				}
 				dil++;
 			});
-			
+
 			let r = getChoiceRarity(dilemma.choiceA);
 			let r2 = getChoiceRarity(dilemma.choiceB);
 			let r3 = dilemma.choiceC ? getChoiceRarity(dilemma.choiceC) : 0;

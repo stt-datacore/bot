@@ -10,6 +10,7 @@ import { sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { Logger } from '../utils';
 import { loadFullProfile, userFromMessage } from '../utils/profile';
+import { Definitions } from 'src/utils/definitions';
 
 interface WithMatchingTrait {
 	crew: Definitions.BotCrew;

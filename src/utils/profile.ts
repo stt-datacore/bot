@@ -12,6 +12,7 @@ import { stripPlayerData } from './playerutils';
 import { discordUserFromMessage } from './discord';
 import { PlayerCrew, PlayerData, StoredImmortal } from 'src/datacore/player';
 import { CrewMember } from 'src/datacore/crew';
+import { Definitions } from './definitions';
 
 export interface ProfileCrewEntry {
 	id: number;

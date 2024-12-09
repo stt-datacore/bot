@@ -1,3 +1,4 @@
+import { Definitions } from "src/utils/definitions";
 import { Icon } from "./game-elements"
 import { PlayerCrew, PlayerEquipmentItem } from "./player"
 
@@ -21,7 +22,7 @@ export interface EquipmentCommon extends PlayerEquipmentItem, Definitions.Item {
   duration?: number;
   max_rarity_requirement?: number;
   traits_requirement_operator?: string; // "and" | "or" | "not" | "xor";
-  traits_requirement?: string[];  
+  traits_requirement?: string[];
   kwipment?: boolean;
   kwipment_id?: number | string;
 }

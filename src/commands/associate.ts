@@ -5,6 +5,7 @@ import { loadProfile, createUserFromMessage, associateUser, getDbidFromDiscord, 
 import { discordUserFromMessage, sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { Profile } from '../models/Profile';
+import { Definitions } from 'src/utils/definitions';
 
 async function asyncHandler(message: Message, dbid: string, devpull: boolean, access_token?: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
@@ -60,7 +61,7 @@ async function downloadProfile(message: Message, dbid: string) {
 		}
 	let player_data = await loadRemoteProfile(dbid);
 	fs.writeFileSync(process.env.PROFILE_DATA_PATH + dbid, JSON.stringify(player_data, undefined, 4), 'utf8');
-	
+
 	let captainName = player_data.player.character.display_name;
 
 	let shortCrewList = {

@@ -1,5 +1,6 @@
 // TODO: share this file with \datacore\src\utils\equipment.ts
 import { DCData } from '../data/DCData';
+import { Definitions } from './definitions';
 
 export const BAD_COST = -1;
 
@@ -48,11 +49,11 @@ export function demandsPerSlot(es: any, items: Definitions.Item[], dupeChecker: 
 				avgChronCost: bestChronCost(equipment, skirmish),
 			});
 		}
-				
+
 		return 0;
 	}
 
-	for (let iter of equipment.recipe.list) {		
+	for (let iter of equipment.recipe.list) {
 		let recipeEquipment = items.find((item) => item.symbol === iter.symbol);
 		if (!recipeEquipment) {
 			continue;

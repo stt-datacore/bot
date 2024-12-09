@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import yargs from 'yargs';
 
 import { sendAndCache } from '../utils/discord';
+import { Definitions } from 'src/utils/definitions';
 
 
 async function asyncHandler(

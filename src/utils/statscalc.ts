@@ -1,4 +1,5 @@
 import CONFIG from './config';
+import { Definitions } from './definitions';
 import { loadProfileRoster, ProfileEntry } from './profile';
 
 interface StatsArrElement<T> {

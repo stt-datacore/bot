@@ -10,6 +10,7 @@ import CONFIG from '../utils/config';
 import { Logger } from '../utils';
 import { formatCrewField } from '../utils/beholdcalc';
 import { userFromMessage, loadProfile, loadProfileRoster, ProfileRosterEntry } from '../utils/profile';
+import { Definitions } from 'src/utils/definitions';
 
 
 let OffersCache = new NodeCache({ stdTTL: 600 });
@@ -43,18 +44,18 @@ function getOfferList(offers: any) {
 async function asyncHandler(message: Message, offer_name?: String, needed?: boolean) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
-	
+
 	const maxOffer = 6;
 
-	let offers: any = undefined; 
-	
+	let offers: any = undefined;
+
 	try {
 		offers = await loadOffers();
 	}
 	catch (err: any) {
 		console.log(err);
 	}
-	
+
 	if (!offers) {
 		sendAndCache(message, "We are having trouble retrieving offers, right now. Please wait at least 10 seconds, and try again.");
 		return;
@@ -82,31 +83,31 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 		sendAndCache(message, `Could not find any crew for offer ${selectedOffer.primary_content[0].title}`)
 		return;
 	}
-	
+
 	let embeds = [];
 	let remainder = [] as Definitions.BotCrew[];
-	let pricrew = [] as Definitions.BotCrew[];	
+	let pricrew = [] as Definitions.BotCrew[];
 	let part = 1;
 	let roster = [] as ProfileRosterEntry[];
 
 	if (needed){
-		let user = await userFromMessage(message);		
+		let user = await userFromMessage(message);
 		if (user && user.profiles.length > 0) {
-			// Apply personalization			
-			let profile = await loadProfile(user.profiles[0].dbid);		
+			// Apply personalization
+			let profile = await loadProfile(user.profiles[0].dbid);
 			if (profile) {
 				roster = loadProfileRoster(profile) ?? [];
-				
+
 			}
 		}
 	}
 
 	relevantCrew = relevantCrew.sort((a, b) => (b.date_added as Date).getTime() - (a.date_added as Date).getTime())
 		.filter(f => !roster.length || !roster.some(r => r.crew.symbol === f.symbol) || !roster.every(r => (f.symbol === r.crew.symbol && r.rarity >= r.crew.max_rarity) || (f.symbol !== r.crew.symbol)));
-	
+
 	let relevantRoster = roster.filter(f => relevantCrew.some(crew => crew.symbol === f.crew.symbol));
 	pricrew = relevantCrew.splice(0, maxOffer);
-	let andmore = relevantCrew.length;		
+	let andmore = relevantCrew.length;
 	relevantCrew = relevantCrew.splice(0, 20);
 	andmore -= relevantCrew.length;
 
@@ -117,10 +118,10 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 			.setURL(`${CONFIG.DATACORE_URL}crew/${pricrew[0].symbol}`);
 		pricrew.splice(0, 1).forEach((crew) => {
 			let rostcrew = relevantRoster.find(f => f.crew.symbol === crew.symbol);
-			
+
 			embed.addFields({ name: crew.name, value: formatCrewField(message, crew, rostcrew ? rostcrew.rarity + 1 : crew.max_rarity, '', crew?.collections ?? []) });
-		});		
-		
+		});
+
 		embeds.push(embed);
 	}
 	while (relevantCrew.length) {
@@ -128,7 +129,7 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 			.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title} (Part ${part++})`);
 		let s = "";
 		let i = 0;
-		
+
 		while (i < relevantCrew.length) {
 			let crew = relevantCrew[i];
 			let str = `[${crew.name}](${CONFIG.DATACORE_URL}crew/${crew.symbol})`;
@@ -137,11 +138,11 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 			}
 			if (s != "") s += ", ";
 			s += str;
-			i++;				
+			i++;
 		}
 
 		relevantCrew.splice(0, i);
-		embed.addFields({ name: 'Crew', value: s });			
+		embed.addFields({ name: 'Crew', value: s });
 		embeds.push(embed);
 	}
 
@@ -169,7 +170,7 @@ class Offers implements Definitions.Command {
 			required: false,
 		},
 		{
-			name: 'needed',			
+			name: 'needed',
 			type: ApplicationCommandOptionType.Boolean,
 			description: "show only crew from offers that are unowned or fusable",
 			required: false,

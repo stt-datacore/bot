@@ -6,10 +6,11 @@ import { AnalysisResult, analyzeImage } from '../utils/imageanalysis';
 import { sendAndCache } from '../utils/discord';
 
 import { Logger } from '../utils';
+import { Definitions } from 'src/utils/definitions';
 
 async function asyncHandler(message: Message, url: string, threshold: number, base: boolean) {
 	let data: AnalysisResult | undefined = undefined;
-	
+
 	try {
 		data = await analyzeImage(url);
 	}
@@ -21,7 +22,7 @@ async function asyncHandler(message: Message, url: string, threshold: number, ba
 		catch { }
 		return;
 	}
-	
+
 	if (data) {
 		Logger.info(`Behold command`, {
 			id: message.id,
@@ -30,7 +31,7 @@ async function asyncHandler(message: Message, url: string, threshold: number, ba
 		if (data.beholdResult && isValidBehold(data.beholdResult, threshold)) {
 			await calculateBehold(message, data.beholdResult, true, base);
 		} else {
-			sendAndCache(message, 
+			sendAndCache(message,
 				`Sorry, that doesn't appear to be a valid behold; try lowering the threshold with the -t option if you think it should be recognizable. (${data
 					.beholdResult!.error || ''})`
 			);

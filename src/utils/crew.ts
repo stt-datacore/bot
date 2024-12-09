@@ -2,6 +2,7 @@ import { ColorResolvable, Message } from 'discord.js';
 import { getEmoteOrString } from './discord';
 import CONFIG from './config';
 import { PlayerCrew } from '../datacore/player';
+import { Definitions } from './definitions';
 
 export function formatTrait(value: string) {
 	value = value.replace(/_/g, " ");

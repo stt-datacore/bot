@@ -7,6 +7,7 @@ import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import { userFromMessage, loadFullProfile } from '../utils/profile';
 import { getNeededItems } from '../utils/equipment';
 import CONFIG from '../utils/config';
+import { Definitions } from 'src/utils/definitions';
 
 async function asyncHandler(message: Message, searchString: string, level: number, all: boolean, base: boolean, item: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
@@ -71,14 +72,14 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 								name: user.profiles[0].captainName,
 								value: `Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you own a level ${level} ${crew.name}.`
 							});
-                            
+
                             plainTextHeader += `${user.profiles[0].captainName}, data is customized for your profile: you own a level ${level} ${crew.name}.\n`;
 						} else {
 							embed = embed.addFields({
 								name: user.profiles[0].captainName,
 								value: `According to [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}), you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.`
 							});
-                            
+
                             plainTextHeader += `${user.profiles[0].captainName}, according to your profile, you don't own an unfrozen ${crew.name}; make sure your profile is up-to-date on ${CONFIG.DATACORE_URL}.\n`;
 						}
 					}
@@ -105,7 +106,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 				// Eliminate needs already owned by player
 				data = data.filter((item) => item.need >= item.have);
 			}
-            
+
 			if (item.length > 0) {
 				// Filter to specific item specified in command
 				data = data.filter((entry) => entry.name.toLowerCase().includes(item.toLowerCase()));

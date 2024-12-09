@@ -16,6 +16,7 @@ import { OffersCommand } from './offers';
 import { CheapestFFFECommand } from './cheapestfffe';
 import { QuipmentCommand } from './quip';
 import { SetDefaultCommand } from './setdefault';
+import { Definitions } from 'src/utils/definitions';
 
 export let Commands: Definitions.Command[] = [
 	AssociateCommand,
