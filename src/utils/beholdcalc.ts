@@ -1,17 +1,12 @@
-import { Message, Embed, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 
 import { DCData } from '../data/DCData';
-import { formatStatLine, formatCrewCoolRanks, colorFromRarity, formatTrait, actionAbilityoString, isRecent } from './crew';
-import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, loadFullProfile, toTimestamp, ProfileEntry } from './profile';
+import { formatStatLine, formatCrewCoolRanks, colorFromRarity, isRecent } from './crew';
+import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, toTimestamp } from './profile';
 import { sendAndCache } from './discord';
 import CONFIG from './config';
-import { PlayerData } from '../datacore/player';
-import { Schematics, Ship } from '../datacore/ship';
-import { shipSum } from './ships';
-import { binaryLocateCrew, binaryLocateId, binaryLocateSymbol } from './items';
-import { CrewMember } from '../datacore/crew';
+import { binaryLocateCrew } from './items';
 import { handleShipBehold } from './beholdships';
-import { Profile } from 'src/models/Profile';
 import { Definitions } from './definitions';
 
 export function isValidBehold(data: any, threshold: number = 10) {
