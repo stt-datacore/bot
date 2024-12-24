@@ -11,6 +11,8 @@ import { PlayerData } from 'src/datacore/player';
 import { Collection } from 'src/datacore/game-elements';
 import { Definitions } from 'src/utils/definitions';
 
+export const POST_BIGBOOK_EPOCH = new Date('2024-12-24T00:00:00Z');
+
 class DCDataClass {
 	private _watcher?: FSWatcher;
 	private _items: Definitions.Item[] = [];

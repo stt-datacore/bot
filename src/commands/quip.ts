@@ -72,21 +72,31 @@ async function asyncHandler(
         let matched = botCrew.find((crew) => {
 			return crew.symbol === crew.symbol
 		}) as Definitions.BotCrew;
+
         crew = JSON.parse(JSON.stringify(crew));
+
         if (dnum)
             crew.kwipment_expirations = (crew.kwipment_expiration.map(kw => new Date((dnum+kw[1]) * 1000))?.filter(chk => !!chk) ?? []) as Date[];
 
         crew.name = matched?.name ?? crew.name;
-        crew.bigbook_tier = matched?.bigbook_tier;
+        if (matched) {
+            crew.bigbook_tier = matched?.bigbook_tier ?? -1;
+            crew.cab_ov = matched?.cab_ov;
+            crew.cab_ov_grade = matched?.cab_ov_grade;
+            crew.cab_ov_rank = matched?.cab_ov_rank;
+        }
+        crew.bigbook_tier ??= -1;
         crew.date_added = new Date(crew.date_added);
         if (settings) crew.base_skills = applyCrewBuffs(crew.base_skills, settings.buffConfig);
+
         return crew;
     })
 	.sort((a: PlayerCrew, b: PlayerCrew) => {
 		let r = 0;
 		if (!r) r = (b.kwipment_items?.length ?? 0) - (a.kwipment_items?.length ?? 0);
         if (!r) r = (b.max_rarity - a.max_rarity);
-        if (!r) r = (a.bigbook_tier - b.bigbook_tier);
+        //if (!r) r = (a.bigbook_tier - b.bigbook_tier);
+        if (!r) r = (Number(b.cab_ov_rank) - Number(a.cab_ov_rank));
         if (!r) r = a.symbol.localeCompare(b.symbol);
 		return r;
 	});

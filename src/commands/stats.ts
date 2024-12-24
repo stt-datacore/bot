@@ -1,7 +1,7 @@
 import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
-import { DCData } from '../data/DCData';
+import { DCData, POST_BIGBOOK_EPOCH } from '../data/DCData';
 import {
 	formatCrewCoolRanks,
 	getBonusType,
@@ -136,8 +136,9 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			.addFields({ name: 'Difficulty', value: getDifficulty(crew.ranks.chronCostRank), inline: true })
 			.setFooter({ text: formatCrewCoolRanks(crew) });
 
+		if (typeof crew.date_added === 'string') crew.date_added = new Date(crew.date_added);
+
 		if (extended && crew.obtained && crew.date_added) {
-			if (typeof crew.date_added === 'string') crew.date_added = new Date(crew.date_added);
 			embed = embed
 				.addFields({ name: 'Date Added', value: crew.date_added.toDateString(), inline: true })
 				.addFields({ name: 'Obtained', value: crew.obtained.replace("Event/Pack/Giveaway", "Event, Pack, or Giveaway"), inline: true })
@@ -145,8 +146,14 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		if (crew.bigbook_tier) {
-			embed = embed
-				.addFields({ name: 'Big Book Tier ', value: crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `[${crew.bigbook_tier}](https://www.bigbook.app/crew/${crew.symbol})`, inline: true });
+			if (crew.bigbook_tier == -1 && crew.date_added.getTime() > POST_BIGBOOK_EPOCH.getTime()) {
+				embed = embed
+					.addFields({ name: 'Big Book Tier ', value: 'N/A', inline: true });
+			}
+			else {
+				embed = embed
+					.addFields({ name: 'Big Book Tier ', value: crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `${crew.bigbook_tier}`, inline: true });
+			}
 		}
 
 		if (crew.cab_ov) {
@@ -196,7 +203,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		let mdContent = crew.markdownContent;
-		mdContent += `\n\n[More at Bigbook.app](https://www.bigbook.app/crew/${crew.symbol})`;
+		//mdContent += `\n\n[More at Bigbook.app](https://www.bigbook.app/crew/${crew.symbol})`;
 
 		if (extended && mdContent && mdContent.length < 980) {
 			embed = embed.addFields({ name: 'Big Book note', value: mdContent });
