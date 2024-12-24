@@ -117,10 +117,10 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	const weightBest = (starBest: CrewFromBehold, colBest: CrewFromBehold) => {
 		if (!starBest && colBest) return colBest;
 		if (starBest && !colBest) return starBest;
-		let ac = starBest ? cols(starBest) : 0;
-		let bc = colBest ? cols(colBest) : 0;
-		let as = starBest?.stars ?? 0;
-		let bs = colBest?.stars ?? 0;
+		let ac = starBest ? cols(starBest) : 1;
+		let bc = colBest ? cols(colBest) : 1;
+		let as = starBest?.stars ?? 1;
+		let bs = colBest?.stars ?? 1;
 		if (bc === 0 && starBest) return starBest;
 		if (ac === 0 && colBest) return colBest;
 		ac = ac / bc;
