@@ -217,7 +217,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				let embed = new EmbedBuilder()
 					.setTitle(`Big Book note for ${crew.name}`)
 					.setColor(colorFromRarity(crew.max_rarity))
-					.setURL(`https://www.bigbook.app/crew/${crew.symbol}/`)
+					//.setURL(`https://www.bigbook.app/crew/${crew.symbol}/`)
 					.setDescription(mdContent)
 				embed = addAuthorNotes(crew, embed);
 				await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
@@ -254,7 +254,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					let embed = new EmbedBuilder()
 						.setTitle(`Big Book note for ${crew.name}, Part ${p++}`)
 						.setColor(colorFromRarity(crew.max_rarity))
-						.setURL(`https://www.bigbook.app/crew/${crew.symbol}/`)
+						//.setURL(`https://www.bigbook.app/crew/${crew.symbol}/`)
 						.setDescription(markdown);
 					embeds.push(embed);
 
