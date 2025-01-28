@@ -145,16 +145,16 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				.addFields({ name: 'In Portal', value: crew.in_portal ? "Yes" : "No", inline: true })
 		}
 
-		if (crew.bigbook_tier) {
-			if (crew.bigbook_tier == -1 && crew.date_added.getTime() > POST_BIGBOOK_EPOCH.getTime()) {
-				embed = embed
-					.addFields({ name: 'Big Book Tier ', value: 'N/A', inline: true });
-			}
-			else {
-				embed = embed
-					.addFields({ name: 'Big Book Tier ', value: crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `${crew.bigbook_tier}`, inline: true });
-			}
-		}
+		// if (crew.bigbook_tier) {
+		// 	if (crew.bigbook_tier == -1 && crew.date_added.getTime() > POST_BIGBOOK_EPOCH.getTime()) {
+		// 		embed = embed
+		// 			.addFields({ name: 'Big Book Tier ', value: 'N/A', inline: true });
+		// 	}
+		// 	else {
+		// 		embed = embed
+		// 			.addFields({ name: 'Big Book Tier ', value: crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `${crew.bigbook_tier}`, inline: true });
+		// 	}
+		// }
 
 		if (crew.cab_ov) {
 			embed = embed.addFields({ name: 'CAB Grade', value: `[${crew.cab_ov_grade}](https://cabtools.app/)`, inline: true });
@@ -215,7 +215,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		if (extended && mdContent && mdContent.length >= 980) {
 			if (mdContent.length < 2000) {
 				let embed = new EmbedBuilder()
-					.setTitle(`Big Book note for ${crew.name}`)
+					.setTitle(`Review for ${crew.name}`)
 					.setColor(colorFromRarity(crew.max_rarity))
 					.setURL(`https://datacore.app/crew/${crew.symbol}/`)
 					.setDescription(mdContent)
@@ -252,7 +252,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 					if (!markdown?.length) break;
 
 					let embed = new EmbedBuilder()
-						.setTitle(`Big Book note for ${crew.name}, Part ${p++}`)
+						.setTitle(`Note for ${crew.name}, Part ${p++}`)
 						.setColor(colorFromRarity(crew.max_rarity))
 						.setURL(`https://datacore.app/crew/${crew.symbol}/`)
 						.setDescription(markdown);
@@ -264,7 +264,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				}
 
 				if (embeds.length === 1) {
-					embeds[0] = embeds[0].setTitle(`Big Book note for ${crew.name}`);
+					embeds[0] = embeds[0].setTitle(`Note for ${crew.name}`);
 				}
 				if (embeds.length > 0) {
 					embeds[embeds.length - 1] = addAuthorNotes(crew, embeds[embeds.length - 1])
