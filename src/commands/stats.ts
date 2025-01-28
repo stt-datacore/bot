@@ -1,7 +1,7 @@
 import { Message, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import yargs from 'yargs';
 
-import { DCData, POST_BIGBOOK_EPOCH } from '../data/DCData';
+import { DCData } from '../data/DCData';
 import {
 	formatCrewCoolRanks,
 	getBonusType,

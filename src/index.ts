@@ -14,15 +14,15 @@ const Yargs = require('yargs/yargs');
 require('dotenv').config();
 
 const client = new Client({
-	intents: ['Guilds', 
-		'GuildMessages', 
-		'MessageContent', 
-		'GuildEmojisAndStickers', 
-		'GuildMessageTyping', 
-		'GuildIntegrations', 
-		'GuildMessageReactions',	
+	intents: ['Guilds',
+		'GuildMessages',
+		'MessageContent',
+		'GuildEmojisAndStickers',
+		'GuildMessageTyping',
+		'GuildIntegrations',
+		'GuildMessageReactions',
 		'DirectMessages',
-		'DirectMessageReactions'	
+		'DirectMessageReactions'
 		],
 	partials: [Partials.Channel, Partials.Message, Partials.GuildMember, Partials.ThreadMember, Partials.User],
 });
@@ -59,13 +59,13 @@ client.on('ready', () => {
 		Logger.info(`Registering commands globally`);
 		client?.application?.commands.set(slashCommands);
 	} else {
-		
+
 		if (!!process.env.DEFAULT_GUILD) {
 			const gid = process.env.DEFAULT_GUILD;
 			Logger.info(`Registering commands for guild ${gid}`);
-			client.guilds.cache.get(gid)?.commands.set(slashCommands);	
+			client.guilds.cache.get(gid)?.commands.set(slashCommands);
 		}
-		
+
 		for (const gid of devGuilds) {
 			Logger.info(`Registering commands for guild ${gid}`);
 			client.guilds.cache.get(gid)?.commands.set(slashCommands);
@@ -115,19 +115,20 @@ client.on('messageCreate', (message) => {
 		return;
 	}
 
-	Logger.verbose('Message received', {
-		id: message.id,
-		author: { id: message.author.id, username: message.author.username },
-		guild: message.guild ? message.guild.toString() : 'DM',
-		channel: message.channel.toString(),
-		content: message.content,
-	});
-
 	if (message.author.bot) {
 		return;
 	}
 
 	if (config.devmode) {
+
+		Logger.verbose('Message received', {
+			id: message.id,
+			author: { id: message.author.id, username: message.author.username },
+			guild: message.guild ? message.guild.toString() : 'DM',
+			channel: message.channel.toString(),
+			content: message.content,
+		});
+
 		// a DM or a message from a guild not in devmode
 		if (!message.guild || !config.devmode[message.guild.id]) {
 			return;
@@ -152,7 +153,7 @@ client.on('messageCreate', (message) => {
 
 	const prefix = message.content.match(prefixRegex);
 	let usedPrefix = '';
-	
+
 	if (prefix === null) {
 		// special case for attached images (for behold / voyage)
 		let cmdConfig = guildConfig && guildConfig.commands ? guildConfig.commands.find((c: any) => c.command === 'imageAnalysis') : undefined;
@@ -202,7 +203,7 @@ client.on('messageCreate', (message) => {
 				sendAndCache(
 					message,
 					`Sorry, I couldn't do that! Try '${usedPrefix} help' for a list of commands or '${usedPrefix} --help <command>' for command-specific help ('${lastError}')`
-				);	
+				);
 			}
 		}
 	}
