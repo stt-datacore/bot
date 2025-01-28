@@ -63,8 +63,7 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	}
 
 	if (crew.bigbook_tier && crew.bigbook_tier > 0) {
-		//reply += `Big Book **tier ${crew.bigbook_tier}** ([link](https://www.bigbook.app/crew/${crew.symbol})), `;
-		reply += `Big Book **tier ${crew.bigbook_tier}**, `;
+		//reply += `Big Book **tier ${crew.bigbook_tier}**, `;
 	}
 
 	reply += `Voyage #${crew.ranks.voyRank}, Gauntlet #${crew.ranks.gauntletRank}, ${crew.events || 0} event${
