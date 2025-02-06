@@ -58,12 +58,11 @@ export function isPossibleBehold(data: any, threshold: number = 10) {
 
 export function formatCrewField(message: Message, crew: Definitions.BotCrew, stars: number, custom: string, collections: string[]) {
 	let reply = '';
+
+	reply += `\n([DataCore Link](${CONFIG.DATACORE_URL}crew/${crew.symbol}))\n`;
+
 	if (crew.cab_ov) {
 		reply += `CAB **grade ${crew.cab_ov_grade} (rank #${crew.cab_ov_rank}, rating: ${crew.cab_ov})**, `;
-	}
-
-	if (crew.bigbook_tier && crew.bigbook_tier > 0) {
-		//reply += `Big Book **tier ${crew.bigbook_tier}**, `;
 	}
 
 	reply += `Voyage #${crew.ranks.voyRank}, Gauntlet #${crew.ranks.gauntletRank}, ${crew.events || 0} event${
