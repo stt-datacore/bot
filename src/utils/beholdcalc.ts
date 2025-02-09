@@ -138,7 +138,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 
 	let best = sortBest(crew);
-	let bestCab = [...crew].sort((a, b) => b.crew.ranks.scores.overall - a.crew.ranks.scores.overall);
+	// let bestCab = [...crew].sort((a, b) => Number(b.crew.cab_ov) - Number(a.crew.cab_ov));
 	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
 	let bestCrew: Definitions.BotCrew = best[0].crew;
 
