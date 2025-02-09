@@ -8,7 +8,8 @@ import {
 	actionAbilityoString,
 	chargePhasesToString,
 	colorFromRarity,
-	formatStatLine
+	formatStatLine,
+	rankLinker
 } from '../utils/crew';
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import { loadProfile, userFromMessage, applyCrewBuffs, toTimestamp } from '../utils/profile';
@@ -51,6 +52,14 @@ function getDifficulty(chronCostRank: number): string {
 	}
 
 	return `Insane (${percentage}%)`;
+}
+
+function formatShipScore(crew: Definitions.BotCrew) {
+
+	let str = `${crew.ranks.scores.ship.overall}`;
+	if (crew.ranks.scores.ship.kind === 'defense') str += ' (Defense)'
+	else str += ' (Offense)';
+	return str;
 }
 
 function addAuthorNotes(crew: Definitions.BotCrew, embed: EmbedBuilder) {
@@ -134,6 +143,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				inline: true
 			})
 			.addFields({ name: 'Difficulty', value: getDifficulty(crew.ranks.chronCostRank), inline: true })
+			.addFields({ name: 'Ship Score', value: `${formatShipScore(crew)}`, inline: true })
 			.setFooter({ text: formatCrewCoolRanks(crew) });
 
 		if (typeof crew.date_added === 'string') crew.date_added = new Date(crew.date_added);
@@ -145,16 +155,13 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				.addFields({ name: 'In Portal', value: crew.in_portal ? "Yes" : "No", inline: true })
 		}
 
-		// if (crew.bigbook_tier) {
-		// 	if (crew.bigbook_tier == -1 && crew.date_added.getTime() > POST_BIGBOOK_EPOCH.getTime()) {
-		// 		embed = embed
-		// 			.addFields({ name: 'Big Book Tier ', value: 'N/A', inline: true });
-		// 	}
-		// 	else {
-		// 		embed = embed
-		// 			.addFields({ name: 'Big Book Tier ', value: crew.bigbook_tier === -1 ? '¯\\_(ツ)_/¯' : `${crew.bigbook_tier}`, inline: true });
-		// 	}
-		// }
+		if (crew.ranks.scores) {
+			const dsUrl = rankLinker(crew.symbol, 'ranks.scores.overall', 'descending');
+			embed = embed
+				.addFields({ name: 'DataScore Grade', value: `[${crew.ranks.scores.overall_grade}](${dsUrl})`, inline: true })
+				.addFields({ name: 'DataScore Rating', value: `[${crew.ranks.scores.overall}](${dsUrl})`, inline: true })
+				.addFields({ name: 'DataScore Rank', value: `[${crew.ranks.scores.overall_rank}](${dsUrl})`, inline: true })
+		}
 
 		if (crew.cab_ov) {
 			embed = embed.addFields({ name: 'CAB Grade', value: `[${crew.cab_ov_grade}](https://cabtools.app/)`, inline: true });
@@ -206,7 +213,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		mdContent += `\n\n[More at DataCore](https://datacore.app/crew/${crew.symbol})`;
 
 		if (extended && mdContent && mdContent.length < 980) {
-			embed = embed.addFields({ name: 'Big Book note', value: mdContent });
+			embed = embed.addFields({ name: 'DataCore Note', value: mdContent });
 			embed = addAuthorNotes(crew, embed);
 		}
 
@@ -222,7 +229,6 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				embed = addAuthorNotes(crew, embed);
 				await sendAndCache(message, '', { embeds: [embed], isFollowUp: true });
 			} else {
-				// The Big Book text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
 				let markdownChunks = mdContent.split('\n');
 				let space = false;
 				if (markdownChunks.length === 1) {

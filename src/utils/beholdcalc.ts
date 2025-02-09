@@ -61,6 +61,10 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 
 	reply += `\n([DataCore Link](${CONFIG.DATACORE_URL}crew/${crew.symbol}))\n`;
 
+	if (crew.ranks.scores) {
+		reply += `DataScore **grade ${crew.ranks.scores.overall_grade} (rank #${crew.ranks.scores.overall_rank}, rating: ${crew.ranks.scores.overall})**, `;
+	}
+
 	if (crew.cab_ov) {
 		reply += `CAB **grade ${crew.cab_ov_grade} (rank #${crew.cab_ov_rank}, rating: ${crew.cab_ov})**, `;
 	}
@@ -70,6 +74,7 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	}, ${crew.collections.length} collection${crew.collections.length !== 1 ? 's' : ''}`;
 
 	let coolRanks = formatCrewCoolRanks(crew, true);
+
 	if (coolRanks) {
 		reply += `\n*${coolRanks}*`;
 	}
@@ -88,6 +93,41 @@ interface CrewFromBehold {
 	stars: number;
 }
 
+const grades = (() => {
+	const strs = [] as string[]
+	const bg = ['A', 'B', 'C', 'D', 'F'];
+	for (let g of bg) {
+		strs.push(`${g}+`);
+		strs.push(`${g}`);
+		strs.push(`${g}-`);
+	}
+	return strs;
+})();
+
+function getGrade(crew: Definitions.BotCrew) {
+	let r = 0;
+	if (crew.ranks.scores) {
+		r = grades.indexOf(crew.ranks.scores.overall_grade);
+	}
+	else {
+		r = grades.indexOf(crew.cab_ov_grade);
+	}
+	return r;
+}
+
+function compGrade(a: CrewFromBehold, b: CrewFromBehold) {
+	return getGrade(a.crew) - getGrade(b.crew);
+}
+
+function sortBest(crew: CrewFromBehold[]) {
+	return crew.sort((a, b) => {
+		let r = compGrade(a, b);
+		if (r == 0 && a.crew.ranks.scores && b.crew.ranks.scores) r = b.crew.ranks.scores.overall - a.crew.ranks.scores.overall;
+		else if (r == 0) r = Number(b.crew.cab_ov) - Number(a.crew.cab_ov);
+		return r;
+	});
+}
+
 function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	const ff = (c: CrewFromBehold) => {
 		return c.stars == c.crew.max_rarity;
@@ -97,20 +137,22 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 		return c?.crew?.collections?.filter(f => openCols?.includes(f))?.length || 0;
 	}
 
-	//let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
-	let best = crew.sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
-	let bestCab = [...crew].sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
+	let best = sortBest(crew);
+	let bestCab = [...crew].sort((a, b) => b.crew.ranks.scores.overall - a.crew.ranks.scores.overall);
 	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
 	let bestCrew: Definitions.BotCrew = best[0].crew;
 
 	if (starBest.length > 0) {
-		//starBest = starBest.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
-		starBest = starBest.sort((a, b) => parseFloat(b.crew.cab_ov) - parseFloat(a.crew.cab_ov));
+		starBest = sortBest(starBest);
 	}
 
 	let colBest = openCols?.length && best.length ? best.filter(c => !ff(c)).sort((a, b) => cols(b) - cols(a)) : null;
 
 	let title = '';
+
+	const lower = 70;
+	const medium = 80;
+	const high = 90;
 
 	const weightBest = (starBest: CrewFromBehold, colBest: CrewFromBehold) => {
 		if (!starBest && colBest) return colBest;
@@ -148,7 +190,10 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			}
 			else {
 				let sbc = weightBest(starBest[0], colBest[0]);
-				title = `Pick ${sbc.crew.name} for collections`;
+				if (sbc == colBest[0])
+					title = `Pick ${sbc.crew.name} for collections`;
+				else
+					title = `${sbc.crew.name} is your best bet`;
 				bestCrew = sbc.crew;
 				// title = `Pick ${starBest[0].crew.name} for collections`;
 				// bestCrew = starBest[0].crew;
@@ -166,42 +211,51 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 				bestCrew = colBest[0].crew;
 			}
 		}
-		if (actualBest && actualBest.crew !== bestCrew) {
+		if (actualBest && actualBest.crew !== bestCrew && actualBest.stars !== actualBest.crew.max_rarity) {
 			title += `, or pick ${actualBest.crew.name} if you have room`
+		}
+		else if (actualBest && actualBest.crew !== bestCrew && actualBest.stars !== actualBest.crew.max_rarity) {
+			title += `, or start another ${actualBest.crew.name}`
 		}
 	}
 
-	const lower = 11.2;
-	const medium = 8;
-	const high = 14;
-
-	if (parseFloat(best[0].crew.cab_ov) <= lower) {
+	if (best[0].crew.ranks.scores.rarity_overall <= lower) {
 		if (starBest.length > 1 && colBest?.length) {
 			printPickCols(colBest);
 		} else if (starBest.length > 0) {
 			title = `Add a star to ${starBest[0].crew.name}`;
 			bestCrew = starBest[0].crew;
 		} else {
-			title = `Pick ${best[0].crew.name} if you have room`;
+			if (best[0].stars !== best[0].crew.max_rarity) {
+				title = `Add a star to ${starBest[0].crew.name}`;
+			}
+			else if (best[0].stars === 0)
+				title = `Pick ${best[0].crew.name} if you have room`;
+			else
+				title = `Pick anyone`;
 			bestCrew = best[0].crew;
 		}
 	} else if (starBest.length > 0 && starBest[0].crew != best[0].crew && !ff(best[0])) {
-		if (parseFloat(starBest[0].crew.cab_ov) < medium) {
+		if (starBest[0].crew.ranks.scores.rarity_overall < medium) {
 			title = `${best[0].crew.name} is your best bet; star up ${starBest[0].crew.name} if you don't have any slots to spare`;
 		} else {
-			title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
+			if (best[0].stars === 0)
+				title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
+			else
+				title = `Add a star to ${starBest[0].crew.name}`;
+
 			bestCrew = starBest[0].crew;
 		}
-	} else if (best.find((c,i)=> i != 0 && parseFloat(c.crew.cab_ov) == parseFloat(crew[0].crew.cab_ov) && !ff(c)) && !ff(best[0])) {
+	} else if (best.find((c,i)=> i != 0 && c.crew.ranks.scores.rarity_overall == crew[0].crew.ranks.scores.rarity_overall && !ff(c)) && !ff(best[0])) {
 		// There's an equally good option, neither FF
-		let equals = best.filter((c,i) => i != 0 && parseFloat(c.crew.cab_ov) == parseFloat(crew[0].crew.cab_ov) && !ff(c));
+		let equals = best.filter((c,i) => i != 0 && c.crew.ranks.scores.rarity_overall == crew[0].crew.ranks.scores.rarity_overall && !ff(c));
 		if (equals.length == 2) {
 			title = `Pick anyone`
 		} else {
 			title = `Pick ${best[0].crew.name} or ${equals[0].crew.name}`;
 		}
 	} else if (starBest.length > 0 && ff(best[0])) {
-		if (parseFloat(crew[1].crew.cab_ov) < 3 && !ff(best[1])) {
+		if (crew[1].crew.ranks.scores.overall < 3 && !ff(best[1])) {
 			title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
 			bestCrew = best[1].crew;
 		} else {
@@ -210,11 +264,11 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			}
 			else {
 				title = `Pick ${starBest[0].crew.name} if you don't want dupes, or start another ${best[0].crew.name}`;
+				bestCrew = starBest[0].crew;
 			}
-			//title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
 	} else {
-		if (colBest?.length && cols(colBest[0]) && !(isRecent(best[0].crew)) && (parseFloat(crew[0].crew.cab_ov) < high || best[0].crew.max_rarity === best[0].stars)) {
+		if (colBest?.length && cols(colBest[0]) && !(isRecent(best[0].crew)) && (crew[0].crew.ranks.scores.overall < high || best[0].crew.max_rarity === best[0].stars)) {
 			printPickCols(colBest, best[0]);
 		}
 		else {
@@ -223,21 +277,13 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	}
 
 	let suffix = ".";
-	if (Math.abs(parseFloat(crew[1].crew.cab_ov) - parseFloat(crew[0].crew.cab_ov)) <= 1 &&
-		Math.abs(parseFloat(crew[2].crew.cab_ov) - parseFloat(crew[0].crew.cab_ov)) <= 1 &&
-		Math.abs(parseFloat(crew[2].crew.cab_ov) - parseFloat(crew[1].crew.cab_ov)) <= 1) {
-		suffix = ", but check their links as ranks are similar."
+	if (Math.abs(crew[1].crew.ranks.scores.overall - crew[0].crew.ranks.scores.overall) <= 2 &&
+		Math.abs(crew[2].crew.ranks.scores.overall - crew[0].crew.ranks.scores.overall) <= 2 &&
+		Math.abs(crew[2].crew.ranks.scores.overall - crew[1].crew.ranks.scores.overall) <= 2) {
+		suffix = ", but check their links as scores are similar."
 	}
 
 	title += suffix;
-	// if (best[0] !== bestCab[0]) {
-	// 	if (title.includes('collections')) {
-	// 		title = `${title}\n\nBig Book Recommendation: ${best[0].crew.name}\nCAB Ratings recommendation: ${bestCab[0].crew.name}`
-	// 	}
-	// 	else {
-	// 		title = `Big Book recommendation: ${title}\nCAB Ratings recommendation: ${bestCab[0].crew.name}`
-	// 	}
-	// }
 
 	return {
 		best: bestCrew,

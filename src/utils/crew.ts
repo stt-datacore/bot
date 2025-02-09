@@ -350,3 +350,22 @@ export function isRecent(crew: { date_added: Date | string; [key: string]: any }
 	}
 	return crew.date_added.getTime() >= now.getTime();
 }
+
+export function rankLinker(symbol: string, column: string, direction: string = 'ascending', search: string | undefined = undefined) {
+	const linkState = {
+		search: search ?? '',
+		column: column,
+		direction: direction ?? 'ascending',
+		highlight: symbol ?? ''
+	};
+	const baseUrl = 'https://datacore.app/';
+	let params = '';
+	Object.entries(linkState).forEach(entry => {
+		if (entry[1] !== '') {
+			if (params !== '') params += '&';
+			params += entry[0]+'='+encodeURI(entry[1]);
+		}
+	});
+	const url = params !== '' ? baseUrl+'?'+params : baseUrl;
+	return url;
+};

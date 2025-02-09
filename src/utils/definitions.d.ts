@@ -67,55 +67,6 @@ declare namespace Definitions {
 	// We actually know the index strings, but we need more flexibility
 	export type BuffConfig = { [index: string]: BuffConfigEntry };
 
-	export interface BotCrewRanks {
-		voyRank: number;
-		gauntletRank: number;
-		chronCostRank: number;
-
-		voyTriplet: {
-			name: string;
-			rank: number;
-		}
-
-		// TODO: eliminate (calc at runtime)
-
-		[index: string]: any;
-
-		B_CMD: number;
-		A_CMD: number;
-		B_SEC: number;
-		A_SEC: number;
-		B_DIP: number;
-		A_DIP: number;
-		V_CMD_SCI: number;
-		G_CMD_SCI: number;
-		V_CMD_SEC: number;
-		G_CMD_SEC: number;
-		V_CMD_ENG: number;
-		G_CMD_ENG: number;
-		V_CMD_DIP: number;
-		G_CMD_DIP: number;
-		V_CMD_MED: number;
-		G_CMD_MED: number;
-		V_SCI_SEC: number;
-		G_SCI_SEC: number;
-		V_SCI_ENG: number;
-		V_SCI_DIP: number;
-		G_SCI_DIP: number;
-		V_SCI_MED: number;
-		V_SEC_ENG: number;
-		G_SEC_ENG: number;
-		V_SEC_DIP: number;
-		G_SEC_DIP: number;
-		V_SEC_MED: number;
-		G_SEC_MED: number;
-		V_ENG_DIP: number;
-		G_ENG_DIP: number;
-		V_ENG_MED: number;
-		V_DIP_MED: number;
-		G_DIP_MED: number;
-	}
-
 	export interface CrewActionChargePhase {
 		charge_time: number;
 		ability_amount?: number;
@@ -155,6 +106,102 @@ declare namespace Definitions {
 	export interface EquipmentSlot {
 		level: number;
 		symbol: string
+	}
+
+	export interface ShipScores {
+		overall: number,
+		arena: number,
+		fbb: number,
+		kind: 'offense' | 'defense' | 'ship',
+		divisions: {
+			fbb: {
+				1?: number,
+				2?: number,
+				3?: number,
+				4?: number,
+				5?: number,
+				6?: number
+			},
+			arena: {
+				1?: number,
+				2?: number,
+				3?: number
+			}
+		}
+	}
+
+	export interface RankScoring {
+		am_seating: number;
+		collections: number;
+		gauntlet: number;
+		main_cast: number;
+		overall_grade: string;
+		overall_rank: number;
+		overall: number;
+		tuvix: number;
+		potential_cols: number;
+		quipment: number;
+		rarity_overall: number;
+		ship: ShipScores;
+		shuttle: number;
+		skill_rarity: number;
+		tertiary_rarity: number;
+		trait: number;
+		velocity: number;
+		crit: number;
+		voyage: number;
+	}
+
+	export interface BotCrewRanks {
+		[key: string]: any;
+		voyRank: number;
+		gauntletRank: number;
+		chronCostRank: number;
+		traitRank: number;
+		scores: RankScoring;
+		B_SEC?: number;
+		A_SEC?: number;
+		V_CMD_SEC?: number;
+		G_CMD_SEC?: number;
+		V_SCI_SEC?: number;
+		G_SCI_SEC?: number;
+		V_SEC_ENG?: number;
+		G_SEC_ENG?: number;
+		V_SEC_DIP?: number;
+		G_SEC_DIP?: number;
+		V_SEC_MED?: number;
+		G_SEC_MED?: number;
+		B_CMD?: number;
+		A_CMD?: number;
+		V_CMD_SCI?: number;
+		G_CMD_SCI?: number;
+		V_CMD_ENG?: number;
+		G_CMD_ENG?: number;
+		V_CMD_DIP?: number;
+		G_CMD_DIP?: number;
+		V_CMD_MED?: number;
+		G_CMD_MED?: number;
+		B_DIP?: number;
+		A_DIP?: number;
+		voyTriplet?: VoyTriplet;
+		V_SCI_DIP?: number;
+		G_SCI_DIP?: number;
+		V_ENG_DIP?: number;
+		G_ENG_DIP?: number;
+		V_DIP_MED?: number;
+		G_DIP_MED?: number;
+		B_MED?: number;
+		A_MED?: number;
+		V_SCI_MED?: number;
+		G_SCI_MED?: number;
+		V_ENG_MED?: number;
+		G_ENG_MED?: number;
+		B_SCI?: number;
+		A_SCI?: number;
+		V_SCI_ENG?: number;
+		G_SCI_ENG?: number;
+		B_ENG?: number;
+		A_ENG?: number;
 	}
 
 	export interface BotCrew extends CrewMember {
