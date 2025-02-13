@@ -158,15 +158,21 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			if (starBest.length > 0) {
 				starBest.sort((a, b) => b.stars - a.stars);
 				let sbc = weightBest(starBest[0], colBest[0]);
-				title = `Add a star to ${sbc.crew.name}`;
-				bestCrew = sbc.crew;
+				if (sbc.stars > 0 && sbc.stars < sbc.crew.max_rarity) {
+					title = `Add a star to ${sbc.crew.name}`;
+					bestCrew = sbc.crew;
+				}
+				else {
+					title = `Pick ${colBest[0].crew.name} for collections`;
+					bestCrew = colBest[0].crew;
+				}
 			}
 			else {
 				title = `Pick ${colBest[0].crew.name} for collections`;
 				bestCrew = colBest[0].crew;
 			}
 		}
-		if (actualBest && actualBest.crew !== bestCrew) {
+		if (actualBest && actualBest.crew !== bestCrew && actualBest.stars === 0) {
 			title += `, or pick ${actualBest.crew.name} if you have room`
 		}
 	}
@@ -182,14 +188,20 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			title = `Add a star to ${starBest[0].crew.name}`;
 			bestCrew = starBest[0].crew;
 		} else {
-			title = `Pick ${best[0].crew.name} if you have room`;
+			if (best[0].stars === 0)
+				title = `Pick ${best[0].crew.name} if you have room`;
+			else
+				title = `Pick ${best[0].crew.name}`;
 			bestCrew = best[0].crew;
 		}
 	} else if (starBest.length > 0 && starBest[0].crew != best[0].crew && !ff(best[0])) {
 		if (parseFloat(starBest[0].crew.cab_ov) < medium) {
 			title = `${best[0].crew.name} is your best bet; star up ${starBest[0].crew.name} if you don't have any slots to spare`;
 		} else {
-			title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
+			if (best[0].stars === 0)
+				title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
+			else
+				title = `Pick ${starBest[0].crew.name} or ${best[0].crew.name}`;
 			bestCrew = starBest[0].crew;
 		}
 	} else if (best.find((c,i)=> i != 0 && parseFloat(c.crew.cab_ov) == parseFloat(crew[0].crew.cab_ov) && !ff(c)) && !ff(best[0])) {
@@ -209,7 +221,10 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 				printPickCols(colBest, best[0]);
 			}
 			else {
-				title = `Pick ${starBest[0].crew.name} if you don't want dupes, or start another ${best[0].crew.name}`;
+				if (best[0].stars === best[0].crew.max_rarity)
+					title = `Pick ${starBest[0].crew.name} if you don't want dupes, or start another ${best[0].crew.name}`;
+				else
+					title = `${best[0].crew.name} is your best bet`;
 			}
 			//title = `It may be worth starting another ${best[0].crew.name}, pick ${starBest[0].crew.name} if you don't want dupes`;
 		}
