@@ -203,8 +203,14 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 			if (starBest.length > 0) {
 				starBest.sort((a, b) => b.stars - a.stars);
 				let sbc = weightBest(starBest[0], colBest[0]);
-				title = `Add a star to ${sbc.crew.name}`;
-				bestCrew = sbc.crew;
+				if (sbc.stars > 0 && sbc.stars < sbc.crew.max_rarity) {
+					title = `Add a star to ${sbc.crew.name}`;
+					bestCrew = sbc.crew;
+				}
+				else {
+					title = `Pick ${colBest[0].crew.name} for collections`;
+					bestCrew = colBest[0].crew;
+				}
 			}
 			else {
 				title = `Pick ${colBest[0].crew.name} for collections`;
