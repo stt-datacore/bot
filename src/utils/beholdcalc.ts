@@ -217,10 +217,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 				bestCrew = colBest[0].crew;
 			}
 		}
-		if (actualBest && actualBest.crew !== bestCrew && actualBest.stars !== actualBest.crew.max_rarity) {
-			title += `, or pick ${actualBest.crew.name} if you have room`
-		}
-		else if (actualBest && actualBest.crew !== bestCrew && actualBest.stars !== actualBest.crew.max_rarity) {
+		if (actualBest && actualBest.crew !== bestCrew && actualBest.stars === actualBest.crew.max_rarity) {
 			title += `, or start another ${actualBest.crew.name}`
 		}
 	}
