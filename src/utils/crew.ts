@@ -97,7 +97,7 @@ function formatCrewStats(crew: Definitions.BotCrew | PlayerCrew | Definitions.Sk
 export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean = false, separator: string = ', ') {
 	// TODO: recalculate based on user's buffConfig
 
-	let result = [];
+	let result = [] as string[];
 	if (crew.ranks.voyRank <= 10) {
 		result.push(`Voyage #${crew.ranks.voyRank} overall`);
 	}
@@ -116,8 +116,8 @@ export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean 
 				result.push(`Base #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
 			}
 		}
-		if (rank === 'voyTriplet' && crew.ranks[rank].rank <= 10) {
-			result.push(`Voyage #${crew.ranks[rank].rank} ${crew.ranks[rank].name.replace(/ /g, '')}`)
+		if (rank === 'voyTriplet' && crew.ranks[rank]!.rank <= 10) {
+			result.push(`Voyage #${crew.ranks[rank]!.rank} ${crew.ranks[rank]!.name.replace(/ /g, '')}`)
 		}
 	}
 

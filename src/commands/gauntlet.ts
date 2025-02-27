@@ -10,7 +10,7 @@ import { sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
 import { Logger } from '../utils';
 import { loadFullProfile, userFromMessage } from '../utils/profile';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 interface WithMatchingTrait {
 	crew: Definitions.BotCrew;
@@ -86,7 +86,7 @@ async function asyncHandler(message: Message, base: Boolean) {
 
 	let user = await userFromMessage(message);
 	let profile = user && user.profiles.length > 0 ? user.profiles[0] : null;
-	let customized = undefined;
+	let customized: boolean | undefined = undefined;
 	if (base || !profile) {
 		pool = allCrew;
 		customized = false;

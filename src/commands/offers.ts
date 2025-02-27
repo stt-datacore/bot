@@ -10,7 +10,7 @@ import CONFIG from '../utils/config';
 import { Logger } from '../utils';
 import { formatCrewField } from '../utils/beholdcalc';
 import { userFromMessage, loadProfile, loadProfileRoster, ProfileRosterEntry } from '../utils/profile';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 
 let OffersCache = new NodeCache({ stdTTL: 600 });
@@ -84,7 +84,7 @@ async function asyncHandler(message: Message, offer_name?: String, needed?: bool
 		return;
 	}
 
-	let embeds = [];
+	let embeds = [] as any[];
 	let remainder = [] as Definitions.BotCrew[];
 	let pricrew = [] as Definitions.BotCrew[];
 	let part = 1;

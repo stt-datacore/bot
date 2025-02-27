@@ -10,7 +10,7 @@ import { executeGetRequest } from './sttapi';
 import { Logger } from '../utils';
 import { stripPlayerData } from './playerutils';
 import { discordUserFromMessage } from './discord';
-import { PlayerCrew, PlayerData, StoredImmortal } from 'src/datacore/player';
+import { PlayerCrew, PlayerData, StoredImmortal } from '../datacore/player';
 import { Definitions } from './definitions';
 
 export interface ProfileCrewEntry {
@@ -244,7 +244,7 @@ export async function associateUser(userDB: User, dbid: string, access_token?: s
 }
 
 export async function clearUser(userDB: User) {
-	let dbids = [];
+	let dbids = [] as string[];
 	for (let profileDB of userDB.profiles) {
 		dbids.push(profileDB.dbid);
 	}

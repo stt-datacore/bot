@@ -99,8 +99,8 @@ export function prepareArgParser(
 
 	const startTime = Date.now();
 
-	let lastError = undefined;
-	let conOutput = undefined;
+	let lastError = undefined as string | undefined;
+	let conOutput = undefined as string | undefined;
 	argParser
 		.strict(true)
 		.showHelpOnFail(false, 'Specify --help for available options')
@@ -135,7 +135,7 @@ export function prepareArgParser(
 const urlRegex = /\b(https?:\/\/\S*\b)/g;
 
 export function getUrl(message: Message): string | undefined {
-	let url = undefined;
+	let url: string | undefined = undefined;
 	if (message.attachments.size > 0) {
 		if (message.attachments?.first()?.width! > 700) {
 			url = message.attachments?.first()?.url;

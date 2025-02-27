@@ -14,7 +14,7 @@ import { FACTIONS } from '../utils/factions';
 import { configure } from 'as-table';
 import { PlayerCrew, PlayerData } from '../datacore/player';
 import { Ship } from '../datacore/ship';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 require('dotenv').config();
 

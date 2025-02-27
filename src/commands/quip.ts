@@ -12,7 +12,7 @@ import { PlayerCrew } from '../datacore/player';
 import { EquipmentItem } from '../datacore/equipment';
 import { rarityLabels } from '../datacore/game-elements';
 import { getOnlyAlpha } from '../utils';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 function bonusName(bonus: string) {
 	let cfg = CONFIG.STATS_CONFIG[Number.parseInt(bonus)];

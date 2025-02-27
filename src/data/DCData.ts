@@ -7,9 +7,9 @@ import { getRecentEvents } from '../utils/events';
 import { Schematics } from '../datacore/ship';
 import { Mission, Quest } from '../datacore/missions';
 import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../utils/items';
-import { PlayerData } from 'src/datacore/player';
-import { Collection } from 'src/datacore/game-elements';
-import { Definitions } from 'src/utils/definitions';
+import { PlayerData } from '../datacore/player';
+import { Collection } from '../datacore/game-elements';
+import { Definitions } from '../utils/definitions';
 
 export const POST_BIGBOOK_EPOCH = new Date('2024-12-24T00:00:00Z');
 
@@ -47,7 +47,7 @@ class DCDataClass {
 	private _reloadData(filePath: string) {
 		if (filePath.endsWith('.json') || filePath.endsWith("cadet_episodes.txt")) {
 			console.log(`File ${filePath} has been changed`);
-			let parsedData = undefined;
+			let parsedData: any = undefined;
 			try {
 				parsedData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 			} catch (err) {

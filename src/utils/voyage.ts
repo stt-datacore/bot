@@ -80,7 +80,7 @@ export function voyCalc(
 	maxSkill = Math.max(0, maxSkill - elapsedHazSkill);
 
 	let results: number[][] = [];
-	let resultsRefillCostTotal = [];
+	let resultsRefillCostTotal = [] as number[];
 	for (let iExtend = 0; iExtend <= numExtends; ++iExtend) {
 		results.push([]);
 		results[iExtend].length = numSims;

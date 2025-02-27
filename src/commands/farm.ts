@@ -6,7 +6,7 @@ import { formatSources, formatRecipe } from '../utils/items';
 import { colorFromRarity } from '../utils/crew';
 import { sendAndCache } from '../utils/discord';
 import CONFIG from '../utils/config';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 function bonusName(bonus: string) {
 	let cfg = CONFIG.STATS_CONFIG[Number.parseInt(bonus)];

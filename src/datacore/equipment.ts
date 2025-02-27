@@ -1,4 +1,4 @@
-import { Definitions } from "src/utils/definitions";
+import { Definitions } from "../utils/definitions";
 import { Icon } from "./game-elements"
 import { PlayerCrew, PlayerEquipmentItem } from "./player"
 

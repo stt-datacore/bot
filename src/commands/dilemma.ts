@@ -6,7 +6,7 @@ import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import levenshtein from 'js-levenshtein';
 import { colorFromRarity } from '../utils/crew';
 import CONFIG from '../utils/config';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 
 function formatChoice(message: Message, choice: Definitions.IDilemmaChoice): string {

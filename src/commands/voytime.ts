@@ -3,7 +3,7 @@ import yargs from 'yargs';
 
 import { voyCalc, formatVoyageReply } from '../utils/voyage';
 import { sendAndCache } from '../utils/discord';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 class VoyTime implements Definitions.Command {
 	name = 'voytime';
