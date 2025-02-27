@@ -7,7 +7,8 @@ import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import { userFromMessage, loadFullProfile } from '../utils/profile';
 import { getNeededItems } from '../utils/equipment';
 import CONFIG from '../utils/config';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
+import { PlayerCrew } from '../datacore/player';
 
 async function asyncHandler(message: Message, searchString: string, level: number, all: boolean, base: boolean, item: string) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
@@ -50,7 +51,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 
             let plainTextHeader = `${crew.name} equipment breakdown\n`;
 
-			let pcrew = undefined;
+			let pcrew: PlayerCrew | undefined = undefined;
 			let items: any[] = [];
 			if (!base) {
 				let user = await userFromMessage(message);
@@ -172,7 +173,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 				// Nothing fits, fallback to a plain text output
 				MessageEmbedFits = false;
 
-				let parts = [];
+				let parts: string[] = [];
                 let currentPart = plainTextHeader;
                 currentPart += '| Item                                     | Need | Have |\n';
 				currentPart += '+------------------------------------------+------+------+\n';

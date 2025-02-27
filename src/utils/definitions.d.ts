@@ -1,4 +1,4 @@
-import { CrewMember } from 'src/datacore/crew';
+import { CrewMember, VoyTriplet } from '../datacore/crew';
 
 declare type CommandModule = import('yargs').CommandModule;
 
@@ -83,6 +83,7 @@ declare namespace Definitions {
 	}
 
 	export interface CrewAction {
+		crew_archetype_id: number;
 		ability?: CrewActionAbility;
 		bonus_amount: number;
 		bonus_type: number;
@@ -206,45 +207,43 @@ declare namespace Definitions {
 	}
 
 	export interface BotCrew extends CrewMember {
-		archetype_id: number;
-		symbol: string;
-		name: string;
-		short_name: string;
-		traits_named: string[];
-		traits_hidden: string[];
-		imageUrlPortrait: string;
-		collections: string[];
-		totalChronCost: number;
-		factionOnlyTotal: number;
-		craftCost: number;
-		max_rarity: number;
-		bigbook_tier: number;
-		cab_ov: string;
-		cab_ov_rank: number;
-		cab_ov_grade: string;
-		events: number;
-		ranks: BotCrewRanks;
-		base_skills: Skills;
-		skill_data: { rarity: number; base_skills: Skills }[];
-		in_portal: boolean;
-		markdownContent: string;
-		markdownInfo: {
-			author: string;
-			modified: Date;
-		}
-		action: CrewAction;
-		equipment_slots: EquipmentSlot[];
-		nicknames?: {
-			cleverThing: string;
-			creator?: string;
-		}[];
-		date_added: Date | string;
-		obtained?: string;
+		// archetype_id: number;
+		// symbol: string;
+		// name: string;
+		// short_name: string;
+		// traits_named: string[];
+		// traits_hidden: string[];
+		// imageUrlPortrait: string;
+		// collections: string[];
+		// totalChronCost: number;
+		// factionOnlyTotal: number;
+		// craftCost: number;
+		// max_rarity: number;
+		// bigbook_tier: number;
+		// cab_ov: string;
+		// cab_ov_rank: number;
+		// cab_ov_grade: string;
+		// events: number;
+		// ranks: BotCrewRanks;
+		// base_skills: Skills;
+		// skill_data: { rarity: number; base_skills: Skills }[];
+		// in_portal: boolean;
+		// markdownContent: string;
+		// markdownInfo: {
+		// 	author: string;
+		// 	modified: Date;
+		// }
+		// action: CrewAction;
+		// equipment_slots: EquipmentSlot[];
+		// nicknames?: {
+		// 	cleverThing: string;
+		// 	creator?: string;
+		// }[];
+		// date_added: Date | string;
+		obtained: string;
 		// Added by the loading code
 		traits_pseudo: string[];
-		traits: string[];
-		traits_hidden: string[];
-		traits_named?: string[];
+		//traits: string[];
 	}
 
 	export interface RecipeItem {

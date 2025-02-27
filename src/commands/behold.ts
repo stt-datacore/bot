@@ -6,7 +6,7 @@ import { AnalysisResult, analyzeImage } from '../utils/imageanalysis';
 import { sendAndCache } from '../utils/discord';
 
 import { Logger } from '../utils';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 async function asyncHandler(message: Message, url: string, threshold: number, base: boolean) {
 	let data: AnalysisResult | undefined = undefined;

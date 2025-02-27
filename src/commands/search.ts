@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { DCData } from '../data/DCData';
 import { formatCrewStatsWithEmotes } from '../utils/crew';
 import { sendAndCache } from '../utils/discord';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 class Search implements Definitions.Command {
 	name = 'search';

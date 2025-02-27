@@ -8,7 +8,7 @@ import { sendAndCache } from '../utils/discord';
 
 import { PlayerData } from '../datacore/player';
 import { Profile } from '../models/Profile';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 require('dotenv').config();
 

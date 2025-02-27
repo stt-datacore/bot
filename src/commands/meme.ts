@@ -3,7 +3,7 @@ import yargs from 'yargs';
 
 import { captionMeme, listMemesTop100, listMemesHardCoded } from '../utils/imgflip';
 import { sendAndCache } from '../utils/discord';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 // TODO: load and cache listMemesTop100 on boot
 

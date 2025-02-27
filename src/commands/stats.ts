@@ -14,7 +14,7 @@ import {
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import { loadProfile, userFromMessage, applyCrewBuffs, toTimestamp } from '../utils/profile';
 import CONFIG from '../utils/config';
-import { Definitions } from 'src/utils/definitions';
+import { Definitions } from '../utils/definitions';
 
 function getDifficulty(chronCostRank: number): string {
 	let percentage = Math.round(100 - (chronCostRank * 100) / DCData.totalCrew());
