@@ -13,7 +13,7 @@
   "dependencies": {
     "as-table": "^1.0.55",
     "chokidar": "^3.6.0",
-    "discord-api-types": "^0.37.81",
+    "discord-api-types": "^0.37.119",
     "discord.js": "^14.18.0",
     "dotenv": "^8.6.0",
     "fuse.js": "^6.6.2",
