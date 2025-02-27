@@ -1,12 +1,12 @@
 
-import { CommandInteraction, GuildMember, Message, EmbedBuilder, MessageReplyOptions, User, GuildChannel, NonThreadGuildBasedChannel, Embed, MessageFlags, APIUser } from 'discord.js';
+import { CommandInteraction, GuildMember, Message, EmbedBuilder, MessageReplyOptions, User, GuildChannel, NonThreadGuildBasedChannel, Embed, MessageFlags, APIUser, Channel, TextChannel } from 'discord.js';
 import NodeCache from 'node-cache';
 
 export function getEmoteOrString(message: Message | CommandInteraction, emojiName: string, defaultString: string): string {
 	//
 	// Old Code
-	//		
-	//if (message instanceof CommandInteraction) {		
+	//
+	//if (message instanceof CommandInteraction) {
 		// if (message.guild && !message.guild.roles.everyone.permissionsIn(message.channel! as NonThreadGuildBasedChannel).has('UseExternalEmojis')) {
 		// 	let emoji = message.guild.emojis.cache.find(emoji => emoji.name === emojiName);
 		// 	if (emoji) {
@@ -16,13 +16,13 @@ export function getEmoteOrString(message: Message | CommandInteraction, emojiNam
 	//}
 
 	// New code addresses github issues:
-	
+
 	// https://github.com/discord/discord-api-docs/issues/5524
 	// https://github.com/discord/discord-api-docs/issues/5279
 
 	// Cannot seem to sync external emoji on bots, right now.
 	// This bug has been opened for over a year (with no current resolutions)
-	
+
 	// Instead of checking if there are any guild permissions for external emoji
 	// Just use this server's emoji by default, if available.
 	if (message.guild) {
@@ -32,12 +32,12 @@ export function getEmoteOrString(message: Message | CommandInteraction, emojiNam
 		}
 	}
 
-	
+
 	switch (emojiName) {
 		case 'credits':
 			return '<:credits:835521627944124416>';
 		case 'chrons':
-			return '<:chrons:730399914005102623>';	
+			return '<:chrons:730399914005102623>';
 		case 'dil':
 			return '<:dil:730399914332389446>';
 		case 'honor':
@@ -51,13 +51,13 @@ export function getEmoteOrString(message: Message | CommandInteraction, emojiNam
 		case 'eng':
 			return '<:eng:730399913707438181>';
 		case 'med':
-			return '<:med:730399913799581777>'; 
+			return '<:med:730399913799581777>';
 		case 'sci':
 			return '<:sci:730399914449961030>';
 		case 'sec':
 			return '<:sec:730399914349297785>';
 		default:
-			// We call this function for Ship abilities (attack,evasion,accuracy,shield regen) 
+			// We call this function for Ship abilities (attack,evasion,accuracy,shield regen)
 			// but we don't have any emoji for them, so they always fallback to text.
 			return defaultString;
 	}
@@ -66,7 +66,7 @@ export function getEmoteOrString(message: Message | CommandInteraction, emojiNam
 export let MessageCache = new NodeCache({ stdTTL: 600 });
 
 export async function sendSplitText(message: Message, content: any) {
-	let myReply = await message.channel.send('```\n' + content + '```\n');
+	let myReply = await (message.channel as TextChannel).send('```\n' + content + '```\n');
 
 	if (myReply instanceof Message) {
 		let entries = MessageCache.get<string[]>(message.id);
@@ -118,9 +118,9 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 		}
 		return;
 	}
-	
+
 	let flags: MessageReplyOptions = {};
-	
+
 	flags.content = content;
 
 	let nEmbeds = options?.embeds?.length ?? 0;
@@ -128,7 +128,7 @@ export async function sendAndCache(message: Message | CommandInteraction, conten
 	if (nEmbeds > 0) {
 		flags.embeds = options?.embeds!.slice(0, 1)?.map((e) => e.toJSON());
 	}
-	
+
 	if (options?.asReply || message.channel == null) {
 		flags.content = content;
 		cache(await message.reply(flags));
