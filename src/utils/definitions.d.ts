@@ -55,6 +55,7 @@ declare namespace Definitions {
 		core: number;
 		range_min: number;
 		range_max: number;
+		skill: string;
 	}
 
 	export type Skills = { [key in SkillName]?: Skill };
@@ -219,7 +220,7 @@ declare namespace Definitions {
 		max_rarity: number;
 		bigbook_tier: number;
 		cab_ov: string;
-		cab_ov_rank: string;
+		cab_ov_rank: number;
 		cab_ov_grade: string;
 		events: number;
 		ranks: BotCrewRanks;
