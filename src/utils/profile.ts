@@ -11,7 +11,6 @@ import { Logger } from '../utils';
 import { stripPlayerData } from './playerutils';
 import { discordUserFromMessage } from './discord';
 import { PlayerCrew, PlayerData, StoredImmortal } from 'src/datacore/player';
-import { CrewMember } from 'src/datacore/crew';
 import { Definitions } from './definitions';
 
 export interface ProfileCrewEntry {
@@ -90,7 +89,7 @@ export function applyCrewBuffs(
 	let skill: Definitions.SkillName;
 	if (zeroInit) {
 		for (skill in CONFIG.SKILLS) {
-			withBuffs[skill] = { core: 0, range_min: 0, range_max: 0 };
+			withBuffs[skill] = { core: 0, range_min: 0, range_max: 0, skill };
 		}
 	}
 
@@ -100,7 +99,8 @@ export function applyCrewBuffs(
 		withBuffs[skill] = {
 			core: Math.round(sk.core * getMultiplier(skill, 'core')),
 			range_min: Math.round(sk.range_min * getMultiplier(skill, 'range_min')),
-			range_max: Math.round(sk.range_max * getMultiplier(skill, 'range_max'))
+			range_max: Math.round(sk.range_max * getMultiplier(skill, 'range_max')),
+			skill
 		};
 	}
 
