@@ -10,7 +10,7 @@ import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../
 import { PlayerData } from '../datacore/player';
 import { Collection } from '../datacore/game-elements';
 import { Definitions } from '../utils/definitions';
-import { reInitialize } from 'src/utils/imageanalysis';
+import { reInitialize } from '../utils/imageanalysis';
 
 export const POST_BIGBOOK_EPOCH = new Date('2024-12-24T00:00:00Z');
 
