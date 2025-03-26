@@ -104,7 +104,7 @@ const grades = (() => {
 	return strs;
 })();
 
-function getGrade(crew: Definitions.BotCrew) {
+function getGradeIdx(crew: Definitions.BotCrew) {
 	let r = 0;
 	if (crew.ranks.scores) {
 		r = grades.indexOf(crew.ranks.scores.overall_grade);
@@ -115,13 +115,13 @@ function getGrade(crew: Definitions.BotCrew) {
 	return r;
 }
 
-function compGrade(a: CrewFromBehold, b: CrewFromBehold) {
-	return getGrade(a.crew) - getGrade(b.crew);
+function compGradeIdx(a: CrewFromBehold, b: CrewFromBehold) {
+	return getGradeIdx(a.crew) - getGradeIdx(b.crew);
 }
 
 function sortBest(crew: CrewFromBehold[]) {
 	return crew.sort((a, b) => {
-		let r = compGrade(a, b);
+		let r = compGradeIdx(a, b);
 		if (r == 0 && a.crew.ranks.scores && b.crew.ranks.scores) r = b.crew.ranks.scores.overall - a.crew.ranks.scores.overall;
 		else if (r == 0) r = Number(b.crew.cab_ov) - Number(a.crew.cab_ov);
 		return r;
@@ -140,7 +140,7 @@ function recommendations(crew: CrewFromBehold[], openCols?: string[]) {
 	let best = sortBest(crew);
 	let bestCab = [...crew].sort((a, b) => Number(b.crew.cab_ov) - Number(a.crew.cab_ov));
 	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
-	let bestCrew: Definitions.BotCrew = best[0].crew;
+	//let bestCrew: Definitions.BotCrew = best[0].crew;
 
 	if (starBest.length > 0) {
 		starBest = sortBest(starBest);
@@ -456,21 +456,34 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		}
 	}
 
-	const { best, starBest, cabBest, colBest } = recommendations([
+	const workCrew = [
 		{ crew: crew1, stars: beholdResult.crew1.stars },
 		{ crew: crew2, stars: beholdResult.crew2.stars },
 		{ crew: crew3, stars: beholdResult.crew3.stars }
-	], open_cols || undefined);
+	];
+
+	const { best, starBest, cabBest, colBest } = recommendations(workCrew, open_cols || undefined);
 
 	let crewurl = '';
-	if (starBest) {
-		embed = embed
-		.addFields({
-			name: 'Best Non-Dupe',
-			value: starBest.name,
-			inline: true
-		});
-		crewurl = starBest.imageUrlPortrait;
+	if (starBest && starBest !== best) {
+		if (workCrew.every(wc => (wc.crew == starBest) || (wc.stars == wc.crew.max_rarity))) {
+			embed = embed
+			.addFields({
+				name: 'Best Non-Dupe',
+				value: starBest.name,
+				inline: true
+			});
+			crewurl = starBest.imageUrlPortrait;
+		}
+		else {
+			embed = embed
+			.addFields({
+				name: 'Best To Star Up',
+				value: starBest.name,
+				inline: true
+			});
+			crewurl = starBest.imageUrlPortrait;
+		}
 	}
 
 	if (colBest && !starBest) {
