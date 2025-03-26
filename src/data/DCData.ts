@@ -10,6 +10,7 @@ import { binaryLocateName, binaryLocateSymbol, postProcessCadetItems } from '../
 import { PlayerData } from '../datacore/player';
 import { Collection } from '../datacore/game-elements';
 import { Definitions } from '../utils/definitions';
+import { reInitialize } from 'src/utils/imageanalysis';
 
 export const POST_BIGBOOK_EPOCH = new Date('2024-12-24T00:00:00Z');
 
@@ -90,6 +91,7 @@ class DCDataClass {
 					if (crew.base_skills.diplomacy_skill) crew.traits_pseudo.push('dip');
 					if (crew.base_skills.medicine_skill) crew.traits_pseudo.push('med');
 				});
+				setTimeout(() => reInitialize());
 			} else if (filePath.endsWith('event_instances.json')) {
 				this._allEvents = parsedData;
 				this.refreshEvents();

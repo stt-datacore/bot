@@ -79,3 +79,20 @@ export async function analyzeImage(url: string): Promise<AnalysisResult | undefi
 
     return undefined;
 }
+
+
+export async function reInitialize(): Promise<boolean> {
+    // TODO: auto-deployments for the c# code
+    try {
+        let response = await fetch(`${CONFIG.IMAGE_ANALYSIS_URL}/api/reinit`);
+        if (response.ok) {
+            return true;
+        }
+    }
+    catch (err: any) {
+        console.log(err);
+    }
+
+    return false;
+}
+
