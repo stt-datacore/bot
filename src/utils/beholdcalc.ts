@@ -503,7 +503,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 			value: `${best.name}`,
 			inline: true
 		});
-		if (!crewurl) crewurl = best.imageUrlPortrait;
+		if (!crewurl || workCrew.find(f => f.crew === best)?.stars !== best.max_rarity) crewurl = best.imageUrlPortrait;
 	}
 
 	if (colBest && starBest) {
