@@ -157,16 +157,15 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 		if (crew.ranks.scores) {
 			const dsUrl = rankLinker(crew.symbol, 'ranks.scores.overall', 'descending');
-			embed = embed
-				.addFields({ name: 'DataScore Grade', value: `[${crew.ranks.scores.overall_grade}](${dsUrl})`, inline: true })
-				.addFields({ name: 'DataScore Rating', value: `[${crew.ranks.scores.overall}](${dsUrl})`, inline: true })
-				.addFields({ name: 'DataScore Rank', value: `[${crew.ranks.scores.overall_rank}](${dsUrl})`, inline: true })
+			embed = embed.addFields({ name: 'DataScore Grade', value: `[${crew.ranks.scores.overall_grade}](${dsUrl})`, inline: true })
+			if (extended) embed = embed.addFields({ name: 'DataScore Rating', value: `[${crew.ranks.scores.overall}](${dsUrl})`, inline: true })
+			embed = embed.addFields({ name: 'DataScore Rank', value: `[${crew.ranks.scores.rarity_overall_rank}](${dsUrl})`, inline: true })
 		}
 
 		if (crew.cab_ov) {
 			embed = embed.addFields({ name: 'CAB Grade', value: `[${crew.cab_ov_grade}](https://cabtools.app/)`, inline: true });
-			embed = embed.addFields({ name: 'CAB Rating', value: `[${crew.cab_ov}](https://cabtools.app/)`, inline: true });
-			embed = embed.addFields({ name: 'CAB Rank', value: `[${crew.cab_ov_rank}](https://cabtools.app/)`, inline: true });
+			if (extended) embed = embed.addFields({ name: 'CAB Rating', value: `[${crew.cab_ov}](https://cabtools.app/)`, inline: true });
+			if (extended) embed = embed.addFields({ name: 'CAB Rank', value: `[${crew.cab_ov_rank}](https://cabtools.app/)`, inline: true });
 		}
 
 		if (crew.collections && crew.collections.length > 0) {
@@ -211,6 +210,13 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 		let mdContent = crew.markdownContent;
 		mdContent += `\n\n[More at DataCore](https://datacore.app/crew/${crew.symbol})`;
+
+		if (extended && crew.cap_achiever?.name) {
+			embed = embed.addFields({
+				name: 'FTM',
+				value: `**${crew.cap_achiever?.name}**\n${(new Date(crew.cap_achiever.date * 1000).toLocaleString())}`
+			});
+		}
 
 		if (extended && mdContent && mdContent.length < 980) {
 			embed = embed.addFields({ name: 'DataCore Note', value: mdContent });
