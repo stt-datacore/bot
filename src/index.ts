@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Client, Partials } from 'discord.js';
+import { ChannelType, Client, Guild, GuildDefaultMessageNotifications, Partials, PermissionsBitField } from 'discord.js';
 
 import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp } from './utils';
 import { MessageCache, sendAndCache } from './utils/discord';
@@ -8,6 +8,7 @@ import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
 import { Commands } from './commands';
 import levenshtein from 'js-levenshtein';
+import { purgeGuilds } from './utils/cleanup';
 
 const Yargs = require('yargs/yargs');
 
@@ -46,29 +47,36 @@ sequelize.sync().then(() => {
 	Logger.info('Database connection established');
 });
 
-client.on('ready', () => {
+client.on('ready', (client) => {
 	Logger.info('Bot logged in', { bot_tag: client.user?.tag });
-	const slashCommands = Commands.map((com) => (
-		{
-			name: com.name,
-			description: com.describe || '',
-			options: com.options ?? []
-		}
-	));
-	if (process.env.NODE_ENV === 'production') {
-		Logger.info(`Registering commands globally`);
-		client?.application?.commands.set(slashCommands);
-	} else {
 
-		if (!!process.env.DEFAULT_GUILD) {
-			const gid = process.env.DEFAULT_GUILD;
-			Logger.info(`Registering commands for guild ${gid}`);
-			client.guilds.cache.get(gid)?.commands.set(slashCommands);
-		}
+	if (process.argv.includes("--scanguilds")) {
+		const purge = process.argv.includes("--purge");
+		purgeGuilds(client, purge);
+	}
+	else {
+		const slashCommands = Commands.map((com) => (
+			{
+				name: com.name,
+				description: com.describe || '',
+				options: com.options ?? []
+			}
+		));
+		if (process.env.NODE_ENV === 'production') {
+			Logger.info(`Registering commands globally`);
+			client?.application?.commands.set(slashCommands);
+		} else {
 
-		for (const gid of devGuilds) {
-			Logger.info(`Registering commands for guild ${gid}`);
-			client.guilds.cache.get(gid)?.commands.set(slashCommands);
+			if (!!process.env.DEFAULT_GUILD) {
+				const gid = process.env.DEFAULT_GUILD;
+				Logger.info(`Registering commands for guild ${gid}`);
+				client.guilds.cache.get(gid)?.commands.set(slashCommands);
+			}
+
+			for (const gid of devGuilds) {
+				Logger.info(`Registering commands for guild ${gid}`);
+				client.guilds.cache.get(gid)?.commands.set(slashCommands);
+			}
 		}
 	}
 });
