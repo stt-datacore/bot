@@ -9,6 +9,7 @@ import { runImageAnalysis } from './commands/imageanalysis';
 import { Commands } from './commands';
 import levenshtein from 'js-levenshtein';
 import { purgeGuilds } from './utils/cleanup';
+import { purgeByDBID } from './utils/profile';
 
 const Yargs = require('yargs/yargs');
 
@@ -47,12 +48,26 @@ sequelize.sync().then(() => {
 	Logger.info('Database connection established');
 });
 
-client.on('ready', (client) => {
+client.on('ready', async (client) => {
 	Logger.info('Bot logged in', { bot_tag: client.user?.tag });
 
 	if (process.argv.includes("--scanguilds")) {
 		const purge = process.argv.includes("--purge");
 		purgeGuilds(client, purge);
+	}
+	else if (process.argv.includes("--unlink")) {
+		let n = process.argv.indexOf("--unlink");
+		if (n < process.argv.length - 1) {
+			let dbid = process.argv[n + 1];
+			console.log(`Purge By DBID: ${dbid}...`);
+			let res = await purgeByDBID(dbid);
+			if (res) {
+				console.log(`User purged`);
+			}
+			else {
+				console.log('Profile not found!');
+			}
+		}
 	}
 	else {
 		const slashCommands = Commands.map((com) => (

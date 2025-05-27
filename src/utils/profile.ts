@@ -254,6 +254,20 @@ export async function clearUser(userDB: User) {
 	return dbids;
 }
 
+export async function purgeByDBID(dbid: string) {
+	let profile = await Profile.findOne({ where: { dbid }, include: [User]});
+	if (profile) {
+		let user = profile.user;
+		console.log(`User: ${user.discordUserName} is being obliterated...`);
+		await user.$set('profiles', []);
+		await user.save();
+		await user.destroy();
+		await user.save();
+		return true;
+	}
+	return false;
+}
+
 export async function refreshProfile(access_token: string): Promise<any> {
 	try {
 		let playerData = await executeGetRequest('player', access_token);
