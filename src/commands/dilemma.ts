@@ -73,6 +73,7 @@ async function asyncHandler(message: Message, searchString: string) {
 		let rex = new RegExp(/.*\*\*(.+)\*\*.*/);
 		let embeds = [] as EmbedBuilder[];
 		let botCrew = DCData.getBotCrew().filter(crew => crew.traits_hidden.includes("exclusive_voyage"));
+		let botShips = DCData.getSchematics();
 		let legend = [] as string[];
 		results = JSON.parse(JSON.stringify(results));
 
@@ -94,6 +95,13 @@ async function asyncHandler(message: Message, searchString: string) {
 								if (crew) {
 									if (!crewurl) crewurl = crew.imageUrlPortrait;
 									choice.reward[i] = choice.reward[i].replace(crew.name, `[${crew.name}](${CONFIG.DATACORE_URL}crew/${crew.symbol})`)
+								}
+								else {
+									let schem = botShips.find(ship => ship.ship.name === crewname);
+									if (schem) {
+										if (!crewurl) crewurl = schem.ship.icon!.file!.split("/").filter(f => f).join("_") + ".png";
+										choice.reward[i] = choice.reward[i].replace(schem.ship.name, `[${schem.ship.name}](${CONFIG.DATACORE_URL}ship_info/?ship=${schem.ship.symbol})`);
+									}
 								}
 							}
 						}
