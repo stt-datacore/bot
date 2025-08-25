@@ -55,9 +55,9 @@ function getDifficulty(chronCostRank: number): string {
 }
 
 function formatShipScore(crew: Definitions.BotCrew) {
-
-	let str = `${crew.ranks.scores.ship.overall}`;
-	if (crew.ranks.scores.ship.kind === 'defense') str += ' (Defense)'
+	let str = `${crew?.ranks?.scores?.ship?.overall ?? ''}`;
+	if (!str) return '';
+	if (crew?.ranks?.scores?.ship?.kind === 'defense') str += ' (Defense)'
 	else str += ' (Offense)';
 	return str;
 }
