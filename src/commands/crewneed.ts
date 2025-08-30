@@ -137,7 +137,7 @@ async function asyncHandler(message: Message, searchString: string, level: numbe
 
 			const padSpaces = (input: string, len: number) => {
 				if (input.length > len) {
-					return input.substr(0, len);
+					return input.slice(0, len);
 				}
 
 				return input.padEnd(len, ' ');

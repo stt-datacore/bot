@@ -67,7 +67,7 @@ export function stripPlayerData(items: any[], p: any): any {
 	if (p.player.character.crew_avatar && p.player.character.crew_avatar.symbol) {
 		p.player.character.crew_avatar = {
 			symbol: p.player.character.crew_avatar.symbol,
-			portrait: p.player.character.crew_avatar.portrait.file.substr(1).replace('/', '_') + '.png'
+			portrait: p.player.character.crew_avatar.portrait.file.slice(1).replace('/', '_') + '.png'
 		};
 	}
 
@@ -128,7 +128,7 @@ export function stripPlayerData(items: any[], p: any): any {
 				type: item.type,
 				name: item.name,
 				flavor: item.flavor,
-				imageUrl: item.icon.file.substr(1).replace(/\//g, '_') + '.png'
+				imageUrl: item.icon.file.slice(1).replace(/\//g, '_') + '.png'
 			});
 		}
 	});

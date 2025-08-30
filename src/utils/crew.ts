@@ -110,11 +110,11 @@ export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean 
 		if (typeof crew.ranks[rank] === 'number') {
 			if (crew.ranks[rank] > 0 && crew.ranks[rank] <= 10) {
 				if (rank.startsWith('V_')) {
-					result.push(`Voyage #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
+					result.push(`Voyage #${crew.ranks[rank]} ${rank.slice(2).replace('_', '/')}`);
 				} else if (rank.startsWith('G_')) {
-					result.push(`Gauntlet #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
+					result.push(`Gauntlet #${crew.ranks[rank]} ${rank.slice(2).replace('_', '/')}`);
 				} else if (rank.startsWith('B_')) {
-					result.push(`Base #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
+					result.push(`Base #${crew.ranks[rank]} ${rank.slice(2).replace('_', '/')}`);
 				}
 			}
 		}

@@ -189,7 +189,7 @@ client.on('messageCreate', (message) => {
 
 	if (conOutput) {
 		if (conOutput.length > 1990) {
-			sendAndCache(message, '```' + conOutput.substr(0,1987) + '...```');
+			sendAndCache(message, '```' + conOutput.slice(0,1987) + '...```');
 		} else {
 			sendAndCache(message, '```' + conOutput + '```');
 		}
