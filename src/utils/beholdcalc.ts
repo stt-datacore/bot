@@ -3,7 +3,7 @@ import { Message, EmbedBuilder } from 'discord.js';
 import { DCData } from '../data/DCData';
 import { formatStatLine, formatCrewCoolRanks, colorFromRarity, isRecent } from './crew';
 import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs, toTimestamp } from './profile';
-import { sendAndCache } from './discord';
+import { getEmoteOrString, sendAndCache } from './discord';
 import CONFIG from './config';
 import { binaryLocateCrew } from './items';
 import { handleShipBehold } from './beholdships';
@@ -84,8 +84,49 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	if (custom) {
 		reply += `\n\n**${custom}**`;
 	}
-
+	if (!crew.in_portal) {
+		if (['HonorHall', 'Voyage', 'Collection', 'Gauntlet', 'Achievement', 'BossBattle', 'Fuse', 'Faction', 'Missions'].includes(crew.obtained)) {
+			if (crew.max_rarity === 4) {
+				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is an exclusive that will **never** be in the time portal.`;
+			}
+			else if (crew.max_rarity === 5) {
+				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is an exclusive that will **never** be in the time portal.`;
+			}
+		}
+		else {
+			if (crew.max_rarity === 4) {
+				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is not in the time portal.`;
+			}
+			else if (crew.max_rarity === 5) {
+				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is not in the time portal.`;
+			}
+		}
+	}
+	else if (!crew.unique_polestar_combos?.length) {
+		if (crew.max_rarity === 4) {
+			reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is **not** uniquely retrievable.`;
+		}
+		else if (crew.max_rarity === 5) {
+			reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is **not** uniquely retrievable.`;
+		}
+	}
+	reply += `\nObtained Via: **${printObtained(crew)}**`;
 	return reply;
+}
+
+function printObtained(crew: Definitions.BotCrew) {
+	switch(crew.obtained) {
+		case "BossBattle":
+			return "Captain's Bridge";
+		case "HonorHall":
+			return "Honor Hall";
+		case "Fuse":
+			return "Exclusive Fusion";
+		case "Collection":
+			return "Collection Milestone";
+		default:
+			return crew.obtained;
+	}
 }
 
 interface CrewFromBehold {
