@@ -87,27 +87,27 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	if (!crew.in_portal) {
 		if (['HonorHall', 'Voyage', 'Collection', 'Gauntlet', 'Achievement', 'BossBattle', 'Fuse', 'Faction', 'Missions'].includes(crew.obtained)) {
 			if (crew.max_rarity === 4) {
-				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
+				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} **${crew.name}** is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
 			}
 			else if (crew.max_rarity === 5) {
-				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
+				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} **${crew.name}** is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
 			}
 		}
 		else {
 			if (crew.max_rarity === 4) {
-				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is not in the time portal.`;
+				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} **${crew.name}** is not in the time portal.`;
 			}
 			else if (crew.max_rarity === 5) {
-				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is not in the time portal.`;
+				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} **${crew.name}** is not in the time portal.`;
 			}
 		}
 	}
 	else if (!crew.unique_polestar_combos?.length) {
 		if (crew.max_rarity === 4) {
-			reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is **not** uniquely retrievable.`;
+			reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} **${crew.name}** is **not** uniquely retrievable.`;
 		}
 		else if (crew.max_rarity === 5) {
-			reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is **not** uniquely retrievable.`;
+			reply += `\n\n${getEmoteOrString(message, 'legendary', '')} **${crew.name}** is **not** uniquely retrievable.`;
 		}
 	}
 	return reply;
