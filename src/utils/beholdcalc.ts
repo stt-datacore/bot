@@ -87,10 +87,10 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	if (!crew.in_portal) {
 		if (['HonorHall', 'Voyage', 'Collection', 'Gauntlet', 'Achievement', 'BossBattle', 'Fuse', 'Faction', 'Missions'].includes(crew.obtained)) {
 			if (crew.max_rarity === 4) {
-				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is an exclusive that will **never** be in the time portal.`;
+				reply += `\n\n${getEmoteOrString(message, 'super_rare', '')} Crew is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
 			}
 			else if (crew.max_rarity === 5) {
-				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is an exclusive that will **never** be in the time portal.`;
+				reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
 			}
 		}
 		else {
@@ -110,7 +110,6 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 			reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is **not** uniquely retrievable.`;
 		}
 	}
-	reply += `\n\nObtained Via: **${printObtained(crew)}**`;
 	return reply;
 }
 
@@ -121,9 +120,7 @@ function printObtained(crew: Definitions.BotCrew) {
 		case "HonorHall":
 			return "Honor Hall";
 		case "Fuse":
-			return "Exclusive Fusion";
-		case "Collection":
-			return "Collection Milestone";
+			return "Fusion";
 		default:
 			return crew.obtained;
 	}
