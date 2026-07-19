@@ -110,7 +110,7 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 			reply += `\n\n${getEmoteOrString(message, 'legendary', '')} Crew is **not** uniquely retrievable.`;
 		}
 	}
-	reply += `\nObtained Via: **${printObtained(crew)}**`;
+	reply += `\n\nObtained Via: **${printObtained(crew)}**`;
 	return reply;
 }
 
