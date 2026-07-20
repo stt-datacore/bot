@@ -235,6 +235,12 @@ class DCDataClass {
 		searchString: string,
 		includeTraits: boolean
 	) {
+		searchString = searchString
+						.replace(/"/g, '')
+						.replace(/'/g, '')
+						.replace(/“/g, '')
+						.replace(/’/g, '');
+
 		let options = {
 			shouldSort: true,
 			tokenize: true,
