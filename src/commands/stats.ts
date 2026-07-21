@@ -213,7 +213,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		let mdContent = crew.markdownContent;
-		mdContent += `\n\n[More at DataCore](https://datacore.app/crew/${crew.symbol})`;
+		mdContent += `[More at DataCore](https://datacore.app/crew/${crew.symbol})`;
 
 		if (extended && crew.cap_achiever?.name) {
 			embed = embed.addFields({
