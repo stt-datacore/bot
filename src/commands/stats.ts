@@ -111,7 +111,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			embed = embed.addFields({ name: '', value: crew.flavor });
 		}
 
-		embed = embed.addFields({ name: 'Traits', value: `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*` });
+		embed = embed.addFields({ name: 'Traits', value: `${crew.traits_named.join(', ')}*\n\n${crew.traits_hidden.join(', ')}*` });
 
 		if (!base) {
 			let user = await userFromMessage(message);
@@ -223,7 +223,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		if (extended && mdContent && mdContent.length < 980) {
-			mdContent = printPortalText(message, crew) + "\n" + mdContent;
+			mdContent = printPortalText(message, crew) + "\n\n" + mdContent;
 			embed = embed.addFields({ name: 'DataCore Note', value: mdContent });
 			embed = addAuthorNotes(crew, embed);
 		}
