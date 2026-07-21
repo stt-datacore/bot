@@ -15,6 +15,7 @@ import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import { loadProfile, userFromMessage, applyCrewBuffs, toTimestamp } from '../utils/profile';
 import CONFIG from '../utils/config';
 import { Definitions } from '../utils/definitions';
+import { printObtained } from 'src/utils/beholdcalc';
 
 function getDifficulty(chronCostRank: number): string {
 	let percentage = Math.round(100 - (chronCostRank * 100) / DCData.totalCrew());
@@ -106,6 +107,9 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		if (extended && crew.nicknames && crew.nicknames.length > 0 && crew.nicknames[0].cleverThing && crew.nicknames[0].creator) {
 			embed = embed.addFields({ name: 'Also known as', value: `${crew.nicknames.map((n) => `${n.cleverThing}${n.creator ? ` (coined by _${n.creator}_)` : ''}`).join(', ')}` });
 		}
+		if (extended && crew.flavor) {
+			embed = embed.addFields({ name: '', value: crew.flavor });
+		}
 
 		embed = embed.addFields({ name: 'Traits', value: `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*` });
 
@@ -186,7 +190,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 		if (extended) {
 			let bonusType = getBonusType(crew.action.bonus_type);
-			let shipAbilities = `+${crew.action.bonus_amount} ${getEmoteOrString(message, bonusType, bonusType)} | **Initialize:** ${
+			let shipAbilities = `${crew.action.ability_text}\n+${crew.action.bonus_amount} ${getEmoteOrString(message, bonusType, bonusType)} | **Initialize:** ${
 				crew.action.initial_cooldown
 			}s | **Duration:** ${crew.action.duration}s | **Cooldown:** ${crew.action.cooldown}s`;
 
@@ -219,6 +223,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		if (extended && mdContent && mdContent.length < 980) {
+			mdContent = printPortalText(message, crew) + "\n" + mdContent;
 			embed = embed.addFields({ name: 'DataCore Note', value: mdContent });
 			embed = addAuthorNotes(crew, embed);
 		}
@@ -287,6 +292,37 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 			}
 		}
 	}
+}
+
+function printPortalText(message: Message, crew: Definitions.BotCrew) {
+	let reply = '';
+	if (!crew.in_portal) {
+		if (['HonorHall', 'Voyage', 'Collection', 'Gauntlet', 'Achievement', 'BossBattle', 'Fuse', 'Faction', 'Missions'].includes(crew.obtained)) {
+			if (crew.max_rarity === 4) {
+				reply += `${getEmoteOrString(message, 'super_rare', '')} **${crew.name}** is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
+			}
+			else if (crew.max_rarity === 5) {
+				reply += `${getEmoteOrString(message, 'legendary', '')} **${crew.name}** is a **${printObtained(crew)}** exclusive that will **never** be in the time portal.`;
+			}
+		}
+		else {
+			if (crew.max_rarity === 4) {
+				reply += `${getEmoteOrString(message, 'super_rare', '')} **${crew.name}** is not in the time portal.`;
+			}
+			else if (crew.max_rarity === 5) {
+				reply += `${getEmoteOrString(message, 'legendary', '')} **${crew.name}** is not in the time portal.`;
+			}
+		}
+	}
+	else if (!crew.unique_polestar_combos?.length) {
+		if (crew.max_rarity === 4) {
+			reply += `${getEmoteOrString(message, 'super_rare', '')} **${crew.name}** is **not** uniquely retrievable.`;
+		}
+		else if (crew.max_rarity === 5) {
+			reply += `${getEmoteOrString(message, 'legendary', '')} **${crew.name}** is **not** uniquely retrievable.`;
+		}
+	}
+	return reply;
 }
 
 class Stats implements Definitions.Command {

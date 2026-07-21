@@ -113,7 +113,7 @@ export function formatCrewField(message: Message, crew: Definitions.BotCrew, sta
 	return reply;
 }
 
-function printObtained(crew: Definitions.BotCrew) {
+export function printObtained(crew: Definitions.BotCrew) {
 	switch(crew.obtained) {
 		case "BossBattle":
 			return "Captain's Bridge";
