@@ -323,7 +323,7 @@ function printPortalText(message: Message, crew: Definitions.BotCrew) {
 		}
 	}
 	else {
-		reply = `**${crew.name}** is uniquely retrievable. (${crew.unique_polestar_combos?.length} unique combinations)`;
+		reply = `**${crew.name}** is uniquely retrievable.\n(${crew.unique_polestar_combos?.length} unique combinations)`;
 	}
 	return reply;
 }
