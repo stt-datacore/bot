@@ -322,6 +322,9 @@ function printPortalText(message: Message, crew: Definitions.BotCrew) {
 			reply += `${getEmoteOrString(message, 'legendary', '')} **${crew.name}** is **not** uniquely retrievable.`;
 		}
 	}
+	else {
+		reply = `**${crew.name}** is uniquely retrievable. (${crew.unique_polestar_combos?.length} unique combinations)`;
+	}
 	return reply;
 }
 
