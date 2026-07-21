@@ -190,7 +190,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 		if (extended) {
 			let bonusType = getBonusType(crew.action.bonus_type);
-			let shipAbilities = `**${crew.action.name}**\n+${crew.action.bonus_amount} ${getEmoteOrString(message, bonusType, bonusType, true)} | **Initialize:** ${
+			let shipAbilities = `**${crew.action.name}**\n+${crew.action.bonus_amount} ${getEmoteOrString(message, bonusType, bonusType[0].toUpperCase() + bonusType.slice(1), true)} | **Initialize:** ${
 				crew.action.initial_cooldown
 			}s | **Duration:** ${crew.action.duration}s | **Cooldown:** ${crew.action.cooldown}s`;
 
